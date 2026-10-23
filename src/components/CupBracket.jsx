@@ -1,5 +1,6 @@
 import React from 'react';
 import { Award, Trophy, ChevronRight } from 'lucide-react';
+import { ClubBadge } from './ClubBadge';
 
 export function CupBracket({ cupState, allClubs, userClubId }) {
   if (!cupState) return null;
@@ -26,7 +27,7 @@ export function CupBracket({ cupState, allClubs, userClubId }) {
         {/* Home Row */}
         <div className={`flex items-center justify-between py-1 px-1.5 rounded ${match.winnerId === home?.id ? 'bg-emerald-500/15 font-bold text-emerald-300' : 'text-slate-300'}`}>
           <div className="flex items-center gap-2 truncate">
-            <span className="text-base">{home?.badgeEmoji}</span>
+            <ClubBadge club={home} size="xs" />
             <span className="truncate">{home?.name}</span>
           </div>
           <span className="font-mono font-bold text-sm">
@@ -37,7 +38,7 @@ export function CupBracket({ cupState, allClubs, userClubId }) {
         {/* Away Row */}
         <div className={`flex items-center justify-between py-1 px-1.5 rounded mt-0.5 ${match.winnerId === away?.id ? 'bg-emerald-500/15 font-bold text-emerald-300' : 'text-slate-300'}`}>
           <div className="flex items-center gap-2 truncate">
-            <span className="text-base">{away?.badgeEmoji}</span>
+            <ClubBadge club={away} size="xs" />
             <span className="truncate">{away?.name}</span>
           </div>
           <span className="font-mono font-bold text-sm">
@@ -75,8 +76,8 @@ export function CupBracket({ cupState, allClubs, userClubId }) {
             <Trophy className="text-yellow-400" size={24} />
             <div>
               <span className="text-[10px] text-yellow-400 uppercase font-black tracking-wider block">Campeão da Copa</span>
-              <span className="text-sm font-bold text-white flex items-center gap-1.5">
-                {champion.badgeEmoji} {champion.name}
+              <span className="text-sm font-bold text-white flex items-center gap-2">
+                <ClubBadge club={champion} size="xs" /> {champion.name}
               </span>
             </div>
           </div>

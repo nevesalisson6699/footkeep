@@ -7,6 +7,7 @@ import {
   Check, 
   AlertTriangle 
 } from 'lucide-react';
+import { ClubBadge } from './ClubBadge';
 
 export function TransfersMarket({ 
   allPlayers, 
@@ -184,7 +185,7 @@ export function TransfersMarket({
                       <td className="py-2.5 px-3 text-slate-400 flex items-center gap-1.5">
                         {club ? (
                           <>
-                            <span>{club.badgeEmoji}</span>
+                            <ClubBadge club={club} size="xs" />
                             <span>{club.shortName}</span>
                           </>
                         ) : (

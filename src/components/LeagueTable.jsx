@@ -1,5 +1,6 @@
 import React from 'react';
 import { Table, Trophy, Flame } from 'lucide-react';
+import { ClubBadge } from './ClubBadge';
 
 export function LeagueTable({ standings, userClubId, allPlayers, allClubs }) {
   // Compute top goalscorers from all players
@@ -80,7 +81,7 @@ export function LeagueTable({ standings, userClubId, allPlayers, allClubs }) {
                       {rank}
                     </td>
                     <td className="py-2.5 px-3 flex items-center gap-2.5">
-                      <span className="text-lg">{team.badgeEmoji}</span>
+                      <ClubBadge club={allClubs?.find(c => c.id === team.clubId) || team} size="xs" />
                       <span className="font-semibold text-slate-100">
                         {team.name} {isUser && <span className="text-[10px] text-emerald-400 font-bold ml-1">(VOCÊ)</span>}
                       </span>

@@ -9,8 +9,11 @@ import {
   DollarSign, 
   Save, 
   Shield,
-  Calendar
+  Calendar,
+  PlusCircle,
+  UserCheck
 } from 'lucide-react';
+import { ClubBadge } from './ClubBadge';
 
 export function Navbar({ 
   currentTab, 
@@ -18,7 +21,9 @@ export function Navbar({
   userClub, 
   currentRound, 
   budget, 
-  onOpenSaveModal 
+  managerProfile,
+  onOpenSaveModal,
+  onOpenCareerModal
 }) {
   const tabs = [
     { id: 'dashboard', label: 'Visão Geral', icon: Shield },
@@ -54,7 +59,7 @@ export function Navbar({
                   FOOT<span className="text-emerald-400">KEEP</span>
                 </span>
                 <span className="text-[9px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/30">
-                  PRO
+                  2024
                 </span>
               </div>
               <span className="text-[10px] text-slate-400 font-medium tracking-wide block">
@@ -65,14 +70,18 @@ export function Navbar({
 
           {/* User Club Active Widget */}
           {userClub && (
-            <div className="flex items-center gap-4 bg-slate-900/90 px-3.5 py-1.5 rounded-xl border border-slate-800 shadow-inner">
+            <div className="flex items-center gap-3.5 bg-slate-900/90 px-3.5 py-1.5 rounded-xl border border-slate-800 shadow-inner">
               <div className="flex items-center gap-2.5">
-                <span className="text-2xl drop-shadow">{userClub.badgeEmoji}</span>
+                <ClubBadge club={userClub} size="sm" />
                 <div>
                   <span className="text-xs font-bold text-white block leading-tight">{userClub.name}</span>
                   <span className="text-[10px] text-slate-400 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
-                    Série A • Reputação {userClub.reputation}
+                    {managerProfile?.coachName ? (
+                      <span className="text-amber-300 font-medium truncate max-w-[130px]">{managerProfile.coachName}</span>
+                    ) : (
+                      <span>Série A • Rep. {userClub.reputation}</span>
+                    )}
                   </span>
                 </div>
               </div>
@@ -89,12 +98,21 @@ export function Navbar({
             </div>
           )}
 
-          {/* Quick Actions (Round + Save) */}
+          {/* Quick Actions (Round + New Career + Save) */}
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 bg-emerald-950/50 border border-emerald-500/30 px-3 py-1 rounded-lg text-xs font-bold text-emerald-300">
               <Calendar size={13} className="text-emerald-400" />
               <span>Rodada {currentRound}/30</span>
             </div>
+
+            <button
+              onClick={onOpenCareerModal}
+              title="Iniciar nova carreira ou criar novo treinador"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 text-xs font-semibold transition"
+            >
+              <Trophy size={14} />
+              <span className="hidden sm:inline">Nova Carreira</span>
+            </button>
 
             <button
               onClick={onOpenSaveModal}

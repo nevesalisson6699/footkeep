@@ -12,6 +12,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { simulateFullMatch } from '../engine/matchSimulator';
+import { ClubBadge } from './ClubBadge';
 
 export function MatchView({ 
   userClub, 
@@ -162,12 +163,7 @@ export function MatchView({
           
           {/* Home Club */}
           <div className="flex-1 flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
-            <div 
-              className="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-4xl shadow-xl border-2"
-              style={{ backgroundColor: homeClub?.colors.primary, borderColor: '#ffffff33' }}
-            >
-              {homeClub?.badgeEmoji}
-            </div>
+            <ClubBadge club={homeClub} size="xl" className="shadow-2xl" />
             <div>
               <h2 className="text-lg md:text-2xl font-black text-white">{homeClub?.name}</h2>
               <span className="text-xs text-slate-400">MANDANTE {isUserHome ? '(SEU TIME)' : ''}</span>
@@ -191,12 +187,7 @@ export function MatchView({
 
           {/* Away Club */}
           <div className="flex-1 flex flex-col md:flex-row-reverse items-center gap-4 text-center md:text-right">
-            <div 
-              className="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-4xl shadow-xl border-2"
-              style={{ backgroundColor: awayClub?.colors.primary, borderColor: '#ffffff33' }}
-            >
-              {awayClub?.badgeEmoji}
-            </div>
+            <ClubBadge club={awayClub} size="xl" className="shadow-2xl" />
             <div>
               <h2 className="text-lg md:text-2xl font-black text-white">{awayClub?.name}</h2>
               <span className="text-xs text-slate-400">VISITANTE {!isUserHome ? '(SEU TIME)' : ''}</span>

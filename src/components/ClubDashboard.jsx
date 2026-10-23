@@ -11,8 +11,10 @@ import {
   Award,
   Star,
   Shield,
-  ArrowRight
+  ArrowRight,
+  UserCheck
 } from 'lucide-react';
+import { ClubBadge } from './ClubBadge';
 
 export function ClubDashboard({ 
   userClub, 
@@ -22,6 +24,7 @@ export function ClubDashboard({
   squad, 
   budget, 
   currentRound, 
+  managerProfile,
   onGoToMatch, 
   onGoToTactics, 
   onGoToTransfers 
@@ -55,38 +58,41 @@ export function ClubDashboard({
       <div 
         className="relative overflow-hidden rounded-xl border border-emerald-900/50 shadow-xl"
         style={{
-          background: `linear-gradient(135deg, ${userClub.colors.primary}44 0%, #0d1a12 40%, #090d16 100%)`
+          background: `linear-gradient(135deg, ${userClub.colors?.primary || '#166534'}44 0%, #0d1a12 40%, #090d16 100%)`
         }}
       >
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#22c55e_1px,transparent_1px)] [background-size:16px_16px]"></div>
 
         <div className="relative p-5 md:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div 
-              className="w-16 h-16 md:w-20 md:h-20 rounded-xl flex items-center justify-center text-4xl md:text-5xl shadow-xl border-2 shrink-0"
-              style={{ 
-                backgroundColor: userClub.colors.primary, 
-                borderColor: userClub.colors.secondary || '#ffffff44' 
-              }}
-            >
-              {userClub.badgeEmoji}
-            </div>
+            <ClubBadge club={userClub} size="xl" className="shadow-2xl" />
 
             <div>
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
                 <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">
-                  Série A
+                  Série A 2024
                 </span>
                 <span className="text-[10px] font-semibold text-slate-400 bg-slate-900/80 px-2 py-0.5 rounded border border-slate-800">
                   {userClub.city}
                 </span>
+                {managerProfile?.coachName && (
+                  <span className="text-[10px] font-bold text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800 flex items-center gap-1">
+                    <UserCheck size={12} className="text-amber-400" />
+                    {managerProfile.coachName}
+                  </span>
+                )}
+                {managerProfile?.investmentAmount > 0 && (
+                  <span className="text-[10px] font-bold text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800">
+                    Aporte: +{formatCurrency(managerProfile.investmentAmount)}
+                  </span>
+                )}
               </div>
               <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight">
-                {userClub.name}
+                {userClub.fullName || userClub.name}
               </h1>
               <div className="flex items-center gap-2 text-xs text-slate-300 mt-1">
                 <MapPin size={13} className="text-emerald-400 shrink-0" />
-                <span>{userClub.stadium} • {userClub.stadiumCapacity.toLocaleString('pt-BR')} lugares</span>
+                <span>{userClub.stadium} • {userClub.stadiumCapacity?.toLocaleString('pt-BR')} lugares</span>
               </div>
             </div>
           </div>
@@ -143,15 +149,7 @@ export function ClubDashboard({
                   
                   {/* Home Club */}
                   <div className="flex-1 flex flex-col items-center text-center">
-                    <div 
-                      className="w-16 h-16 rounded-xl flex items-center justify-center text-3xl shadow-lg border-2 mb-2 transition-transform hover:scale-105"
-                      style={{ 
-                        backgroundColor: isHome ? userClub.colors.primary : opponentClub.colors.primary,
-                        borderColor: '#ffffff33'
-                      }}
-                    >
-                      {isHome ? userClub.badgeEmoji : opponentClub.badgeEmoji}
-                    </div>
+                    <ClubBadge club={isHome ? userClub : opponentClub} size="xl" className="mb-2" />
                     <span className="text-sm font-bold text-white line-clamp-1">
                       {isHome ? userClub.name : opponentClub.name}
                     </span>
@@ -170,15 +168,7 @@ export function ClubDashboard({
 
                   {/* Away Club */}
                   <div className="flex-1 flex flex-col items-center text-center">
-                    <div 
-                      className="w-16 h-16 rounded-xl flex items-center justify-center text-3xl shadow-lg border-2 mb-2 transition-transform hover:scale-105"
-                      style={{ 
-                        backgroundColor: !isHome ? userClub.colors.primary : opponentClub.colors.primary,
-                        borderColor: '#ffffff33'
-                      }}
-                    >
-                      {!isHome ? userClub.badgeEmoji : opponentClub.badgeEmoji}
-                    </div>
+                    <ClubBadge club={!isHome ? userClub : opponentClub} size="xl" className="mb-2" />
                     <span className="text-sm font-bold text-white line-clamp-1">
                       {!isHome ? userClub.name : opponentClub.name}
                     </span>
@@ -219,92 +209,85 @@ export function ClubDashboard({
               className="py-3 px-4 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition flex items-center justify-center gap-1.5"
             >
               <Users size={15} />
-              <span>Definir Tática</span>
+              <span>Ajustar Tática</span>
             </button>
           </div>
         </div>
 
-        {/* Right Side Compact Cards (5 Cols) */}
-        <div className="lg:col-span-5 space-y-3">
+        {/* Squad & Star Players Panel (5 Cols) */}
+        <div className="lg:col-span-5 space-y-4">
           
-          {/* Best Player Card */}
+          {/* Top Star Card */}
           {bestPlayer && (
-            <div className="game-card p-3.5 border-slate-800 flex items-center justify-between">
+            <div className="game-card p-4 border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-teko text-2xl font-bold text-emerald-400">
-                  {Math.round(bestPlayer.overall)}
+                <div className="w-11 h-11 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-teko text-2xl font-bold">
+                  {bestPlayer.overall}
                 </div>
                 <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className={`badge badge-pos-${bestPlayer.position} text-[9px] px-1.5 py-0.5`}>
-                      {bestPlayer.position}
-                    </span>
-                    <span className="text-xs font-bold text-white line-clamp-1">{bestPlayer.name}</span>
-                  </div>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">
-                    Craque do Time • {bestPlayer.age} anos • {formatCurrency(bestPlayer.value)}
+                  <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">Craque do Time</span>
+                  <h4 className="font-bold text-white text-sm">{bestPlayer.name}</h4>
+                  <span className="text-xs text-slate-400">
+                    Posição: <b className="text-white">{bestPlayer.position}</b> • {bestPlayer.age} anos
                   </span>
                 </div>
               </div>
-              <Star size={16} className="text-yellow-400 shrink-0" />
+              <span className="font-mono text-xs font-semibold text-slate-300">
+                {formatCurrency(bestPlayer.value)}
+              </span>
             </div>
           )}
 
           {/* Top Scorer Card */}
           {topScorer && (
-            <div className="game-card p-3.5 border-slate-800 flex items-center justify-between">
+            <div className="game-card p-4 border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-rose-950/40 border border-rose-500/40 flex items-center justify-center font-teko text-2xl font-bold text-rose-400">
-                  {topScorer.goals || 0}
+                <div className="w-11 h-11 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                  <Flame size={20} />
                 </div>
                 <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1">
-                      <Flame size={12} /> Artilheiro
-                    </span>
-                  </div>
-                  <span className="text-xs font-bold text-white block">{topScorer.name}</span>
-                  <span className="text-[10px] text-slate-400">{topScorer.goals || 0} gols marcados nesta temporada</span>
+                  <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">Artilheiro</span>
+                  <h4 className="font-bold text-white text-sm">{topScorer.name}</h4>
+                  <span className="text-xs text-slate-400">
+                    Gols marcados: <b className="text-amber-400">{topScorer.goals || 0}</b> gols
+                  </span>
                 </div>
               </div>
-              <span className={`badge badge-pos-${topScorer.position} text-[9px] px-1.5 py-0.5`}>
-                {topScorer.position}
-              </span>
+              <button 
+                onClick={onGoToTactics}
+                className="text-xs text-slate-400 hover:text-emerald-400 transition"
+              >
+                Ver elenco →
+              </button>
             </div>
           )}
 
-          {/* Squad & Market Quick Access */}
+          {/* Quick Roster Snapshot */}
           <div className="game-card p-4 border-slate-800">
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/80">
-              <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+            <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800 text-xs">
+              <span className="font-bold text-slate-300 flex items-center gap-1.5">
                 <Users size={14} className="text-emerald-400" />
-                Resumo do Elenco
+                Resumo do Plantel ({squad.length} atletas)
               </span>
-              <span className="text-xs font-bold text-white">{squad.length} atletas</span>
+              <button 
+                onClick={onGoToTransfers}
+                className="text-[11px] text-emerald-400 hover:underline flex items-center gap-1 font-semibold"
+              >
+                Mercado <ArrowRight size={12} />
+              </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-center text-xs">
-              <div className="bg-slate-900/60 p-2 rounded border border-slate-800">
-                <span className="text-[10px] text-slate-400 block">Folha Salarial</span>
-                <span className="font-bold text-white text-[11px]">
-                  {formatCurrency(squad.reduce((s, p) => s + (p.salary || 0), 0))} / sem
-                </span>
-              </div>
-              <div className="bg-slate-900/60 p-2 rounded border border-slate-800">
-                <span className="text-[10px] text-slate-400 block">Listados à Venda</span>
-                <span className="font-bold text-emerald-400 text-[11px]">
-                  {squad.filter(p => p.isListed).length} atletas
-                </span>
-              </div>
+            <div className="grid grid-cols-6 gap-1.5 text-center">
+              {['G', 'Z', 'L', 'V', 'M', 'A'].map(pos => {
+                const count = squad.filter(p => p.position === pos).length;
+                return (
+                  <div key={pos} className="bg-slate-900/60 p-2 rounded-lg border border-slate-800/80">
+                    <span className="text-[10px] font-bold text-slate-400 block">{pos}</span>
+                    <span className="font-teko text-lg font-bold text-white leading-none">{count}</span>
+                  </div>
+                );
+              })}
             </div>
-
-            <button
-              onClick={onGoToTransfers}
-              className="w-full mt-2.5 py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition flex items-center justify-center gap-1.5"
-            >
-              <span>Mercado de Transferências</span>
-              <ArrowRight size={13} />
-            </button>
           </div>
 
         </div>
