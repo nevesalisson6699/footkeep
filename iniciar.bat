@@ -12,6 +12,10 @@ if not exist "node_modules" (
     call npm install
 )
 
-echo Abrindo Footkeep no navegador...
-start http://localhost:3000
-call npm run dev
+echo Iniciando servidor Vite na porta 3000...
+echo O jogo abrira automaticamente no seu navegador.
+echo (Para parar o servidor, feche esta janela)
+echo.
+
+call npx vite --host 0.0.0.0 --port 3000 --open
+pause
