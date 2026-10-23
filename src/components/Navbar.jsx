@@ -11,9 +11,11 @@ import {
   Shield,
   Calendar,
   PlusCircle,
-  UserCheck
+  UserCheck,
+  Settings
 } from 'lucide-react';
 import { ClubBadge } from './ClubBadge';
+import { FootkeepLogo } from './FootkeepLogo';
 
 export function Navbar({ 
   currentTab, 
@@ -32,7 +34,8 @@ export function Navbar({
     { id: 'league', label: 'Liga Nacional', icon: Table },
     { id: 'cup', label: 'Copa Footkeep', icon: Award },
     { id: 'transfers', label: 'Transferências', icon: ArrowLeftRight },
-    { id: 'finances', label: 'Finanças', icon: DollarSign }
+    { id: 'finances', label: 'Finanças', icon: DollarSign },
+    { id: 'settings', label: 'Configurações', icon: Settings }
   ];
 
   const formatCurrency = (val) => {
@@ -47,25 +50,10 @@ export function Navbar({
           
           {/* Logo */}
           <div 
-            className="flex items-center gap-2.5 cursor-pointer select-none group" 
+            className="cursor-pointer select-none" 
             onClick={() => setCurrentTab('dashboard')}
           >
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-green-700 flex items-center justify-center shadow-lg shadow-emerald-500/30 text-white font-teko text-2xl font-bold tracking-wider group-hover:scale-105 transition-transform">
-              FK
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5 leading-none">
-                <span className="font-teko text-2xl tracking-wider font-extrabold text-white uppercase">
-                  FOOT<span className="text-emerald-400">KEEP</span>
-                </span>
-                <span className="text-[9px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/30">
-                  2024
-                </span>
-              </div>
-              <span className="text-[10px] text-slate-400 font-medium tracking-wide block">
-                Simulador de Gestão de Futebol
-              </span>
-            </div>
+            <FootkeepLogo size="md" variant="horizontal" subtitleText="GESTOR DE FUTEBOL" />
           </div>
 
           {/* User Club Active Widget */}

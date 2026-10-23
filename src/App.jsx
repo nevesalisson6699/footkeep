@@ -19,6 +19,7 @@ import { LeagueTable } from './components/LeagueTable';
 import { CupBracket } from './components/CupBracket';
 import { TransfersMarket } from './components/TransfersMarket';
 import { FinancesView } from './components/FinancesView';
+import { SettingsView } from './components/SettingsView';
 import { SaveLoadModal } from './components/SaveLoadModal';
 import { CareerCreationModal } from './components/CareerCreationModal';
 
@@ -555,6 +556,28 @@ export function App() {
             budget={budget}
             currentRound={currentRound}
             awardedPrizes={awardedPrizes}
+          />
+        )}
+
+        {currentTab === 'settings' && (
+          <SettingsView 
+            userClub={userClub}
+            currentRound={currentRound}
+            managerProfile={managerProfile}
+            onLogout={() => {
+              // Sair para tela de onboarding / login sem apagar o progresso da carreira
+              setIsCareerModalOpen(true);
+            }}
+            onResetCareer={() => {
+              // Apagar carreira atual: limpa save do localStorage e re-inicializa
+              try {
+                localStorage.removeItem(STORAGE_KEY);
+              } catch (e) {
+                console.warn('Erro ao remover save:', e);
+              }
+              initDefaultCareer('fla');
+              setIsCareerModalOpen(true);
+            }}
           />
         )}
       </main>

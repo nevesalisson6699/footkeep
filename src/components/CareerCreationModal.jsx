@@ -20,6 +20,7 @@ import {
 import { REAL_CLUBS } from '../data/realClubs';
 import { INITIAL_CLUBS } from '../data/initialClubs';
 import { ClubBadge } from './ClubBadge';
+import { FootkeepLogo } from './FootkeepLogo';
 import { POSITIONS } from '../data/initialPlayers';
 
 const INVESTMENT_OPTIONS = [
@@ -280,13 +281,11 @@ export function CareerCreationModal({ isOpen, onStartCareer, currentClubId = 'fl
         
         {/* Modal Header */}
         <div className="p-6 md:p-7 bg-gradient-to-r from-emerald-950/70 via-slate-900 to-slate-900 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-              <Trophy size={26} />
-            </div>
+          <div className="flex items-center gap-3.5">
+            <FootkeepLogo size="md" variant="icon" />
             <div>
               <span className="text-[11px] font-bold tracking-widest uppercase text-emerald-400 block">
-                Footkeep 2.0 • Temporada 2024 / 2025
+                Footkeep 2.0 • Temporada Oficial
               </span>
               <h1 className="text-xl md:text-2xl font-black text-white">
                 Iniciar Nova Carreira de Treinador

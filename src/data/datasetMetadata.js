@@ -39,7 +39,13 @@ export const DATASET_METADATA = {
       policy: 'Escudos Provisórios Originais Vetoriais (SVG)',
       license: 'Original Footkeep Creative Assets / MIT',
       terms: 'Para estrito cumprimento de direitos de propriedade intelectual de marcas e símbolos esportivos, o jogo utiliza escudos provisórios vetoriais originais baseados na heráldica, nas cores e nos monogramas clássicos de cada agremiação. A arquitetura do sistema inclui o campo badgeUrl para permitir carregamento dinâmico de arquivos proprietários autorizados caso a agremiação conceda licença ou o usuário forneça sua própria base de mídia.',
-      author: 'Footkeep Studio'
+      author: 'Footkeep Studio',
+      escudosWebAudit: {
+        sourceUrl: 'https://www.escudosweb.com/escudos-brasil',
+        legalFramework: 'Lei 9.279/1996 (Propriedade Industrial) e Lei 14.597/2023 (Lei Geral do Esporte)',
+        assessment: 'O portal Escudosweb atua como repositório de consulta visual e preservação histórica dos emblemas. Conforme a legislação brasileira e os termos de uso aplicáveis, os direitos de marca e uso de imagem dos escudos pertencem de forma privativa e inalienável a cada clube esportivo e federação. O sistema de assinaturas VIP do portal viabiliza downloads em alta definição para uso pessoal/editorial de referência, porém NÃO confere nem transfere licença de redistribuição comercial ou integração em software/games de terceiros.',
+        complianceStrategy: 'Total conformidade legal adotada pelo Footkeep: nenhum logotipo de clube de terceiros é embutido sem cessão contratual direta. O Footkeep renderiza escudos geométricos vetoriais próprios em SVG paramétrico com as cores e monogramas institucionais, preservando o campo desacoplado badgeUrl: null para permitir skinning local pelo usuário final.'
+      }
     },
     refereeingAndOfficiating: {
       origin: 'Comissão de Arbitragem da Confederação Brasileira de Futebol (CBF) & Quadro FIFA',
@@ -50,8 +56,13 @@ export const DATASET_METADATA = {
     season2026Framework: {
       origin: 'Boletim Informativo Diário (BID / CBF), páginas oficiais dos clubes e relatórios institucionais',
       consultationDate: 'Outubro de 2026',
-      targetCycle: 'Temporada 2026 / 2027',
-      description: 'Auditoria de vínculos federativos vigentes com separação estrita entre contratos confirmados de longo prazo (2027/2028), contratos expirando em 2026, transferências confirmadas (ex: Estêvão, De La Cruz, Felipe Anderson, Alcaraz) e pendências aguardando abertura oficial de janela.',
+      targetCycle: 'Temporada 2026 (Ano Calendário Oficial da CBF)',
+      competitionsCoverage: {
+        serieA: '20 clubes participantes confirmados para o Brasileirão Série A 2026',
+        serieB: '20 clubes participantes confirmados para o Brasileirão Série B 2026',
+        totalTeams: 40
+      },
+      description: 'Auditoria de vínculos federativos vigentes com separação estrita entre contratos confirmados de longo prazo (2027/2028), contratos expirando em 2026, transferências confirmadas (ex: Estêvão ao Chelsea, De La Cruz, Felipe Anderson, Alcaraz) e pendências aguardando abertura oficial de janela/homologação federativa.',
       policy: 'Não trata rumores como negócios confirmados. Todas as movimentações pendentes permanecem categorizadas como aguardando homologação do BID.'
     }
   }
