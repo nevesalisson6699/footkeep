@@ -8,10 +8,11 @@ export const DATASET_METADATA = {
   competitions: [
     {
       id: 'brasileirao_serie_a',
-      name: 'Campeonato Brasileiro Série A 2024',
+      name: 'Superliga Brasileira / Série A 2024 (G-16)',
       type: 'league',
       rounds: 30,
-      teamsCount: 16
+      teamsCount: 16,
+      formatNotes: 'Formato balanceado de 16 clubes em turno e returno (30 rodadas), reunindo os principais clubes do país (15 remanescentes da Série A 2024 somados ao Santos FC devido à relevância histórica e tradição nacional).'
     },
     {
       id: 'copa_do_brasil',

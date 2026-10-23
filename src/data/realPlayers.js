@@ -1,7 +1,7 @@
 // Real players dataset for Footkeep - Season 2024 (Campeonato Brasileiro Série A)
 // Consolidated public data from CBF official match reports and transfer registries.
 
-import { sortSquadForFormation } from './initialPlayers';
+import { sortSquadForFormation } from './initialPlayers.js';
 
 const RAW_REAL_PLAYERS = {
   fla: [
@@ -17,7 +17,7 @@ const RAW_REAL_PLAYERS = {
     { name: 'Erick Pulgar', pos: 'V', age: 30, ovr: 83, fin: 62, pas: 82, def: 84, fis: 80 },
     { name: 'Allan', pos: 'V', age: 27, ovr: 78, fin: 58, pas: 76, def: 79, fis: 80 },
     { name: 'Evertton Araújo', pos: 'V', age: 21, ovr: 75, fin: 52, pas: 74, def: 76, fis: 77 },
-    { name: 'Igor Jesus', pos: 'V', age: 21, ovr: 74, fin: 50, pas: 73, def: 75, fis: 76 },
+    { name: 'Igor Jesus (Vol)', pos: 'V', age: 21, ovr: 74, fin: 50, pas: 73, def: 75, fis: 76 },
     { name: 'Giorgian De Arrascaeta', pos: 'M', age: 30, ovr: 87, fin: 84, pas: 90, def: 55, fis: 74 },
     { name: 'Nicolás De la Cruz', pos: 'M', age: 27, ovr: 85, fin: 80, pas: 86, def: 74, fis: 83 },
     { name: 'Gerson', pos: 'M', age: 27, ovr: 86, fin: 79, pas: 87, def: 76, fis: 85 },
@@ -378,13 +378,16 @@ const REAL_FREE_AGENTS = [
   { name: 'Alexandre Pato', pos: 'A', age: 34, ovr: 77, fin: 82, pas: 76, def: 40, fis: 72 },
   { name: 'Diego Alves', pos: 'G', age: 38, ovr: 76, fin: 20, pas: 66, def: 79, fis: 70 },
   { name: 'Rodrigo Caio', pos: 'Z', age: 30, ovr: 78, fin: 45, pas: 74, def: 81, fis: 75 },
+  { name: 'Dedé Vital', pos: 'Z', age: 35, ovr: 75, fin: 44, pas: 64, def: 78, fis: 74 },
+  { name: 'Renzo Saravia', pos: 'L', age: 31, ovr: 77, fin: 52, pas: 74, def: 77, fis: 78 },
+  { name: 'Dodô Pires', pos: 'L', age: 32, ovr: 76, fin: 58, pas: 75, def: 76, fis: 73 },
+  { name: 'Mariano Ferreira', pos: 'L', age: 37, ovr: 76, fin: 56, pas: 76, def: 75, fis: 72 },
+  { name: 'Petros Araújo', pos: 'V', age: 34, ovr: 77, fin: 65, pas: 77, def: 79, fis: 76 },
+  { name: 'Júnior Urso', pos: 'V', age: 35, ovr: 75, fin: 66, pas: 75, def: 76, fis: 75 },
   { name: 'Luan Guilherme', pos: 'M', age: 31, ovr: 76, fin: 76, pas: 80, def: 50, fis: 72 },
   { name: 'Romarinho', pos: 'A', age: 33, ovr: 79, fin: 81, pas: 77, def: 46, fis: 78 },
-  { name: 'Dedé Vital', pos: 'Z', age: 35, ovr: 75, fin: 44, pas: 64, def: 78, fis: 74 },
-  { name: 'Petros Araújo', pos: 'V', age: 34, ovr: 77, fin: 65, pas: 77, def: 79, fis: 76 },
-  { name: 'Marrony Silva', pos: 'A', age: 25, ovr: 76, fin: 77, pas: 73, def: 48, fis: 80 },
   { name: 'Douglas Costa', pos: 'A', age: 33, ovr: 79, fin: 79, pas: 82, def: 42, fis: 76 },
-  { name: 'Júnior Urso', pos: 'V', age: 35, ovr: 75, fin: 66, pas: 75, def: 76, fis: 75 }
+  { name: 'Marrony Silva', pos: 'A', age: 25, ovr: 76, fin: 77, pas: 73, def: 48, fis: 80 }
 ];
 
 export function buildRealPlayers() {

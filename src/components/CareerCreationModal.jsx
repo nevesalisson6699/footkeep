@@ -13,7 +13,9 @@ import {
   Search, 
   ArrowRight,
   TrendingUp,
-  Briefcase
+  Briefcase,
+  X,
+  Lock
 } from 'lucide-react';
 import { REAL_CLUBS } from '../data/realClubs';
 import { INITIAL_CLUBS } from '../data/initialClubs';
@@ -47,7 +49,7 @@ const INVESTMENT_OPTIONS = [
   }
 ];
 
-export function CareerCreationModal({ isOpen, onStartCareer, currentClubId = 'fla' }) {
+export function CareerCreationModal({ isOpen, onStartCareer, currentClubId = 'fla', onClose }) {
   // Mode of clubs: real (Brasileirão 2024) or classic
   const [leagueMode, setLeagueMode] = useState('real'); // 'real' | 'classic'
 
@@ -92,6 +94,47 @@ export function CareerCreationModal({ isOpen, onStartCareer, currentClubId = 'fl
   const selectedClub = useMemo(() => {
     return clubsList.find(c => c.id === selectedClubId) || clubsList[0];
   }, [clubsList, selectedClubId]);
+
+  // Position distribution HUD for custom players
+  const positionCounts = useMemo(() => {
+    const counts = { G: 0, Z: 0, L: 0, V: 0, M: 0, A: 0 };
+    customPlayers.forEach(p => {
+      if (counts[p.position] !== undefined) counts[p.position]++;
+    });
+    return counts;
+  }, [customPlayers]);
+
+  // Stepper validation guard
+  const canGoToStep = (targetStep) => {
+    if (targetStep === 1) return true;
+    if (targetStep === 2) {
+      return Boolean(firstName.trim() && lastName.trim());
+    }
+    if (targetStep === 3) {
+      return Boolean(firstName.trim() && lastName.trim() && selectedClubId);
+    }
+    if (targetStep === 4) {
+      if (!firstName.trim() || !lastName.trim() || !selectedClubId) return false;
+      if (rosterMode === 'custom' && customPlayers.length === 0) return false;
+      return true;
+    }
+    return false;
+  };
+
+  const handleStepClick = (targetStep) => {
+    if (canGoToStep(targetStep)) {
+      setActiveStep(targetStep);
+      setErrorMessage('');
+    } else {
+      if (!firstName.trim() || !lastName.trim()) {
+        setErrorMessage('Preencha seu nome e sobrenome no Passo 1 antes de avançar.');
+      } else if (!selectedClubId) {
+        setErrorMessage('Selecione um clube no Passo 2 antes de avançar.');
+      } else if (rosterMode === 'custom' && customPlayers.length === 0) {
+        setErrorMessage('Cadastre pelo menos 1 atleta personalizado no Passo 3 antes de ir ao orçamento.');
+      }
+    }
+  };
 
   // Investment calculation
   const investmentData = INVESTMENT_OPTIONS.find(i => i.id === selectedInvestment) || INVESTMENT_OPTIONS[0];
@@ -251,53 +294,78 @@ export function CareerCreationModal({ isOpen, onStartCareer, currentClubId = 'fl
             </div>
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 bg-slate-950/70 px-3.5 py-1.5 rounded-xl border border-slate-800 text-xs font-semibold text-slate-300">
-            <Briefcase size={15} className="text-emerald-400" />
-            <span>Passo {activeStep} de 4</span>
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2 bg-slate-950/70 px-3.5 py-1.5 rounded-xl border border-slate-800 text-xs font-semibold text-slate-300">
+              <Briefcase size={15} className="text-emerald-400" />
+              <span>Passo {activeStep} de 4</span>
+            </div>
+
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition"
+                title="Fechar e Manter Carreira Atual"
+              >
+                <X size={20} />
+              </button>
+            )}
           </div>
         </div>
 
         {/* Step Indicator Tabs */}
         <div className="grid grid-cols-4 border-b border-slate-800 bg-slate-950/60 text-xs font-bold text-center">
           <button
-            onClick={() => setActiveStep(1)}
-            className={`py-3 px-2 border-b-2 transition ${
+            onClick={() => handleStepClick(1)}
+            className={`py-3 px-2 border-b-2 transition flex items-center justify-center gap-1.5 ${
               activeStep === 1 
                 ? 'border-emerald-500 text-emerald-400 bg-emerald-500/10' 
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
-            1. Perfil do Treinador
+            <span>1. Perfil</span>
           </button>
+
           <button
-            onClick={() => setActiveStep(2)}
-            className={`py-3 px-2 border-b-2 transition ${
+            onClick={() => handleStepClick(2)}
+            className={`py-3 px-2 border-b-2 transition flex items-center justify-center gap-1.5 ${
               activeStep === 2 
                 ? 'border-emerald-500 text-emerald-400 bg-emerald-500/10' 
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                : canGoToStep(2)
+                  ? 'border-transparent text-slate-400 hover:text-slate-200'
+                  : 'border-transparent text-slate-600 opacity-60 cursor-not-allowed'
             }`}
           >
-            2. Escolha do Clube
+            {!canGoToStep(2) && <Lock size={12} className="text-slate-600" />}
+            <span>2. Clube</span>
           </button>
+
           <button
-            onClick={() => setActiveStep(3)}
-            className={`py-3 px-2 border-b-2 transition ${
+            onClick={() => handleStepClick(3)}
+            className={`py-3 px-2 border-b-2 transition flex items-center justify-center gap-1.5 ${
               activeStep === 3 
                 ? 'border-emerald-500 text-emerald-400 bg-emerald-500/10' 
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                : canGoToStep(3)
+                  ? 'border-transparent text-slate-400 hover:text-slate-200'
+                  : 'border-transparent text-slate-600 opacity-60 cursor-not-allowed'
             }`}
           >
-            3. Elenco & Atletas
+            {!canGoToStep(3) && <Lock size={12} className="text-slate-600" />}
+            <span>3. Elenco</span>
           </button>
+
           <button
-            onClick={() => setActiveStep(4)}
-            className={`py-3 px-2 border-b-2 transition ${
+            onClick={() => handleStepClick(4)}
+            className={`py-3 px-2 border-b-2 transition flex items-center justify-center gap-1.5 ${
               activeStep === 4 
                 ? 'border-emerald-500 text-emerald-400 bg-emerald-500/10' 
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                : canGoToStep(4)
+                  ? 'border-transparent text-slate-400 hover:text-slate-200'
+                  : 'border-transparent text-slate-600 opacity-60 cursor-not-allowed'
             }`}
           >
-            4. Orçamento & Investimento
+            {!canGoToStep(4) && <Lock size={12} className="text-slate-600" />}
+            <span>4. Orçamento</span>
           </button>
         </div>
 
@@ -545,12 +613,12 @@ export function CareerCreationModal({ isOpen, onStartCareer, currentClubId = 'fl
               {/* Custom Players Builder Panel */}
               {rosterMode === 'custom' && (
                 <div className="p-5 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
                     <span className="text-sm font-bold text-white flex items-center gap-2">
                       <Sparkles size={16} className="text-purple-400" />
                       Cadastro de Atletas Personalizados
                     </span>
-                    <span className={`text-xs font-mono font-bold px-2.5 py-1 rounded-full border ${
+                    <span className={`text-xs font-mono font-bold px-2.5 py-1 rounded-full border self-start sm:self-auto ${
                       customPlayers.length >= 15 
                         ? 'bg-rose-950 text-rose-400 border-rose-800' 
                         : 'bg-slate-900 text-purple-400 border-slate-700'
@@ -559,16 +627,61 @@ export function CareerCreationModal({ isOpen, onStartCareer, currentClubId = 'fl
                     </span>
                   </div>
 
+                  {/* Positional Balance HUD */}
+                  <div className="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">
+                      Distribuição do Elenco:
+                    </span>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md font-bold border transition ${
+                        positionCounts.G > 0 ? 'bg-emerald-950/80 text-emerald-400 border-emerald-700' : 'bg-slate-900 text-slate-500 border-slate-800'
+                      }`}>
+                        G: {positionCounts.G}
+                      </span>
+                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md font-bold border transition ${
+                        positionCounts.Z > 0 ? 'bg-emerald-950/80 text-emerald-400 border-emerald-700' : 'bg-slate-900 text-slate-500 border-slate-800'
+                      }`}>
+                        Z: {positionCounts.Z}
+                      </span>
+                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md font-bold border transition ${
+                        positionCounts.L > 0 ? 'bg-emerald-950/80 text-emerald-400 border-emerald-700' : 'bg-slate-900 text-slate-500 border-slate-800'
+                      }`}>
+                        L: {positionCounts.L}
+                      </span>
+                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md font-bold border transition ${
+                        positionCounts.V > 0 ? 'bg-emerald-950/80 text-emerald-400 border-emerald-700' : 'bg-slate-900 text-slate-500 border-slate-800'
+                      }`}>
+                        V: {positionCounts.V}
+                      </span>
+                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md font-bold border transition ${
+                        positionCounts.M > 0 ? 'bg-emerald-950/80 text-emerald-400 border-emerald-700' : 'bg-slate-900 text-slate-500 border-slate-800'
+                      }`}>
+                        M: {positionCounts.M}
+                      </span>
+                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md font-bold border transition ${
+                        positionCounts.A > 0 ? 'bg-emerald-950/80 text-emerald-400 border-emerald-700' : 'bg-slate-900 text-slate-500 border-slate-800'
+                      }`}>
+                        A: {positionCounts.A}
+                      </span>
+                    </div>
+                  </div>
+
                   {/* Add Player Form */}
                   <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                     <div className="sm:col-span-4">
                       <label className="text-[11px] font-semibold text-slate-300 block mb-1">
-                        Nome do Jogador:
+                        Nome do Jogador (Pressione Enter para adicionar):
                       </label>
                       <input
                         type="text"
                         value={newPlayerName}
                         onChange={(e) => setNewPlayerName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddCustomPlayer();
+                          }
+                        }}
                         placeholder="Ex: Roberto Silva"
                         disabled={customPlayers.length >= 15}
                         className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 disabled:opacity-50"

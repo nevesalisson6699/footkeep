@@ -605,6 +605,7 @@ export function App() {
         isOpen={isCareerModalOpen}
         onStartCareer={handleStartCareer}
         currentClubId={userClubId}
+        onClose={clubs && clubs.length > 0 ? () => setIsCareerModalOpen(false) : undefined}
       />
 
     </div>
