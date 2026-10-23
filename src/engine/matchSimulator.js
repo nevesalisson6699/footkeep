@@ -1,4 +1,5 @@
 // Match Simulator: Mathematical probabilities, tactical influence, narrative commentary
+import { getRefereeForMatch } from '../data/refereesData.js';
 
 const COMMENTARY_TEMPLATES = {
   goal: [
@@ -133,8 +134,11 @@ export function simulateFullMatch({
   awayPlayers,
   homeTactics = { formation: '4-4-2', mentality: 'Equilibrada' },
   awayTactics = { formation: '4-4-2', mentality: 'Equilibrada' },
-  isCup = false
+  isCup = false,
+  matchId = null,
+  referee = null
 }) {
+  const activeReferee = referee || getRefereeForMatch(matchId || `${homeClub.id}_${awayClub.id}`, isCup);
   const homeStats = computeTeamRating(homePlayers, homeTactics.formation, homeTactics.mentality, true);
   const awayStats = computeTeamRating(awayPlayers, awayTactics.formation, awayTactics.mentality, false);
 
@@ -361,6 +365,7 @@ export function simulateFullMatch({
     events,
     possession: { home: finalHomePossession, away: 100 - finalHomePossession },
     attendance,
-    gateReceipts
+    gateReceipts,
+    referee: activeReferee
   };
 }

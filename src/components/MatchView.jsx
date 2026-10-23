@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { simulateFullMatch } from '../engine/matchSimulator';
 import { ClubBadge } from './ClubBadge';
+import { getRefereeForMatch } from '../data/refereesData.js';
 
 export function MatchView({ 
   userClub, 
@@ -57,7 +58,8 @@ export function MatchView({
         awayPlayers,
         homeTactics: isUserHome ? tactics : { formation: '4-4-2', mentality: 'Equilibrada' },
         awayTactics: !isUserHome ? tactics : { formation: '4-4-2', mentality: 'Equilibrada' },
-        isCup: nextMatch.type === 'cup'
+        isCup: nextMatch.type === 'cup',
+        matchId: nextMatch.matchId || `${homeClub.id}_${awayClub.id}`
       });
 
       setSimulatedData(sim);
@@ -142,6 +144,8 @@ export function MatchView({
   // Current live score
   const currentHomeScore = visibleEvents.filter(e => e.type === 'goal' && e.clubId === homeClub?.id).length;
   const currentAwayScore = visibleEvents.filter(e => e.type === 'goal' && e.clubId === awayClub?.id).length;
+
+  const activeReferee = simulatedData?.referee || getRefereeForMatch(nextMatch?.matchId || `${nextMatch?.homeId}_${nextMatch?.awayId}`, nextMatch?.type === 'cup');
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -381,6 +385,126 @@ export function MatchView({
           </div>
         </div>
 
+      </div>
+
+      {/* Official Match Officiating Crew & CBF Referee History */}
+      <div className="glass-panel p-5 md:p-6 border-slate-800 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+              <Shield size={18} />
+            </div>
+            <div>
+              <h3 className="font-bold text-white text-sm">
+                Equipe Oficial de Arbitragem (CBF / Quadro FIFA)
+              </h3>
+              <p className="text-[11px] text-slate-400">
+                Designação oficial e histórico disciplinar auditado na competição
+              </p>
+            </div>
+          </div>
+
+          <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-slate-900 text-slate-300 border border-slate-700 self-start sm:self-auto">
+            {activeReferee ? `${activeReferee.federation} • ${activeReferee.badgeCategory}` : 'Designação em Processamento'}
+          </span>
+        </div>
+
+        {activeReferee ? (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            {/* Main Referee Profile & History (7 Cols) */}
+            <div className="lg:col-span-7 space-y-3 bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
+                    Árbitro Principal
+                  </span>
+                  <h4 className="text-base font-black text-white">
+                    {activeReferee.name}
+                  </h4>
+                  <span className="text-xs text-slate-400">
+                    Federação: <b className="text-slate-200">{activeReferee.federation}</b> • Categoria: <b className="text-emerald-400">{activeReferee.badgeCategory}</b>
+                  </span>
+                </div>
+
+                <div className="text-right">
+                  <span className="text-[10px] text-slate-400 block">Estilo de Arbitragem</span>
+                  <span className="text-xs font-bold text-amber-400 capitalize">
+                    {activeReferee.styleKey || 'Equilibrado'}
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-300 leading-relaxed bg-slate-900/60 p-3 rounded-xl border border-slate-800/60">
+                "{activeReferee.profileSummary}"
+              </p>
+
+              {/* Verified Career Statistics Badges */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-center">
+                <div className="bg-slate-900/90 p-2 rounded-xl border border-slate-800">
+                  <span className="text-[10px] text-slate-400 block">Jogos na Temporada</span>
+                  <span className="text-sm font-black text-white font-mono">{activeReferee.seasonMatches}</span>
+                  <span className="text-[9px] text-slate-500 block">({activeReferee.careerMatches} total)</span>
+                </div>
+                <div className="bg-slate-900/90 p-2 rounded-xl border border-slate-800">
+                  <span className="text-[10px] text-slate-400 block">Média de Faltas</span>
+                  <span className="text-sm font-black text-emerald-400 font-mono">{activeReferee.avgFoulsPerMatch}</span>
+                  <span className="text-[9px] text-slate-500 block">por partida</span>
+                </div>
+                <div className="bg-slate-900/90 p-2 rounded-xl border border-slate-800">
+                  <span className="text-[10px] text-slate-400 block">Cartões Amarelos</span>
+                  <span className="text-sm font-black text-amber-400 font-mono">{activeReferee.avgYellowsPerMatch}</span>
+                  <span className="text-[9px] text-slate-500 block">por partida</span>
+                </div>
+                <div className="bg-slate-900/90 p-2 rounded-xl border border-slate-800">
+                  <span className="text-[10px] text-slate-400 block">Pênaltis Marcados</span>
+                  <span className="text-sm font-black text-sky-400 font-mono">{activeReferee.penaltiesAwarded}</span>
+                  <span className="text-[9px] text-slate-500 block">assinalados</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Field Assistants and VAR Crew (5 Cols) */}
+            <div className="lg:col-span-5 bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80 flex flex-col justify-between space-y-3">
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                  Equipe de Campo & Arbitragem de Vídeo (VAR)
+                </span>
+
+                <div className="space-y-2 text-xs">
+                  <div className="flex items-center justify-between pb-1.5 border-b border-slate-800/60">
+                    <span className="text-slate-400">Assistente 1:</span>
+                    <span className="font-semibold text-slate-200">{activeReferee.assistantPairs?.assistant1 || 'Em definição CBF'}</span>
+                  </div>
+                  <div className="flex items-center justify-between pb-1.5 border-b border-slate-800/60">
+                    <span className="text-slate-400">Assistente 2:</span>
+                    <span className="font-semibold text-slate-200">{activeReferee.assistantPairs?.assistant2 || 'Em definição CBF'}</span>
+                  </div>
+                  <div className="flex items-center justify-between pb-1.5 border-b border-slate-800/60">
+                    <span className="text-slate-400">Quarto Árbitro:</span>
+                    <span className="font-semibold text-slate-200">{activeReferee.assistantPairs?.fourthOfficial || 'Quarto árbitro local'}</span>
+                  </div>
+                  <div className="flex items-center justify-between pb-1.5 border-b border-slate-800/60">
+                    <span className="text-slate-400">Árbitro de Vídeo (VAR):</span>
+                    <span className="font-semibold text-purple-400">{activeReferee.assistantPairs?.varOfficial || 'Central do VAR CBF'}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400">Assistente de VAR (AVAR):</span>
+                    <span className="font-semibold text-slate-300">{activeReferee.assistantPairs?.avarOfficial || 'Homologado'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Verified Source Disclaimer */}
+              <div className="pt-2 border-t border-slate-800/80 text-[10px] text-slate-500">
+                ℹ️ <b>Fonte Verificada:</b> {activeReferee.source} ({activeReferee.consultationDate}). Estatísticas oficiais consolidadas.
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="p-4 bg-slate-900/50 rounded-2xl border border-dashed border-slate-800 text-center text-xs text-slate-400">
+            Escalação da equipe de arbitragem em processamento pela comissão organizadora da CBF.
+          </div>
+        )}
       </div>
 
     </div>
