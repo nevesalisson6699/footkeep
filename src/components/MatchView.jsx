@@ -9,7 +9,8 @@ import {
   Clock, 
   DollarSign, 
   Trophy,
-  ArrowRight
+  ArrowRight,
+  Shield
 } from 'lucide-react';
 import { simulateFullMatch } from '../engine/matchSimulator';
 import { ClubBadge } from './ClubBadge';
