@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { INITIAL_CLUBS } from './data/initialClubs';
-import { generateAllPlayers } from './data/initialPlayers';
+import { generateAllPlayers, sortSquadForFormation } from './data/initialPlayers';
 import { 
   generateLeagueFixtures, 
   generateInitialCup, 
@@ -21,6 +21,13 @@ import { SaveLoadModal } from './components/SaveLoadModal';
 
 const STORAGE_KEY = 'footkeep_save_v1';
 
+export const CUP_SCHEDULE = {
+  oitavas: 7,   // League Round 7
+  quartas: 14,  // League Round 14
+  semi: 21,     // League Round 21
+  final: 28     // League Round 28
+};
+
 export function App() {
   // Main Game State
   const [clubs, setClubs] = useState([]);
@@ -32,6 +39,7 @@ export function App() {
   const [cupState, setCupState] = useState(null);
   const [standings, setStandings] = useState([]);
   const [tactics, setTactics] = useState({ formation: '4-4-2', mentality: 'Equilibrada' });
+  const [awardedPrizes, setAwardedPrizes] = useState([]);
   const [currentTab, setCurrentTab] = useState('dashboard');
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
@@ -42,13 +50,33 @@ export function App() {
       try {
         const data = JSON.parse(saved);
         setClubs(data.clubs || INITIAL_CLUBS);
-        setPlayers(data.players || []);
-        setUserClubId(data.userClubId || 'est');
+        
+        // Auto-heal squad order for older saves where starting 11 had 0 M or 0 A
+        let loadedPlayers = data.players || [];
+        const activeUserClubId = data.userClubId || 'est';
+        const userSquadSlice = loadedPlayers.filter(p => p.clubId === activeUserClubId).slice(0, 11);
+        const hasMid = userSquadSlice.some(p => p.position === 'M');
+        const hasAtk = userSquadSlice.some(p => p.position === 'A');
+
+        if (!hasMid || !hasAtk) {
+          const clubList = data.clubs || INITIAL_CLUBS;
+          const healed = [];
+          clubList.forEach(c => {
+            const clubSquad = loadedPlayers.filter(p => p.clubId === c.id);
+            healed.push(...sortSquadForFormation(clubSquad, data.tactics?.formation || '4-4-2'));
+          });
+          healed.push(...loadedPlayers.filter(p => !p.clubId));
+          loadedPlayers = healed;
+        }
+
+        setPlayers(loadedPlayers);
+        setUserClubId(activeUserClubId);
         setBudget(data.budget || 8500000);
         setCurrentRound(data.currentRound || 1);
         setLeagueRounds(data.leagueRounds || []);
         setCupState(data.cupState || null);
         setTactics(data.tactics || { formation: '4-4-2', mentality: 'Equilibrada' });
+        setAwardedPrizes(data.awardedPrizes || []);
         return;
       } catch (err) {
         console.error('Falha ao restaurar save:', err);
@@ -74,6 +102,7 @@ export function App() {
     setLeagueRounds(fixtures);
     setCupState(cup);
     setTactics({ formation: '4-4-2', mentality: 'Equilibrada' });
+    setAwardedPrizes([]);
     setCurrentTab('dashboard');
   };
 
@@ -96,28 +125,33 @@ export function App() {
         currentRound,
         leagueRounds,
         cupState,
-        tactics
+        tactics,
+        awardedPrizes
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
     }
-  }, [clubs, players, userClubId, budget, currentRound, leagueRounds, cupState, tactics]);
+  }, [clubs, players, userClubId, budget, currentRound, leagueRounds, cupState, tactics, awardedPrizes]);
 
   const userClub = clubs.find(c => c.id === userClubId);
   const userSquad = players.filter(p => p.clubId === userClubId);
 
   // Determine current match for user:
-  // Alternate between League and Cup matches if cup is active and user is still in cup!
+  // Schedules Cup phases at specific season milestones (Rounds 7, 14, 21, 28)
   const getNextMatch = () => {
-    // 1. Check if user has an unplayed cup match in the current phase
+    // 1. Check if user has an unplayed cup match in the current phase that has reached its scheduled milestone
     if (cupState && !cupState.championId) {
-      const currentPhaseMatches = cupState.phases[cupState.currentPhase]?.matches || [];
-      const userCupMatch = currentPhaseMatches.find(
-        m => !m.played && (m.homeId === userClubId || m.awayId === userClubId)
-      );
+      const currentPhase = cupState.currentPhase;
+      const scheduledRound = CUP_SCHEDULE[currentPhase] || 28;
 
-      // If user has a cup match scheduled, give it priority every 4 league rounds
-      if (userCupMatch && (currentRound % 4 === 0 || currentRound > 26)) {
-        return { ...userCupMatch, type: 'cup' };
+      if (currentRound >= scheduledRound) {
+        const currentPhaseMatches = cupState.phases[currentPhase]?.matches || [];
+        const userCupMatch = currentPhaseMatches.find(
+          m => !m.played && (m.homeId === userClubId || m.awayId === userClubId)
+        );
+
+        if (userCupMatch) {
+          return { ...userCupMatch, type: 'cup' };
+        }
       }
     }
 
@@ -165,6 +199,30 @@ export function App() {
 
       setCupState(updatedCupState);
 
+      // Financials for Cup match: Ticket income if user is home
+      const isHome = finishedMatch.homeId === userClubId;
+      const gateIncome = isHome ? (finishedMatch.gateReceipts || 0) : 0;
+      let cupPrize = 0;
+      const newPrizes = [];
+
+      // Check if user won the Cup Championship
+      if (updatedCupState.championId === userClubId) {
+        if (!awardedPrizes.some(p => p.id === 'cup_champion')) {
+          cupPrize = 10000000; // R$ 10.000.000
+          newPrizes.push({
+            id: 'cup_champion',
+            title: 'Campeão da Copa Footkeep',
+            amount: 10000000,
+            round: currentRound
+          });
+        }
+      }
+
+      setBudget(prev => prev + gateIncome + cupPrize);
+      if (newPrizes.length > 0) {
+        setAwardedPrizes(prev => [...prev, ...newPrizes]);
+      }
+
     } else {
       // 2. Update League Match
       const updatedRounds = leagueRounds.map(r => {
@@ -198,7 +256,77 @@ export function App() {
       const sponsorIncome = Math.round((userClub?.reputation || 70) * 3500);
 
       const netIncome = gateIncome + sponsorIncome - weeklyPayroll;
-      setBudget(prev => Math.max(0, prev + netIncome));
+
+      // Recalculate standings with this round completed
+      const newStandings = calculateStandings(clubs, updatedRounds);
+      setStandings(newStandings);
+
+      let leaguePrizes = 0;
+      const newPrizes = [];
+
+      // Award league prizes at the conclusion of the season (round 30)
+      if (currentRound >= 30) {
+        const userPosition = newStandings.findIndex(s => s.clubId === userClubId) + 1;
+
+        // 1st Place: League Champion (R$ 15.000.000)
+        if (userPosition === 1 && !awardedPrizes.some(p => p.id === 'league_champion')) {
+          leaguePrizes += 15000000;
+          newPrizes.push({
+            id: 'league_champion',
+            title: 'Campeão da Liga Nacional (1º Lugar)',
+            amount: 15000000,
+            round: 30
+          });
+        }
+
+        // Top 4: G4 Qualification (R$ 6.000.000)
+        if (userPosition >= 1 && userPosition <= 4 && !awardedPrizes.some(p => p.id === 'league_g4')) {
+          leaguePrizes += 6000000;
+          newPrizes.push({
+            id: 'league_g4',
+            title: 'Classificação para o G4',
+            amount: 6000000,
+            round: 30
+          });
+        }
+      }
+
+      setBudget(prev => Math.max(0, prev + netIncome + leaguePrizes));
+      if (newPrizes.length > 0) {
+        setAwardedPrizes(prev => [...prev, ...newPrizes]);
+      }
+
+      // Check if any AI cup matches should run (if user is eliminated from cup but milestone round reached)
+      if (cupState && !cupState.championId) {
+        const curPhase = cupState.currentPhase;
+        const phaseMilestone = CUP_SCHEDULE[curPhase] || 30;
+        if (currentRound >= phaseMilestone) {
+          const phaseMatches = cupState.phases[curPhase]?.matches || [];
+          const hasUserInPhase = phaseMatches.some(m => !m.played && (m.homeId === userClubId || m.awayId === userClubId));
+          const hasUnplayed = phaseMatches.some(m => !m.played);
+          
+          if (!hasUserInPhase && hasUnplayed) {
+            // Auto-simulate AI cup matches for this phase
+            const simCupMatches = phaseMatches.map(m => {
+              if (m.played) return m;
+              const hClub = clubs.find(c => c.id === m.homeId);
+              const aClub = clubs.find(c => c.id === m.awayId);
+              const hP = players.filter(p => p.clubId === hClub.id);
+              const aP = players.filter(p => p.clubId === aClub.id);
+              const sim = simulateFullMatch({ homeClub: hClub, awayClub: aClub, homePlayers: hP, awayPlayers: aP, isCup: true });
+              return { ...m, ...sim };
+            });
+            const updatedCup = advanceCupPhase({
+              ...cupState,
+              phases: {
+                ...cupState.phases,
+                [curPhase]: { ...cupState.phases[curPhase], matches: simCupMatches }
+              }
+            });
+            setCupState(updatedCup);
+          }
+        }
+      }
 
       // Advance round
       if (currentRound < 30) {
@@ -207,6 +335,14 @@ export function App() {
     }
 
     setCurrentTab('dashboard');
+  };
+
+  // Auto Lineup for user squad according to formation roles
+  const handleAutoLineup = (formationToUse = tactics.formation) => {
+    const clubSquad = players.filter(p => p.clubId === userClubId);
+    const otherPlayers = players.filter(p => p.clubId !== userClubId);
+    const sortedSquad = sortSquadForFormation(clubSquad, formationToUse);
+    setPlayers([...sortedSquad, ...otherPlayers]);
   };
 
   // Squad Swap Titular/Reserva
@@ -291,6 +427,7 @@ export function App() {
             onUpdateTactics={setTactics}
             onSwapPlayers={handleSwapPlayers}
             onToggleTransferList={handleToggleTransferList}
+            onAutoLineup={handleAutoLineup}
           />
         )}
 
@@ -339,6 +476,7 @@ export function App() {
             squad={userSquad}
             budget={budget}
             currentRound={currentRound}
+            awardedPrizes={awardedPrizes}
           />
         )}
       </main>
@@ -355,7 +493,7 @@ export function App() {
       <SaveLoadModal 
         isOpen={isSaveModalOpen}
         onClose={() => setIsSaveModalOpen(false)}
-        gameState={{ clubs, players, userClubId, budget, currentRound, leagueRounds, cupState, tactics }}
+        gameState={{ clubs, players, userClubId, budget, currentRound, leagueRounds, cupState, tactics, awardedPrizes }}
         onLoadSave={(savedState) => {
           setClubs(savedState.clubs);
           setPlayers(savedState.players);
@@ -365,6 +503,7 @@ export function App() {
           setLeagueRounds(savedState.leagueRounds);
           setCupState(savedState.cupState);
           setTactics(savedState.tactics);
+          setAwardedPrizes(savedState.awardedPrizes || []);
         }}
         onResetGame={() => resetToNewGame(userClubId)}
         allClubs={clubs}

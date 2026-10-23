@@ -19,21 +19,21 @@ const NICKNAMES = [
   'Motorzinho', 'General', 'Artilheiro', 'Tanque', 'Raiô', 'Relâmpago', 'Mágico'
 ];
 
-// Positions:
-// G: Goleiro (GK)
-// Z: Zagueiro (CB)
-// L: Lateral (FB)
-// V: Volante (DM)
-// M: Meia (AM/CM)
-// A: Atacante (ST/CF)
 export const POSITIONS = [
-  { code: 'G', name: 'Goleiro', min: 2, max: 3 },
-  { code: 'Z', name: 'Zagueiro', min: 4, max: 5 },
-  { code: 'L', name: 'Lateral', min: 3, max: 4 },
-  { code: 'V', name: 'Volante', min: 3, max: 4 },
-  { code: 'M', name: 'Meia', min: 3, max: 4 },
-  { code: 'A', name: 'Atacante', min: 3, max: 5 }
+  { code: 'G', name: 'Goleiro' },
+  { code: 'Z', name: 'Zagueiro' },
+  { code: 'L', name: 'Lateral' },
+  { code: 'V', name: 'Volante' },
+  { code: 'M', name: 'Meia' },
+  { code: 'A', name: 'Atacante' }
 ];
+
+export const FORMATION_ROLES = {
+  '4-4-2': ['G', 'Z', 'Z', 'L', 'L', 'V', 'V', 'M', 'M', 'A', 'A'],
+  '4-3-3': ['G', 'Z', 'Z', 'L', 'L', 'V', 'M', 'M', 'A', 'A', 'A'],
+  '3-5-2': ['G', 'Z', 'Z', 'Z', 'L', 'L', 'V', 'V', 'M', 'A', 'A'],
+  '4-2-3-1': ['G', 'Z', 'Z', 'L', 'L', 'V', 'V', 'M', 'M', 'M', 'A']
+};
 
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -88,15 +88,58 @@ export function generatePlayer(id, clubId = null, position = null, baseOverall =
   };
 }
 
+// Reorders a squad so that indices 0..10 match the requested formation roles with the best available players
+export function sortSquadForFormation(squad, formation = '4-4-2') {
+  if (!squad || squad.length === 0) return squad;
+
+  const roles = FORMATION_ROLES[formation] || FORMATION_ROLES['4-4-2'];
+  const pool = [...squad].sort((a, b) => b.overall - a.overall);
+  const starters = [];
+  const usedIds = new Set();
+
+  // For each required role, select the best unassigned player
+  roles.forEach(role => {
+    // 1. Try exact position
+    let candidate = pool.find(p => !usedIds.has(p.id) && p.position === role);
+
+    // 2. If no exact match, fallback to compatible position
+    if (!candidate) {
+      if (role === 'M' || role === 'V') {
+        candidate = pool.find(p => !usedIds.has(p.id) && (p.position === 'M' || p.position === 'V' || p.position === 'L'));
+      } else if (role === 'A') {
+        candidate = pool.find(p => !usedIds.has(p.id) && (p.position === 'A' || p.position === 'M'));
+      } else if (role === 'Z' || role === 'L') {
+        candidate = pool.find(p => !usedIds.has(p.id) && (p.position === 'Z' || p.position === 'L' || p.position === 'V'));
+      }
+    }
+
+    // 3. Fallback to any best available player
+    if (!candidate) {
+      candidate = pool.find(p => !usedIds.has(p.id));
+    }
+
+    if (candidate) {
+      starters.push(candidate);
+      usedIds.add(candidate.id);
+    }
+  });
+
+  // Bench: all remaining players sorted by overall
+  const bench = pool.filter(p => !usedIds.has(p.id));
+
+  return [...starters, ...bench];
+}
+
 export function generateAllPlayers(clubs) {
-  const players = [];
+  const allPlayers = [];
   let currentId = 1001;
 
   // Generate 20 players for each club
   clubs.forEach(club => {
     const baseRep = club.reputation || 75;
+    const clubPlayers = [];
     
-    // Squad structure: 2 G, 4 Z, 3 L, 4 V, 4 M, 4 A
+    // Squad structure: 2 G, 4 Z, 3 L, 4 V, 4 M, 4 A (Total 21 players)
     const squadDistribution = [
       { pos: 'G', count: 2 },
       { pos: 'Z', count: 4 },
@@ -108,17 +151,21 @@ export function generateAllPlayers(clubs) {
 
     squadDistribution.forEach(group => {
       for (let i = 0; i < group.count; i++) {
-        players.push(generatePlayer(currentId++, club.id, group.pos, baseRep));
+        clubPlayers.push(generatePlayer(currentId++, club.id, group.pos, baseRep));
       }
     });
+
+    // Automatically sort each club's squad so top 11 are balanced 4-4-2 starters!
+    const balancedSquad = sortSquadForFormation(clubPlayers, '4-4-2');
+    allPlayers.push(...balancedSquad);
   });
 
-  // Generate Free Agents (Agentes Livres para contratação barata)
+  // Generate Free Agents (Agentes Livres para contratação)
   for (let i = 0; i < 25; i++) {
     const freeAgent = generatePlayer(currentId++, null, null, 68);
     freeAgent.isListed = true;
-    players.push(freeAgent);
+    allPlayers.push(freeAgent);
   }
 
-  return players;
+  return allPlayers;
 }

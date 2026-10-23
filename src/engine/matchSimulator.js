@@ -25,6 +25,33 @@ const COMMENTARY_TEMPLATES = {
   ]
 };
 
+export const FORMATION_MODIFIERS = {
+  '4-4-2': {
+    name: '4-4-2 Clássico',
+    atk: 1.00,
+    mid: 1.05,
+    def: 1.00
+  },
+  '4-3-3': {
+    name: '4-3-3 Ofensivo',
+    atk: 1.12,
+    mid: 0.98,
+    def: 0.94
+  },
+  '3-5-2': {
+    name: '3-5-2 Equilibrado',
+    atk: 0.95,
+    mid: 1.12,
+    def: 1.03
+  },
+  '4-2-3-1': {
+    name: '4-2-3-1 Moderno',
+    atk: 1.04,
+    mid: 1.08,
+    def: 0.96
+  }
+};
+
 function randomItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -32,7 +59,7 @@ function randomItem(arr) {
 // Compute team ratings from player list and tactics
 export function computeTeamRating(players, formation = '4-4-2', mentality = 'Equilibrada', isHome = false) {
   if (!players || players.length === 0) {
-    return { atk: 65, mid: 65, def: 65, overall: 65 };
+    return { atk: 65, mid: 65, def: 65, overall: 65, starters: [] };
   }
 
   const starters = players.slice(0, 11);
@@ -72,6 +99,12 @@ export function computeTeamRating(players, formation = '4-4-2', mentality = 'Equ
   let mid = Math.round(midTotal / 4.0);
   let def = Math.round(defTotal / 4.5);
 
+  // Formation influence
+  const formMod = FORMATION_MODIFIERS[formation] || FORMATION_MODIFIERS['4-4-2'];
+  atk = Math.round(atk * formMod.atk);
+  mid = Math.round(mid * formMod.mid);
+  def = Math.round(def * formMod.def);
+
   // Tactical Mentality Modifiers
   if (mentality === 'Ofensiva') {
     atk = Math.round(atk * 1.15);
@@ -89,7 +122,7 @@ export function computeTeamRating(players, formation = '4-4-2', mentality = 'Equ
   }
 
   const overall = Math.round((atk + mid + def) / 3);
-  return { atk, mid, def, overall, starters };
+  return { atk, mid, def, overall, starters, formation, mentality };
 }
 
 // Simulates a complete match and returns timeline, final score, and player statistics
@@ -110,33 +143,48 @@ export function simulateFullMatch({
   let awayScore = 0;
   let homeRedCards = 0;
   let awayRedCards = 0;
+  const matchYellows = {}; // playerId -> yellow count in this game
+  const matchRedSet = new Set(); // set of playerIds sent off
 
-  // Possession ratio based on midfield ratings
-  const totalMid = homeStats.mid + awayStats.mid;
-  const homePossession = Math.round((homeStats.mid / totalMid) * 100);
-  const awayPossession = 100 - homePossession;
+  // Base possession ratio based on midfield ratings
+  const totalMid = (homeStats.mid || 50) + (awayStats.mid || 50);
+  let homePossession = Math.round((homeStats.mid / totalMid) * 100);
 
   // Simulate 90 minutes of gameplay with key chances at intervals
   const keyMinutes = [7, 14, 23, 31, 39, 44, 52, 60, 68, 75, 82, 88, 92];
 
   keyMinutes.forEach(minute => {
-    // Chance generation probability
-    const isHomeAttacking = Math.random() * 100 < homePossession;
+    // Dynamic possession adjustment if either team has red cards (-8% per red card advantage)
+    let currentHomePossession = homePossession;
+    if (homeRedCards > awayRedCards) {
+      currentHomePossession = Math.max(20, homePossession - (homeRedCards - awayRedCards) * 8);
+    } else if (awayRedCards > homeRedCards) {
+      currentHomePossession = Math.min(80, homePossession + (awayRedCards - homeRedCards) * 8);
+    }
+
+    const isHomeAttacking = (Math.random() * 100) < currentHomePossession;
     const attackingStats = isHomeAttacking ? homeStats : awayStats;
     const defendingStats = isHomeAttacking ? awayStats : homeStats;
     const attackerClub = isHomeAttacking ? homeClub : awayClub;
     const defenderClub = isHomeAttacking ? awayClub : homeClub;
 
-    const starters = attackingStats.starters;
-    const forwardPlayers = starters.filter(p => p.position === 'A' || p.position === 'M');
-    const primaryAttacker = forwardPlayers.length > 0 ? randomItem(forwardPlayers) : randomItem(starters);
-    const assistPlayer = starters.find(p => p.id !== primaryAttacker.id) || randomItem(starters);
+    // Filter available active players (excluding players with red cards)
+    const activeStarters = attackingStats.starters.filter(p => !matchRedSet.has(p.id));
+    const activeDefenders = defendingStats.starters.filter(p => !matchRedSet.has(p.id));
 
-    // Goal probability
-    const effectiveAtk = attackingStats.atk * (isHomeAttacking && homeRedCards > 0 ? 0.85 : 1);
-    const effectiveDef = defendingStats.def * (!isHomeAttacking && awayRedCards > 0 ? 0.85 : 1);
-    const goalProb = Math.max(0.12, Math.min(0.48, (effectiveAtk / (effectiveAtk + effectiveDef)) * 0.45));
+    const poolAttackers = activeStarters.length > 0 ? activeStarters : attackingStats.starters;
+    const forwardPlayers = poolAttackers.filter(p => p.position === 'A' || p.position === 'M');
+    const primaryAttacker = forwardPlayers.length > 0 ? randomItem(forwardPlayers) : randomItem(poolAttackers);
+    const assistPool = poolAttackers.filter(p => p.id !== primaryAttacker.id);
+    const assistPlayer = assistPool.length > 0 ? randomItem(assistPool) : primaryAttacker;
 
+    // Effective stats with red card penalties (18% penalty per red card)
+    const atkRedCards = isHomeAttacking ? homeRedCards : awayRedCards;
+    const defRedCards = isHomeAttacking ? awayRedCards : homeRedCards;
+    const effectiveAtk = attackingStats.atk * Math.pow(0.82, atkRedCards);
+    const effectiveDef = defendingStats.def * Math.pow(0.82, defRedCards);
+
+    const goalProb = Math.max(0.12, Math.min(0.50, (effectiveAtk / (effectiveAtk + effectiveDef)) * 0.45));
     const roll = Math.random();
 
     if (roll < goalProb) {
@@ -180,26 +228,78 @@ export function simulateFullMatch({
         awayScore,
         text
       });
-    } else if (roll > 0.88) {
-      // Yellow Card on defender
-      const defenders = defendingStats.starters.filter(p => p.position === 'Z' || p.position === 'V' || p.position === 'L');
-      const foulPlayer = defenders.length > 0 ? randomItem(defenders) : randomItem(defendingStats.starters);
-      foulPlayer.yellowCards = (foulPlayer.yellowCards || 0) + 1;
+    } else if (roll > 0.87) {
+      // Foul by defending team
+      const eligibleFoulPlayers = activeDefenders.length > 0 ? activeDefenders : defendingStats.starters;
+      const defendersOnly = eligibleFoulPlayers.filter(p => p.position === 'Z' || p.position === 'V' || p.position === 'L');
+      const foulPlayer = defendersOnly.length > 0 ? randomItem(defendersOnly) : randomItem(eligibleFoulPlayers);
 
-      const template = randomItem(COMMENTARY_TEMPLATES.card_yellow);
-      const text = template.replace('{player}', foulPlayer.name);
+      const playerYellows = matchYellows[foulPlayer.id] || 0;
+      const isSevereFoul = roll > 0.985; // Violent foul roll -> direct red
 
-      events.push({
-        minute,
-        type: 'card_yellow',
-        clubId: defenderClub.id,
-        clubName: defenderClub.name,
-        badgeEmoji: defenderClub.badgeEmoji,
-        playerName: foulPlayer.name,
-        homeScore,
-        awayScore,
-        text
-      });
+      if (isSevereFoul && !matchRedSet.has(foulPlayer.id)) {
+        // Direct Red Card!
+        matchRedSet.add(foulPlayer.id);
+        if (isHomeAttacking) awayRedCards++;
+        else homeRedCards++;
+        foulPlayer.redCards = (foulPlayer.redCards || 0) + 1;
+        foulPlayer.isSuspended = true;
+
+        const text = COMMENTARY_TEMPLATES.card_red[0].replace('{player}', foulPlayer.name);
+        events.push({
+          minute,
+          type: 'card_red',
+          isDirectRed: true,
+          clubId: defenderClub.id,
+          clubName: defenderClub.name,
+          badgeEmoji: defenderClub.badgeEmoji,
+          playerName: foulPlayer.name,
+          homeScore,
+          awayScore,
+          text
+        });
+      } else if (playerYellows === 1 && !matchRedSet.has(foulPlayer.id)) {
+        // Second Yellow Card -> Expulsion!
+        matchYellows[foulPlayer.id] = 2;
+        matchRedSet.add(foulPlayer.id);
+        if (isHomeAttacking) awayRedCards++;
+        else homeRedCards++;
+        foulPlayer.redCards = (foulPlayer.redCards || 0) + 1;
+        foulPlayer.isSuspended = true;
+
+        const text = COMMENTARY_TEMPLATES.card_red[1].replace('{player}', foulPlayer.name);
+        events.push({
+          minute,
+          type: 'card_red',
+          isDirectRed: false,
+          clubId: defenderClub.id,
+          clubName: defenderClub.name,
+          badgeEmoji: defenderClub.badgeEmoji,
+          playerName: foulPlayer.name,
+          homeScore,
+          awayScore,
+          text
+        });
+      } else if (playerYellows === 0 && !matchRedSet.has(foulPlayer.id)) {
+        // First Yellow Card
+        matchYellows[foulPlayer.id] = 1;
+        foulPlayer.yellowCards = (foulPlayer.yellowCards || 0) + 1;
+
+        const template = randomItem(COMMENTARY_TEMPLATES.card_yellow);
+        const text = template.replace('{player}', foulPlayer.name);
+
+        events.push({
+          minute,
+          type: 'card_yellow',
+          clubId: defenderClub.id,
+          clubName: defenderClub.name,
+          badgeEmoji: defenderClub.badgeEmoji,
+          playerName: foulPlayer.name,
+          homeScore,
+          awayScore,
+          text
+        });
+      }
     }
   });
 
@@ -243,6 +343,10 @@ export function simulateFullMatch({
   const ticketPrice = 45;
   const gateReceipts = Math.round(attendance * ticketPrice);
 
+  const finalHomePossession = homeRedCards > awayRedCards 
+    ? Math.max(25, homePossession - (homeRedCards - awayRedCards) * 6)
+    : (awayRedCards > homeRedCards ? Math.min(75, homePossession + (awayRedCards - homeRedCards) * 6) : homePossession);
+
   return {
     homeId: homeClub.id,
     awayId: awayClub.id,
@@ -251,9 +355,11 @@ export function simulateFullMatch({
     homePenalties,
     awayPenalties,
     winnerId,
+    homeRedCards,
+    awayRedCards,
     played: true,
     events,
-    possession: { home: homePossession, away: awayPossession },
+    possession: { home: finalHomePossession, away: 100 - finalHomePossession },
     attendance,
     gateReceipts
   };

@@ -286,7 +286,8 @@ export function MatchView({
             ) : (
               [...visibleEvents].reverse().map((ev, i) => {
                 const isGoal = ev.type === 'goal';
-                const isCard = ev.type === 'card_yellow' || ev.type === 'card_red';
+                const isRed = ev.type === 'card_red';
+                const isYellow = ev.type === 'card_yellow';
 
                 return (
                   <div 
@@ -294,7 +295,9 @@ export function MatchView({
                     className={`p-3 rounded-xl border flex items-start gap-3 transition-all ${
                       isGoal 
                         ? 'bg-emerald-950/40 border-emerald-500/50 shadow-lg shadow-emerald-950/40' 
-                        : (isCard ? 'bg-amber-950/20 border-amber-500/30' : 'bg-slate-900/60 border-slate-800/80')
+                        : (isRed
+                            ? 'bg-rose-950/40 border-rose-500/50 shadow-lg shadow-rose-950/30'
+                            : (isYellow ? 'bg-amber-950/20 border-amber-500/30' : 'bg-slate-900/60 border-slate-800/80'))
                     }`}
                   >
                     <span className="font-mono text-xs font-bold text-emerald-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
@@ -304,6 +307,16 @@ export function MatchView({
                       {isGoal && (
                         <span className="font-bold text-emerald-400 uppercase tracking-wide block mb-0.5">
                           ⚽ GOL DO {ev.clubName}! ({ev.homeScore} x {ev.awayScore})
+                        </span>
+                      )}
+                      {isRed && (
+                        <span className="font-bold text-rose-400 uppercase tracking-wide block mb-0.5">
+                          🟥 CARTÃO VERMELHO ({ev.clubName})
+                        </span>
+                      )}
+                      {isYellow && (
+                        <span className="font-bold text-amber-400 uppercase tracking-wide block mb-0.5">
+                          🟨 CARTÃO AMARELO ({ev.clubName})
                         </span>
                       )}
                       <p className="text-slate-200 leading-relaxed">{ev.text}</p>
@@ -343,22 +356,35 @@ export function MatchView({
           {/* Quick Stats Summary */}
           <div className="space-y-3 pt-2 text-xs">
             <div className="flex justify-between py-1.5 border-b border-slate-800/60">
-              <span className="font-bold text-white">{visibleEvents.filter(e => e.clubId === homeClub?.id).length}</span>
+              <span className="font-bold text-white">
+                {visibleEvents.filter(e => (e.type === 'goal' || e.type === 'miss') && e.clubId === homeClub?.id).length}
+              </span>
               <span className="text-slate-400">Chances Criadas</span>
-              <span className="font-bold text-white">{visibleEvents.filter(e => e.clubId === awayClub?.id).length}</span>
+              <span className="font-bold text-white">
+                {visibleEvents.filter(e => (e.type === 'goal' || e.type === 'miss') && e.clubId === awayClub?.id).length}
+              </span>
             </div>
             <div className="flex justify-between py-1.5 border-b border-slate-800/60">
               <span className="font-bold text-emerald-400">{currentHomeScore}</span>
               <span className="text-slate-400">Gols Marcados</span>
               <span className="font-bold text-emerald-400">{currentAwayScore}</span>
             </div>
-            <div className="flex justify-between py-1.5">
+            <div className="flex justify-between py-1.5 border-b border-slate-800/60">
               <span className="font-bold text-amber-400">
                 {visibleEvents.filter(e => e.type === 'card_yellow' && e.clubId === homeClub?.id).length}
               </span>
               <span className="text-slate-400">Cartões Amarelos</span>
               <span className="font-bold text-amber-400">
                 {visibleEvents.filter(e => e.type === 'card_yellow' && e.clubId === awayClub?.id).length}
+              </span>
+            </div>
+            <div className="flex justify-between py-1.5">
+              <span className="font-bold text-rose-500">
+                {visibleEvents.filter(e => e.type === 'card_red' && e.clubId === homeClub?.id).length}
+              </span>
+              <span className="text-slate-400">Cartões Vermelhos</span>
+              <span className="font-bold text-rose-500">
+                {visibleEvents.filter(e => e.type === 'card_red' && e.clubId === awayClub?.id).length}
               </span>
             </div>
           </div>

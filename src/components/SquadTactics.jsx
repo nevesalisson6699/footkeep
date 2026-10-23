@@ -81,7 +81,8 @@ export function SquadTactics({
   tactics, 
   onUpdateTactics, 
   onSwapPlayers, 
-  onToggleTransferList 
+  onToggleTransferList,
+  onAutoLineup
 }) {
   const [selectedPlayerId, setSelectedPlayerId] = useState(null);
 
@@ -151,6 +152,16 @@ export function SquadTactics({
               <option value="Ofensiva" className="bg-slate-900 text-rose-400">Ofensiva (Pressão e gols)</option>
             </select>
           </div>
+
+          {/* Auto-Escalar Button */}
+          <button
+            onClick={() => onAutoLineup && onAutoLineup(tactics.formation)}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 font-bold text-xs transition shadow-sm"
+            title="Escala automaticamente os melhores jogadores para cada função da formação"
+          >
+            <CheckCircle2 size={15} />
+            <span>Auto-Escalar</span>
+          </button>
         </div>
       </div>
 
