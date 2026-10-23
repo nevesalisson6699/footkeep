@@ -1,35 +1,56 @@
-# ☁️ Guia de Publicação no Cloudflare Pages
+# ☁️ Automação de Publicação no Cloudflare Pages
 
-O **Footkeep** foi desenvolvido como uma SPA (Single Page Application) estática e ultrarrápida, perfeita para hospedagem global de custo zero no **Cloudflare Pages**.
-
----
-
-## Método Recomendado: Conexão Contínua com GitHub
-
-Como o repositório oficial já está criado e sincronizado no GitHub:
-👉 `https://github.com/nevesalisson6699/footkeep`
-
-### Passo a Passo no Cloudflare Dashboard:
-
-1. Acesse o painel da Cloudflare: [dash.cloudflare.com](https://dash.cloudflare.com)
-2. No menu lateral esquerdo, clique em **Workers & Pages** (ou **Compute (Workers) > Workers & Pages**).
-3. Clique no botão **Create application** (Criar aplicativo) e selecione a aba **Pages**.
-4. Selecione a opção **Connect to Git** (Conectar ao Git).
-5. Escolha a sua conta GitHub (`nevesalisson6699`) e selecione o repositório **`footkeep`**.
-6. Configure os parâmetros de build:
-   - **Project name:** `footkeep`
-   - **Production branch:** `main`
-   - **Framework preset:** `Vite`
-   - **Build command:** `npm run build`
-   - **Build output directory:** `dist`
-7. Clique em **Save and Deploy** (Salvar e Implantar).
-
-Em cerca de 1 minuto, seu jogo estará online com HTTPS gratuito e CDN global no endereço:
-👉 `https://footkeep.pages.dev` (ou seu domínio personalizado configurado).
-
-Qualquer novo `git push` feito na branch `main` atualizará automaticamente a versão online!
+O **Footkeep** está totalmente preparado para CI/CD automático (Integração e Entrega Contínua) entre o **GitHub** e o **Cloudflare Pages**.
 
 ---
 
-## Roteamento SPA
-O arquivo `public/_redirects` já está configurado no repositório (`/* /index.html 200`) para garantir que qualquer recarga ou navegação interna direta na URL funcione perfeitamente sem erros 404.
+## 📌 Repositório Oficial do Jogo
+* **GitHub:** [https://github.com/nevesalisson6699/footkeep](https://github.com/nevesalisson6699/footkeep)
+* **Branch de Produção:** `main`
+* **Diretório de Build:** `dist`
+* **Comando de Compilação:** `npm run build`
+
+---
+
+## 🚀 Método 1: Integração Nativa Cloudflare Pages (100% Automática e Recomendada)
+
+Este é o método oficial da Cloudflare que **não exige salvar nenhum token nem segredo no computador**:
+
+1. Acesse o painel Cloudflare: [dash.cloudflare.com](https://dash.cloudflare.com)
+2. No menu lateral, clique em **Workers & Pages** (ou **Compute (Workers) > Workers & Pages**).
+3. Clique em **Create application** > aba **Pages** > **Connect to Git**.
+4. Selecione sua conta GitHub (`nevesalisson6699`) e o repositório **`footkeep`**.
+5. Em **Build Settings**, as configurações já são pré-detectadas:
+   * **Framework preset:** `Vite`
+   * **Build command:** `npm run build`
+   * **Build output directory:** `dist`
+6. Clique em **Save and Deploy**.
+
+**Resultado Imediato:**
+* O Cloudflare provisionará o domínio oficial: `https://footkeep.pages.dev`
+* **Automação Contínua:** Sempre que um novo `git push` for feito para a branch `main`, o Cloudflare detectará a alteração, executará o build e atualizará o site em produção automaticamente.
+
+---
+
+## ⚡ Método 2: Via GitHub Actions (CI/CD Automatizado via Workflow)
+
+O arquivo [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml) já está criado no repositório.
+
+Para ativá-lo:
+1. No painel da Cloudflare ([dash.cloudflare.com/profile/api-tokens](https://dash.cloudflare.com/profile/api-tokens)), crie um token com o template **Cloudflare Pages** (permissão *Account.Cloudflare Pages: Edit*).
+2. Copie seu **Account ID** (disponível no menu da Cloudflare).
+3. No repositório GitHub ([github.com/nevesalisson6699/footkeep/settings/secrets/actions](https://github.com/nevesalisson6699/footkeep/settings/secrets/actions)):
+   * Adicione o secret: `CLOUDFLARE_API_TOKEN`
+   * Adicione o secret: `CLOUDFLARE_ACCOUNT_ID`
+4. A cada commit na branch `main`, o GitHub Actions compilará e publicará automaticamente.
+
+---
+
+## 💻 Método 3: Publicação Direta via Terminal / Script Local
+
+Para publicar ou testar diretamente do seu computador:
+Dê um duplo clique no arquivo:
+👉 `deploy-cloudflare.bat`
+
+Ele compilará a pasta `dist` e executará o `npx wrangler pages deploy dist --project-name footkeep`.
+Se for a primeira execução, uma aba de confirmação do Cloudflare abrirá no navegador para autorizar com 1 clique.
