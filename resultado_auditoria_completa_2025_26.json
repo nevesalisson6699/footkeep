@@ -1,8 +1,164 @@
 {
   "Local Dev (Vite)": {
-    "error": "Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"main button:has-text(\\\"Olheiro & Atletas\\\")\").first\n"
+    "env": "Local Dev (Vite)",
+    "url": "http://localhost:3000",
+    "http_status": 200,
+    "load_time_ms": 1686,
+    "runtime_errors": [],
+    "console_errors": [
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "career_integrity": {
+      "pre_state": {
+        "userClubId": "fla",
+        "budget": 38000000,
+        "playersCount": 21,
+        "coachName": "Prof. Carlos"
+      },
+      "post_state": {
+        "userClubId": "fla",
+        "budget": 38000000,
+        "playersCount": 21,
+        "coachName": "Prof. Carlos"
+      },
+      "is_career_intact": true,
+      "verdict": "Carreira 100% preservada sem mutações colaterais durante o scouting"
+    },
+    "tab_monitoring": {
+      "header_title": "Central de Monitoramento & Análise",
+      "badge_season": "FOOTKEEP ANALYTICS V2.6",
+      "audit_status": "Auditado & Confirmado",
+      "is_rendered": true
+    },
+    "competitions_tested": {
+      "Campeonato Brasileiro — Série A": {
+        "button_visible": true,
+        "rendered_in_content": true,
+        "season_2025_26_confirmed": true
+      },
+      "Campeonato Brasileiro — Série B": {
+        "button_visible": true,
+        "rendered_in_content": true,
+        "season_2025_26_confirmed": true
+      },
+      "Copa do Brasil": {
+        "button_visible": true,
+        "rendered_in_content": true,
+        "season_2025_26_confirmed": true
+      },
+      "Premier League": {
+        "button_visible": true,
+        "rendered_in_content": true,
+        "season_2025_26_confirmed": true
+      },
+      "LaLiga": {
+        "button_visible": true,
+        "rendered_in_content": true,
+        "season_2025_26_confirmed": true
+      }
+    },
+    "filters_tested": {
+      "position_filter_attackers_count": 6,
+      "position_filter_gk_count": 1,
+      "search_pedro_results": 1,
+      "found_player": "Pedro"
+    },
+    "player_modal_stats": {
+      "player_modal_opened": true,
+      "has_matches": true,
+      "has_minutes": true,
+      "has_goals": true,
+      "has_assists": true,
+      "has_rating": true,
+      "has_scout_opinion": true
+    },
+    "mobile_check": {
+      "viewport": "375x667",
+      "scrollWidth": 375,
+      "innerWidth": 375,
+      "has_horizontal_overflow": false,
+      "status": "Aprovado sem vazamento horizontal"
+    }
   },
   "Produção Cloudflare Pages": {
-    "error": "Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"main button:has-text(\\\"Olheiro & Atletas\\\")\").first\n"
+    "env": "Produção Cloudflare Pages",
+    "url": "https://footkeeping.pages.dev/",
+    "http_status": 200,
+    "load_time_ms": 1411,
+    "runtime_errors": [],
+    "console_errors": [
+      "Failed to load resource: the server responded with a status of 405 ()"
+    ],
+    "career_integrity": {
+      "pre_state": {
+        "userClubId": "fla",
+        "budget": 38000000,
+        "playersCount": 21,
+        "coachName": "Prof. Carlos"
+      },
+      "post_state": {
+        "userClubId": "fla",
+        "budget": 38000000,
+        "playersCount": 21,
+        "coachName": "Prof. Carlos"
+      },
+      "is_career_intact": true,
+      "verdict": "Carreira 100% preservada sem mutações colaterais durante o scouting"
+    },
+    "tab_monitoring": {
+      "header_title": "Central de Monitoramento & Análise",
+      "badge_season": "FOOTKEEP ANALYTICS V2.6",
+      "audit_status": "Auditado & Confirmado",
+      "is_rendered": true
+    },
+    "competitions_tested": {
+      "Campeonato Brasileiro — Série A": {
+        "button_visible": true,
+        "rendered_in_content": true,
+        "season_2025_26_confirmed": true
+      },
+      "Campeonato Brasileiro — Série B": {
+        "button_visible": true,
+        "rendered_in_content": true,
+        "season_2025_26_confirmed": true
+      },
+      "Copa do Brasil": {
+        "button_visible": true,
+        "rendered_in_content": true,
+        "season_2025_26_confirmed": true
+      },
+      "Premier League": {
+        "button_visible": true,
+        "rendered_in_content": true,
+        "season_2025_26_confirmed": true
+      },
+      "LaLiga": {
+        "button_visible": true,
+        "rendered_in_content": true,
+        "season_2025_26_confirmed": true
+      }
+    },
+    "filters_tested": {
+      "position_filter_attackers_count": 6,
+      "position_filter_gk_count": 1,
+      "search_pedro_results": 1,
+      "found_player": "Pedro"
+    },
+    "player_modal_stats": {
+      "player_modal_opened": true,
+      "has_matches": true,
+      "has_minutes": true,
+      "has_goals": true,
+      "has_assists": true,
+      "has_rating": true,
+      "has_scout_opinion": true
+    },
+    "mobile_check": {
+      "viewport": "375x667",
+      "scrollWidth": 375,
+      "innerWidth": 375,
+      "has_horizontal_overflow": false,
+      "status": "Aprovado sem vazamento horizontal"
+    }
   }
 }

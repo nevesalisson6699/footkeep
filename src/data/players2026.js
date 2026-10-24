@@ -792,9 +792,10 @@ export function buildSeason2026Players(division = 'all') {
         goals: 0,
         assists: 0,
         matchesPlayed: 0,
+        cleanSheets: 0,
         isSuspended: false,
         isListed: false,
-        season: '2026'
+        season: '2025/26'
       };
     });
 
@@ -831,13 +832,38 @@ export function buildSeason2026Players(division = 'all') {
       goals: 0,
       assists: 0,
       matchesPlayed: 0,
+      cleanSheets: 0,
       isSuspended: false,
       isListed: true,
-      season: '2026'
+      season: '2025/26'
     });
   });
 
-  return allPlayers;
+  return sanitizeSquadForNewCareer(allPlayers);
+}
+
+/**
+ * Sanitiza e zera todas as estatísticas acumuladas de carreira de um elenco ou lista de atletas,
+ * preparando o estado para a inicialização 100% zerada de uma nova simulação / carreira,
+ * preservando rigorosamente os atributos técnicos, físicos, posições, vínculos e metadados cadastrais.
+ * 
+ * @param {Array<Object>} playersList - Lista de objetos de jogadores
+ * @returns {Array<Object>} Lista de jogadores com acumuladores de carreira rigorosamente zerados
+ */
+export function sanitizeSquadForNewCareer(playersList) {
+  if (!Array.isArray(playersList)) return [];
+  return playersList.map(player => ({
+    ...player,
+    goals: 0,
+    assists: 0,
+    yellowCards: 0,
+    redCards: 0,
+    matchesPlayed: 0,
+    cleanSheets: 0,
+    isSuspended: false,
+    fitness: typeof player.fitness === 'number' ? player.fitness : 100,
+    morale: player.morale || (player.clubId ? 'Alta' : 'Normal')
+  }));
 }
 
 /**

@@ -1,28 +1,59 @@
 // Competition Engine: Round-Robin League & Knockout Cup Bracket
 
-// Generates 30 rounds (Turno e Returno) for 16 clubs
+/**
+ * Generates full league fixtures (Turno e Returno com mando invertido)
+ * Para 20 clubes da Série A: gera exatamente 38 rodadas (19 turno + 19 returno),
+ * cada rodada com exatamente 10 partidas (total de 380 partidas).
+ * Todas as partidas iniciam estritamente com played: false, homeScore: null, awayScore: null, events: [].
+ * 
+ * @param {Array} clubs - Lista de clubes participantes
+ * @returns {Array} Lista completa de rodadas com partidas estruturadas
+ */
 export function generateLeagueFixtures(clubs) {
+  if (!Array.isArray(clubs) || clubs.length < 2) return [];
+
   const clubIds = clubs.map(c => c.id);
   const n = clubIds.length;
+  const isOdd = n % 2 !== 0;
+  const teams = isOdd ? [...clubIds, null] : [...clubIds];
+  const numTeams = teams.length;
+  const totalRoundsFirstLeg = numTeams - 1; // 19 rodadas para 20 clubes (15 para 16 clubes)
+  const matchesPerRound = numTeams / 2;     // 10 jogos por rodada para 20 clubes (8 para 16 clubes)
   const rounds = [];
-  const totalRoundsFirstLeg = n - 1; // 15 rounds
 
-  const teams = [...clubIds];
+  const pool = [...teams];
 
-  // Circle method round-robin
+  // Turno (Primeira metade da competição)
   for (let roundIdx = 0; roundIdx < totalRoundsFirstLeg; roundIdx++) {
     const matches = [];
-    for (let i = 0; i < n / 2; i++) {
-      const home = teams[i];
-      const away = teams[n - 1 - i];
+    for (let i = 0; i < matchesPerRound; i++) {
+      const home = pool[i];
+      const away = pool[numTeams - 1 - i];
 
-      // Alternate home/away to balance
+      if (home === null || away === null) continue;
+
+      // Alterna mando de campo entre as rodadas para equilíbrio de mando
       if (roundIdx % 2 === 1) {
-        matches.push({ homeId: away, awayId: home, played: false, homeScore: null, awayScore: null, events: [] });
+        matches.push({
+          homeId: away,
+          awayId: home,
+          played: false,
+          homeScore: null,
+          awayScore: null,
+          events: []
+        });
       } else {
-        matches.push({ homeId: home, awayId: away, played: false, homeScore: null, awayScore: null, events: [] });
+        matches.push({
+          homeId: home,
+          awayId: away,
+          played: false,
+          homeScore: null,
+          awayScore: null,
+          events: []
+        });
       }
     }
+
     rounds.push({
       roundNumber: roundIdx + 1,
       type: 'league',
@@ -30,15 +61,15 @@ export function generateLeagueFixtures(clubs) {
       matches
     });
 
-    // Rotate teams keeping index 0 fixed
-    const fixed = teams[0];
-    const rest = teams.slice(1);
+    // Rotação canônica do método circular (Circle method), mantendo o índice 0 fixo
+    const fixed = pool[0];
+    const rest = pool.slice(1);
     const last = rest.pop();
     rest.unshift(last);
-    teams.splice(0, teams.length, fixed, ...rest);
+    pool.splice(0, pool.length, fixed, ...rest);
   }
 
-  // Second leg (Returno - reverse home/away)
+  // Returno (Segunda metade: espelho do turno com mandos rigorosamente invertidos)
   for (let roundIdx = 0; roundIdx < totalRoundsFirstLeg; roundIdx++) {
     const firstLegRound = rounds[roundIdx];
     const reverseMatches = firstLegRound.matches.map(m => ({
@@ -185,15 +216,55 @@ export function advanceCupPhase(cupState) {
   return cupState;
 }
 
-// Calculate standings table from played league rounds
+/**
+ * Retorna imediatamente a tabela da liga zerada para todos os clubes informados.
+ * Ordenação inicial alfabética limpa e determinística.
+ * 
+ * @param {Array} clubs - Lista de clubes participantes
+ * @returns {Array} Tabela inicial com todas as estatísticas zeradas
+ */
+export function getInitialStandings(clubs) {
+  if (!Array.isArray(clubs) || clubs.length === 0) return [];
+
+  // Ordenação alfabética limpa e previsível para o estado inicial
+  const sortedClubs = [...clubs].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+  return sortedClubs.map(c => ({
+    clubId: c.id,
+    name: c.name,
+    badgeEmoji: c.badgeEmoji || '⚽',
+    points: 0,
+    played: 0,
+    won: 0,
+    drawn: 0,
+    lost: 0,
+    goalsFor: 0,
+    goalsAgainst: 0,
+    goalDifference: 0
+  }));
+}
+
+/**
+ * Calcula a tabela de classificação da liga com base nas rodadas disputadas.
+ * - Se nenhuma partida foi jogada, retorna todos os clubes com estatísticas zeradas.
+ * - Apenas partidas com played: true e placar numérico não nulo somam estatísticas.
+ * - Ordenação com zero jogos é estritamente limpa e determinística (alfabética).
+ * 
+ * @param {Array} clubs - Lista de clubes
+ * @param {Array} rounds - Lista de rodadas da liga
+ * @returns {Array} Tabela de classificação atualizada
+ */
 export function calculateStandings(clubs, rounds) {
+  if (!Array.isArray(clubs) || clubs.length === 0) return [];
+
   const table = {};
 
+  // Inicializa todos os clubes estritamente zerados
   clubs.forEach(c => {
     table[c.id] = {
       clubId: c.id,
       name: c.name,
-      badgeEmoji: c.badgeEmoji,
+      badgeEmoji: c.badgeEmoji || '⚽',
       points: 0,
       played: 0,
       won: 0,
@@ -205,9 +276,24 @@ export function calculateStandings(clubs, rounds) {
     };
   });
 
-  rounds.forEach(round => {
+  const safeRounds = Array.isArray(rounds) ? rounds : [];
+
+  safeRounds.forEach(round => {
+    if (!round || !Array.isArray(round.matches)) return;
+
     round.matches.forEach(m => {
-      if (!m.played || m.homeScore === null || m.awayScore === null) return;
+      // Apenas partidas com played: true e placar não nulo somam estatísticas
+      if (
+        m.played !== true ||
+        m.homeScore === null ||
+        m.awayScore === null ||
+        typeof m.homeScore !== 'number' ||
+        typeof m.awayScore !== 'number' ||
+        isNaN(m.homeScore) ||
+        isNaN(m.awayScore)
+      ) {
+        return;
+      }
 
       const home = table[m.homeId];
       const away = table[m.awayId];
@@ -240,11 +326,13 @@ export function calculateStandings(clubs, rounds) {
     });
   });
 
-  // Sort: Points DESC, Goal Difference DESC, Goals For DESC, Name ASC
+  // Critérios de Desempate: Pontos DESC, Saldo de Gols DESC, Gols Pró DESC, Vitórias DESC, Nome ASC
+  // Quando nenhuma partida foi jogada, todos empatam em zero e a ordenação alfabética garante tabela limpa e determinística
   return Object.values(table).sort((a, b) => {
     if (b.points !== a.points) return b.points - a.points;
     if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
     if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
-    return a.name.localeCompare(b.name);
+    if (b.won !== a.won) return b.won - a.won;
+    return (a.name || '').localeCompare(b.name || '');
   });
 }

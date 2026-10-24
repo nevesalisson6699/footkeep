@@ -36,8 +36,10 @@ export function MatchView({
   const [speed, setSpeed] = useState(1); // 1 = normal, 2 = fast, 0 = instant
   const [simulatedData, setSimulatedData] = useState(null);
   const [visibleEvents, setVisibleEvents] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const timerRef = useRef(null);
+  const hasTransmittedRef = useRef(false);
 
   if (!nextMatch) {
     return (
@@ -56,8 +58,13 @@ export function MatchView({
   // Prepare full simulation when entering ready state
   useEffect(() => {
     if (nextMatch && homeClub && awayClub) {
-      const homePlayers = allPlayers.filter(p => p.clubId === homeClub.id);
-      const awayPlayers = allPlayers.filter(p => p.clubId === awayClub.id);
+      // Elimina qualquer mutação acidental: cópias isoladas e imutáveis dos jogadores
+      const homePlayers = allPlayers
+        .filter(p => p.clubId === homeClub.id)
+        .map(p => ({ ...p }));
+      const awayPlayers = allPlayers
+        .filter(p => p.clubId === awayClub.id)
+        .map(p => ({ ...p }));
 
       const sim = simulateFullMatch({
         homeClub,
@@ -74,6 +81,8 @@ export function MatchView({
       setCurrentMinute(0);
       setVisibleEvents([]);
       setMatchState('ready');
+      hasTransmittedRef.current = false;
+      setIsSubmitting(false);
     }
   }, [nextMatch?.matchId || nextMatch?.homeId + nextMatch?.awayId]);
 
@@ -162,7 +171,12 @@ export function MatchView({
 
   const handleAdvance = () => {
     playClick();
+    // Previne estritamente qualquer duplicação ou transmissão concorrente
+    if (hasTransmittedRef.current || isSubmitting) return;
+
     if (simulatedData) {
+      hasTransmittedRef.current = true;
+      setIsSubmitting(true);
       onFinishMatch({
         ...nextMatch,
         ...simulatedData
@@ -251,9 +265,14 @@ export function MatchView({
             ) : (
               <button
                 onClick={handleAdvance}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm shadow-lg shadow-emerald-500/20 transition animate-pulse"
+                disabled={isSubmitting}
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-white font-bold text-sm shadow-lg transition ${
+                  isSubmitting 
+                    ? 'bg-slate-700 cursor-not-allowed opacity-60' 
+                    : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20 animate-pulse'
+                }`}
               >
-                <span>Confirmar & Avançar Rodada</span>
+                <span>{isSubmitting ? 'Gravando Súmula...' : 'Confirmar & Avançar Rodada'}</span>
                 <ArrowRight size={18} />
               </button>
             )}

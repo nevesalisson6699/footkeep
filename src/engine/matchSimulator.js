@@ -138,9 +138,13 @@ export function simulateFullMatch({
   matchId = null,
   referee = null
 }) {
+  // Garantir isolamento absoluto: criar cópias rasas dos atletas para impedir qualquer mutação colateral
+  const safeHomePlayers = (homePlayers || []).map(p => ({ ...p }));
+  const safeAwayPlayers = (awayPlayers || []).map(p => ({ ...p }));
+
   const activeReferee = referee || getRefereeForMatch(matchId || `${homeClub.id}_${awayClub.id}`, isCup);
-  const homeStats = computeTeamRating(homePlayers, homeTactics.formation, homeTactics.mentality, true);
-  const awayStats = computeTeamRating(awayPlayers, awayTactics.formation, awayTactics.mentality, false);
+  const homeStats = computeTeamRating(safeHomePlayers, homeTactics.formation, homeTactics.mentality, true);
+  const awayStats = computeTeamRating(safeAwayPlayers, awayTactics.formation, awayTactics.mentality, false);
 
   const events = [];
   let homeScore = 0;
@@ -196,13 +200,13 @@ export function simulateFullMatch({
       if (isHomeAttacking) homeScore++;
       else awayScore++;
 
-      primaryAttacker.goals = (primaryAttacker.goals || 0) + 1;
-      primaryAttacker.overall = Math.min(99, primaryAttacker.overall + 0.1);
-
       const template = randomItem(COMMENTARY_TEMPLATES.goal);
       const text = template
         .replace('{player}', primaryAttacker.name)
         .replace('{assist}', assistPlayer.name);
+
+      const attackerId = primaryAttacker.id || `${attackerClub.id}_${primaryAttacker.name}`;
+      const assistId = assistPlayer.id !== primaryAttacker.id ? (assistPlayer.id || `${attackerClub.id}_${assistPlayer.name}`) : null;
 
       events.push({
         minute,
@@ -210,8 +214,10 @@ export function simulateFullMatch({
         clubId: attackerClub.id,
         clubName: attackerClub.name,
         badgeEmoji: attackerClub.badgeEmoji,
+        playerId: attackerId,
         playerName: primaryAttacker.name,
-        assistName: assistPlayer.name,
+        assistId: assistId,
+        assistName: assistId ? assistPlayer.name : null,
         homeScore,
         awayScore,
         text
@@ -221,12 +227,15 @@ export function simulateFullMatch({
       const template = randomItem(COMMENTARY_TEMPLATES.miss);
       const text = template.replace('{player}', primaryAttacker.name);
 
+      const attackerId = primaryAttacker.id || `${attackerClub.id}_${primaryAttacker.name}`;
+
       events.push({
         minute,
         type: 'miss',
         clubId: attackerClub.id,
         clubName: attackerClub.name,
         badgeEmoji: attackerClub.badgeEmoji,
+        playerId: attackerId,
         playerName: primaryAttacker.name,
         homeScore,
         awayScore,
@@ -238,16 +247,15 @@ export function simulateFullMatch({
       const defendersOnly = eligibleFoulPlayers.filter(p => p.position === 'Z' || p.position === 'V' || p.position === 'L');
       const foulPlayer = defendersOnly.length > 0 ? randomItem(defendersOnly) : randomItem(eligibleFoulPlayers);
 
-      const playerYellows = matchYellows[foulPlayer.id] || 0;
+      const foulId = foulPlayer.id || `${defenderClub.id}_${foulPlayer.name}`;
+      const playerYellows = matchYellows[foulId] || 0;
       const isSevereFoul = roll > 0.985; // Violent foul roll -> direct red
 
-      if (isSevereFoul && !matchRedSet.has(foulPlayer.id)) {
+      if (isSevereFoul && !matchRedSet.has(foulId)) {
         // Direct Red Card!
-        matchRedSet.add(foulPlayer.id);
+        matchRedSet.add(foulId);
         if (isHomeAttacking) awayRedCards++;
         else homeRedCards++;
-        foulPlayer.redCards = (foulPlayer.redCards || 0) + 1;
-        foulPlayer.isSuspended = true;
 
         const text = COMMENTARY_TEMPLATES.card_red[0].replace('{player}', foulPlayer.name);
         events.push({
@@ -257,19 +265,18 @@ export function simulateFullMatch({
           clubId: defenderClub.id,
           clubName: defenderClub.name,
           badgeEmoji: defenderClub.badgeEmoji,
+          playerId: foulId,
           playerName: foulPlayer.name,
           homeScore,
           awayScore,
           text
         });
-      } else if (playerYellows === 1 && !matchRedSet.has(foulPlayer.id)) {
+      } else if (playerYellows === 1 && !matchRedSet.has(foulId)) {
         // Second Yellow Card -> Expulsion!
-        matchYellows[foulPlayer.id] = 2;
-        matchRedSet.add(foulPlayer.id);
+        matchYellows[foulId] = 2;
+        matchRedSet.add(foulId);
         if (isHomeAttacking) awayRedCards++;
         else homeRedCards++;
-        foulPlayer.redCards = (foulPlayer.redCards || 0) + 1;
-        foulPlayer.isSuspended = true;
 
         const text = COMMENTARY_TEMPLATES.card_red[1].replace('{player}', foulPlayer.name);
         events.push({
@@ -279,15 +286,15 @@ export function simulateFullMatch({
           clubId: defenderClub.id,
           clubName: defenderClub.name,
           badgeEmoji: defenderClub.badgeEmoji,
+          playerId: foulId,
           playerName: foulPlayer.name,
           homeScore,
           awayScore,
           text
         });
-      } else if (playerYellows === 0 && !matchRedSet.has(foulPlayer.id)) {
+      } else if (playerYellows === 0 && !matchRedSet.has(foulId)) {
         // First Yellow Card
-        matchYellows[foulPlayer.id] = 1;
-        foulPlayer.yellowCards = (foulPlayer.yellowCards || 0) + 1;
+        matchYellows[foulId] = 1;
 
         const template = randomItem(COMMENTARY_TEMPLATES.card_yellow);
         const text = template.replace('{player}', foulPlayer.name);
@@ -295,9 +302,11 @@ export function simulateFullMatch({
         events.push({
           minute,
           type: 'card_yellow',
+          isDirectRed: false,
           clubId: defenderClub.id,
           clubName: defenderClub.name,
           badgeEmoji: defenderClub.badgeEmoji,
+          playerId: foulId,
           playerName: foulPlayer.name,
           homeScore,
           awayScore,
@@ -351,6 +360,10 @@ export function simulateFullMatch({
     ? Math.max(25, homePossession - (homeRedCards - awayRedCards) * 6)
     : (awayRedCards > homeRedCards ? Math.min(75, homePossession + (awayRedCards - homeRedCards) * 6) : homePossession);
 
+  const homeStarters = homeStats.starters.map(p => ({ id: p.id || `${homeClub.id}_${p.name}`, name: p.name, clubId: homeClub.id }));
+  const awayStarters = awayStats.starters.map(p => ({ id: p.id || `${awayClub.id}_${p.name}`, name: p.name, clubId: awayClub.id }));
+  const participantPlayerIds = [...homeStarters.map(p => p.id), ...awayStarters.map(p => p.id)];
+
   return {
     homeId: homeClub.id,
     awayId: awayClub.id,
@@ -363,9 +376,107 @@ export function simulateFullMatch({
     awayRedCards,
     played: true,
     events,
+    homeStarters,
+    awayStarters,
+    participantPlayerIds,
     possession: { home: finalHomePossession, away: 100 - finalHomePossession },
     attendance,
     gateReceipts,
     referee: activeReferee
   };
+}
+
+/**
+ * Função Pura: Aplica o resultado de uma partida finalizada à lista de jogadores,
+ * incrementando goals, assists, yellowCards, redCards e matchesPlayed
+ * estritamente para os atletas participantes da partida.
+ * 
+ * @param {Array} playersList - Lista completa de atletas da carreira
+ * @param {Object} finishedMatch - Objeto do confronto finalizado com 'events' e 'participantPlayerIds'
+ * @returns {Array} Nova lista de jogadores atualizada e imutável
+ */
+export function applyMatchResultToPlayers(playersList, finishedMatch) {
+  if (!playersList || !Array.isArray(playersList)) return [];
+  if (!finishedMatch || !finishedMatch.events) return playersList.map(p => ({ ...p }));
+
+  const events = finishedMatch.events || [];
+
+  const goalsByPlayerId = {};
+  const assistsByPlayerId = {};
+  const yellowsByPlayerId = {};
+  const redsByPlayerId = {};
+
+  const goalsByPlayerName = {};
+  const assistsByPlayerName = {};
+  const yellowsByPlayerName = {};
+  const redsByPlayerName = {};
+
+  events.forEach(ev => {
+    if (ev.type === 'goal') {
+      if (ev.playerId) goalsByPlayerId[ev.playerId] = (goalsByPlayerId[ev.playerId] || 0) + 1;
+      if (ev.playerName) {
+        const key = `${ev.clubId}_${ev.playerName}`;
+        goalsByPlayerName[key] = (goalsByPlayerName[key] || 0) + 1;
+      }
+
+      if (ev.assistId) assistsByPlayerId[ev.assistId] = (assistsByPlayerId[ev.assistId] || 0) + 1;
+      if (ev.assistName) {
+        const key = `${ev.clubId}_${ev.assistName}`;
+        assistsByPlayerName[key] = (assistsByPlayerName[key] || 0) + 1;
+      }
+    } else if (ev.type === 'card_yellow') {
+      if (ev.playerId) yellowsByPlayerId[ev.playerId] = (yellowsByPlayerId[ev.playerId] || 0) + 1;
+      if (ev.playerName) {
+        const key = `${ev.clubId}_${ev.playerName}`;
+        yellowsByPlayerName[key] = (yellowsByPlayerName[key] || 0) + 1;
+      }
+    } else if (ev.type === 'card_red') {
+      if (ev.playerId) redsByPlayerId[ev.playerId] = (redsByPlayerId[ev.playerId] || 0) + 1;
+      if (ev.playerName) {
+        const key = `${ev.clubId}_${ev.playerName}`;
+        redsByPlayerName[key] = (redsByPlayerName[key] || 0) + 1;
+      }
+    }
+  });
+
+  const participantSet = new Set();
+  const participantNameSet = new Set();
+
+  if (finishedMatch.participantPlayerIds && Array.isArray(finishedMatch.participantPlayerIds)) {
+    finishedMatch.participantPlayerIds.forEach(id => participantSet.add(id));
+  } else {
+    const homeStarters = playersList.filter(p => p.clubId === finishedMatch.homeId).slice(0, 11);
+    const awayStarters = playersList.filter(p => p.clubId === finishedMatch.awayId).slice(0, 11);
+    [...homeStarters, ...awayStarters].forEach(p => {
+      if (p.id) participantSet.add(p.id);
+      participantNameSet.add(`${p.clubId}_${p.name}`);
+    });
+  }
+
+  return playersList.map(player => {
+    const nameKey = `${player.clubId}_${player.name}`;
+    const participated = (player.id && participantSet.has(player.id)) || participantNameSet.has(nameKey);
+
+    if (!participated) {
+      return { ...player };
+    }
+
+    const matchGoals = (player.id ? goalsByPlayerId[player.id] : null) ?? goalsByPlayerName[nameKey] ?? 0;
+    const matchAssists = (player.id ? assistsByPlayerId[player.id] : null) ?? assistsByPlayerName[nameKey] ?? 0;
+    const matchYellows = (player.id ? yellowsByPlayerId[player.id] : null) ?? yellowsByPlayerName[nameKey] ?? 0;
+    const matchReds = (player.id ? redsByPlayerId[player.id] : null) ?? redsByPlayerName[nameKey] ?? 0;
+
+    const newYellowCards = (player.yellowCards || 0) + matchYellows;
+    const newRedCards = (player.redCards || 0) + matchReds;
+
+    return {
+      ...player,
+      matchesPlayed: (player.matchesPlayed || 0) + 1,
+      goals: (player.goals || 0) + matchGoals,
+      assists: (player.assists || 0) + matchAssists,
+      yellowCards: newYellowCards,
+      redCards: newRedCards,
+      isSuspended: matchReds > 0 ? true : (player.isSuspended || false)
+    };
+  });
 }

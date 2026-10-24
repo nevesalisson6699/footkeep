@@ -394,3 +394,5 @@ const REAL_FREE_AGENTS = [
 export function buildRealPlayers() {
   return buildSeason2026Players('all');
 }
+
+export { sanitizeSquadForNewCareer } from './players2026.js';

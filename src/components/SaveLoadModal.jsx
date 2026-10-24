@@ -56,6 +56,10 @@ export function SaveLoadModal({
   const [knownAccounts, setKnownAccounts] = useState([]);
   const [dispatchLogs, setDispatchLogs] = useState([]);
 
+  // Modais de confirmação de exclusão e reinício (Segurança de Saves)
+  const [deleteTargetEmail, setDeleteTargetEmail] = useState(null);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+
   // Load cloud and email info when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -433,23 +437,39 @@ export function SaveLoadModal({
                   </span>
                   <div className="flex flex-wrap gap-2">
                     {knownAccounts.map(acc => (
-                      <button
+                      <div
                         key={acc.email}
-                        onClick={() => {
-                          setEmailInput(acc.email);
-                          const save = getCloudSaveByEmail(acc.email);
-                          if (save) setCloudPreviewSave(save);
-                        }}
                         className={`text-xs px-2.5 py-1.5 rounded-lg border transition flex items-center gap-2 ${
                           emailInput === acc.email
                             ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300'
                             : 'bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800'
                         }`}
                       >
-                        <Mail size={12} className="text-emerald-400" />
-                        <span className="font-mono">{acc.email}</span>
-                        <span className="text-[10px] text-slate-400">({acc.clubName || 'Clube'})</span>
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEmailInput(acc.email);
+                            const save = getCloudSaveByEmail(acc.email);
+                            if (save) setCloudPreviewSave(save);
+                          }}
+                          className="flex items-center gap-1.5 text-left"
+                        >
+                          <Mail size={12} className="text-emerald-400" />
+                          <span className="font-mono">{acc.email}</span>
+                          <span className="text-[10px] text-slate-400">({acc.clubName || 'Clube'})</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteTargetEmail(acc.email);
+                          }}
+                          className="text-slate-500 hover:text-rose-400 p-0.5 rounded transition ml-1"
+                          title={`Excluir save de ${acc.email}`}
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -631,7 +651,7 @@ export function SaveLoadModal({
                 Escolher Outro Clube ou Iniciar Novo Jogo
               </span>
               <button
-                onClick={onResetGame}
+                onClick={() => setShowResetConfirm(true)}
                 className="text-xs text-rose-400 hover:text-rose-300 font-semibold flex items-center gap-1.5 transition"
               >
                 <RotateCcw size={14} />
@@ -662,6 +682,87 @@ export function SaveLoadModal({
                   </div>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Confirmação Obrigatório para Exclusão de Save por E-mail */}
+        {deleteTargetEmail && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+            <div className="bg-slate-900 border border-rose-500/50 rounded-2xl p-5 max-w-sm w-full space-y-4 shadow-2xl">
+              <div className="flex items-center gap-2 text-rose-400 font-bold text-sm">
+                <AlertCircle size={18} />
+                <span>Confirmar Exclusão de Carreira</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Tem certeza que deseja excluir o save da conta <strong>{deleteTargetEmail}</strong>? Esta ação é irreversível e apagará o progresso salvo.
+              </p>
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setDeleteTargetEmail(null)}
+                  className="flex-1 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700 transition"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    deleteCloudSaveByEmail(deleteTargetEmail);
+                    setKnownAccounts(listKnownEmailAccounts());
+                    if (currentActiveEmail === deleteTargetEmail) {
+                      setCurrentActiveEmail('');
+                    }
+                    if (cloudPreviewSave?.email === deleteTargetEmail) {
+                      setCloudPreviewSave(null);
+                    }
+                    setSyncStatus({
+                      type: 'info',
+                      message: `Save da conta ${deleteTargetEmail} excluído com sucesso.`
+                    });
+                    setDeleteTargetEmail(null);
+                  }}
+                  className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition flex items-center justify-center gap-1.5"
+                >
+                  <Trash2 size={13} />
+                  <span>Excluir Save</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Confirmação para Reiniciar Carreira Atual */}
+        {showResetConfirm && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+            <div className="bg-slate-900 border border-amber-500/50 rounded-2xl p-5 max-w-sm w-full space-y-4 shadow-2xl">
+              <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
+                <AlertCircle size={18} />
+                <span>Confirmar Reinício de Carreira</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Tem certeza que deseja reiniciar a temporada atual? Qualquer progresso não salvo será descartado.
+              </p>
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowResetConfirm(false)}
+                  className="flex-1 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700 transition"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowResetConfirm(false);
+                    onResetGame();
+                  }}
+                  className="flex-1 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition flex items-center justify-center gap-1.5"
+                >
+                  <RotateCcw size={13} />
+                  <span>Reiniciar</span>
+                </button>
+              </div>
             </div>
           </div>
         )}

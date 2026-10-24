@@ -7,9 +7,11 @@ import {
   generateLeagueFixtures, 
   generateInitialCup, 
   advanceCupPhase, 
-  calculateStandings 
+  calculateStandings,
+  getInitialStandings 
 } from './engine/competitionEngine';
-import { simulateFullMatch } from './engine/matchSimulator';
+import { simulateFullMatch, applyMatchResultToPlayers } from './engine/matchSimulator';
+import { sanitizeSquadForNewCareer } from './data/players2026';
 
 import { Navbar } from './components/Navbar';
 import { ClubDashboard } from './components/ClubDashboard';
@@ -166,7 +168,7 @@ export function App() {
   const initDefaultCareer = (targetClubId) => {
     if (!targetClubId) return;
     const initialClubs = [...REAL_CLUBS];
-    const initialPlayers = buildRealPlayers();
+    const initialPlayers = sanitizeSquadForNewCareer(buildRealPlayers());
     const fixtures = generateLeagueFixtures(initialClubs);
     const cup = generateInitialCup(initialClubs);
     const selectedClub = initialClubs.find(c => c.id === targetClubId) || initialClubs[0];
@@ -178,6 +180,7 @@ export function App() {
     setCurrentRound(1);
     setLeagueRounds(fixtures);
     setCupState(cup);
+    setStandings(getInitialStandings(initialClubs));
     setTactics({ formation: '4-4-2', mentality: 'Equilibrada' });
     setAwardedPrizes([]);
     setManagerProfile({
@@ -220,8 +223,12 @@ export function App() {
       allPlayers = [...balancedSquad, ...otherPlayers];
     }
 
+    // Rigorously sanitize all player career stats to 0 (goals, assists, cards, matches)
+    allPlayers = sanitizeSquadForNewCareer(allPlayers);
+
     const fixtures = generateLeagueFixtures(chosenClubs);
     const cup = generateInitialCup(chosenClubs);
+    const initialStandings = getInitialStandings(chosenClubs);
 
     const initialBudgetVal = careerConfig.initialBudget || selectedClub.budget;
     const targetEmail = careerConfig.email || activeEmailState || '';
@@ -233,6 +240,7 @@ export function App() {
     setCurrentRound(1);
     setLeagueRounds(fixtures);
     setCupState(cup);
+    setStandings(initialStandings);
     setTactics({ formation: '4-4-2', mentality: 'Equilibrada' });
     setAwardedPrizes([]);
     setManagerProfile(careerConfig.managerProfile);
@@ -394,9 +402,13 @@ export function App() {
 
   // Finish match handler and batch-simulate remaining matches in the round
   const handleFinishMatch = (finishedMatch) => {
+    // 0. Atualizar estatísticas dos jogadores de forma pura e imutável
+    setPlayers(prevPlayers => applyMatchResultToPlayers(prevPlayers, finishedMatch));
+
     if (finishedMatch.type === 'cup') {
       // 1. Update Cup Match
       const phase = cupState.currentPhase;
+      const otherSimulatedCupMatches = [];
       const updatedMatches = cupState.phases[phase].matches.map(m => {
         if (m.matchId === finishedMatch.matchId) {
           return finishedMatch;
@@ -407,10 +419,22 @@ export function App() {
           const hP = players.filter(p => p.clubId === hClub?.id);
           const aP = players.filter(p => p.clubId === aClub?.id);
           const sim = simulateFullMatch({ homeClub: hClub, awayClub: aClub, homePlayers: hP, awayPlayers: aP, isCup: true });
-          return { ...m, ...sim };
+          const fullSim = { ...m, ...sim };
+          otherSimulatedCupMatches.push(fullSim);
+          return fullSim;
         }
         return m;
       });
+
+      if (otherSimulatedCupMatches.length > 0) {
+        setPlayers(prevPlayers => {
+          let updated = [...prevPlayers];
+          for (const simMatch of otherSimulatedCupMatches) {
+            updated = applyMatchResultToPlayers(updated, simMatch);
+          }
+          return updated;
+        });
+      }
 
       const updatedCupState = advanceCupPhase({
         ...cupState,
@@ -446,6 +470,7 @@ export function App() {
 
     } else {
       // 2. Update League Match
+      const cpuSimulatedMatches = [];
       const updatedRounds = leagueRounds.map(r => {
         if (r.roundNumber === currentRound) {
           const updatedMatches = r.matches.map(m => {
@@ -458,7 +483,9 @@ export function App() {
               const hP = players.filter(p => p.clubId === hClub?.id);
               const aP = players.filter(p => p.clubId === aClub?.id);
               const sim = simulateFullMatch({ homeClub: hClub, awayClub: aClub, homePlayers: hP, awayPlayers: aP, isCup: false });
-              return { ...m, ...sim };
+              const fullSim = { ...m, ...sim };
+              cpuSimulatedMatches.push(fullSim);
+              return fullSim;
             }
             return m;
           });
@@ -466,6 +493,17 @@ export function App() {
         }
         return r;
       });
+
+      // Atualiza os artilheiros e cartões dos outros jogos da rodada simulados
+      if (cpuSimulatedMatches.length > 0) {
+        setPlayers(prevPlayers => {
+          let updated = [...prevPlayers];
+          for (const simMatch of cpuSimulatedMatches) {
+            updated = applyMatchResultToPlayers(updated, simMatch);
+          }
+          return updated;
+        });
+      }
 
       setLeagueRounds(updatedRounds);
 
@@ -482,7 +520,9 @@ export function App() {
       let leaguePrizes = 0;
       const newPrizes = [];
 
-      if (currentRound >= 30) {
+      const totalRounds = leagueRounds.length || 38;
+
+      if (currentRound >= totalRounds) {
         const userPosition = newStandings.findIndex(s => s.clubId === userClubId) + 1;
 
         if (userPosition === 1 && !awardedPrizes.some(p => p.id === 'league_champion')) {
@@ -491,7 +531,7 @@ export function App() {
             id: 'league_champion',
             title: 'Campeão da Liga Nacional (1º Lugar)',
             amount: 15000000,
-            round: 30
+            round: totalRounds
           });
         }
 
@@ -501,7 +541,7 @@ export function App() {
             id: 'league_g4',
             title: 'Classificação para o G4',
             amount: 6000000,
-            round: 30
+            round: totalRounds
           });
         }
       }
@@ -513,7 +553,7 @@ export function App() {
 
       if (cupState && !cupState.championId) {
         const curPhase = cupState.currentPhase;
-        const phaseMilestone = CUP_SCHEDULE[curPhase] || 30;
+        const phaseMilestone = CUP_SCHEDULE[curPhase] || totalRounds;
         if (currentRound >= phaseMilestone) {
           const phaseMatches = cupState.phases[curPhase]?.matches || [];
           const hasUserInPhase = phaseMatches.some(m => !m.played && (m.homeId === userClubId || m.awayId === userClubId));
@@ -541,7 +581,7 @@ export function App() {
         }
       }
 
-      if (currentRound < 30) {
+      if (currentRound < totalRounds) {
         setCurrentRound(prev => prev + 1);
       }
     }
