@@ -20,6 +20,7 @@ import { CupBracket } from './components/CupBracket';
 import { TransfersMarket } from './components/TransfersMarket';
 import { FinancesView } from './components/FinancesView';
 import { SettingsView } from './components/SettingsView';
+import { MonitoringAnalyticsView } from './components/MonitoringAnalyticsView';
 import { SaveLoadModal } from './components/SaveLoadModal';
 import { CareerCreationModal } from './components/CareerCreationModal';
 import { FootkeepLogo } from './components/FootkeepLogo';
@@ -710,6 +711,15 @@ export function App() {
               />
             )}
 
+            {currentTab === 'monitoring' && (
+              <MonitoringAnalyticsView 
+                userClub={userClub}
+                tactics={tactics}
+                budget={budget}
+                players={players}
+              />
+            )}
+
             {currentTab === 'transfers' && (
               <TransfersMarket 
                 allPlayers={players}
@@ -766,7 +776,7 @@ export function App() {
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950/80 py-4 text-center text-xs text-slate-500">
         <div className="container-app flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Footkeep Football Manager © 2024 / 2026 • Temporada Série A Oficial</span>
+          <span>Footkeep Football Manager © 2025/26 • Temporada Oficial (Série A, Série B, Copa do Brasil, Premier League & LaLiga)</span>
           <span>Sincronização em Nuvem & Cloudflare Pages</span>
         </div>
       </footer>

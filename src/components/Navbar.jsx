@@ -14,7 +14,8 @@ import {
   UserCheck,
   Settings,
   Mail,
-  CloudCheck
+  CloudCheck,
+  BarChart3
 } from 'lucide-react';
 import { ClubBadge } from './ClubBadge';
 import { FootkeepLogo } from './FootkeepLogo';
@@ -36,8 +37,9 @@ export function Navbar({
     { id: 'dashboard', label: 'Visão Geral', icon: Shield },
     { id: 'tactics', label: 'Elenco & Tática', icon: Users },
     { id: 'match', label: 'Jogar Partida', icon: PlayCircle, highlight: true },
-    { id: 'league', label: 'Liga Nacional', icon: Table },
-    { id: 'cup', label: 'Copa Footkeep', icon: Award },
+    { id: 'league', label: 'Brasileirão', icon: Table },
+    { id: 'cup', label: 'Copa do Brasil', icon: Award },
+    { id: 'monitoring', label: 'Monitoramento & Análise', icon: BarChart3, highlightBadge: '2025/26' },
     { id: 'transfers', label: 'Transferências', icon: ArrowLeftRight },
     { id: 'finances', label: 'Finanças', icon: DollarSign },
     { id: 'settings', label: 'Configurações', icon: Settings }
@@ -166,6 +168,11 @@ export function Navbar({
                 >
                   <Icon size={14} className={isActive ? 'text-emerald-400' : (tab.highlight ? 'text-emerald-400' : 'text-slate-500')} />
                   <span>{tab.label}</span>
+                  {tab.highlightBadge && (
+                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      {tab.highlightBadge}
+                    </span>
+                  )}
                   {isActive && (
                     <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500 shadow-sm shadow-emerald-500"></span>
                   )}

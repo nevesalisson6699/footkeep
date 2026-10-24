@@ -142,7 +142,7 @@ export function FinancesView({ userClub, squad, budget, currentRound, awardedPri
             {/* Prize 2: Cup Title */}
             <div className="flex items-center justify-between py-2 border-b border-slate-800/60">
               <div>
-                <span className="text-slate-300 font-semibold block">Campeão Copa Footkeep</span>
+                <span className="text-slate-300 font-semibold block">Campeão da Copa do Brasil</span>
                 <span className="text-[11px] text-slate-500">Pago automaticamente ao vencer a Final</span>
               </div>
               <div className="text-right flex items-center gap-2">

@@ -70,7 +70,7 @@ export function ClubDashboard({
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-1">
                 <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">
-                  Série A 2024
+                  Campeonato Brasileiro — Série A (2025/26)
                 </span>
                 <span className="text-[10px] font-semibold text-slate-400 bg-slate-900/80 px-2 py-0.5 rounded border border-slate-800">
                   {userClub.city}

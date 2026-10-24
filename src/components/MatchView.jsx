@@ -183,7 +183,7 @@ export function MatchView({
       <div className="glass-panel p-6 md:p-8 border-slate-800 shadow-2xl relative overflow-hidden">
         <div className="flex items-center justify-between pb-4 border-b border-slate-800 text-xs text-slate-400">
           <span className="font-semibold uppercase tracking-wider text-emerald-400">
-            {nextMatch.type === 'cup' ? 'Copa Footkeep Mata-Mata' : 'Liga Nacional Série A'}
+            {nextMatch.type === 'cup' ? 'Copa do Brasil (Temporada 2025/26)' : 'Campeonato Brasileiro — Série A (Temporada 2025/26)'}
           </span>
           <span className="flex items-center gap-1.5 font-mono text-sm bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
             <Clock size={15} className="text-emerald-400" />

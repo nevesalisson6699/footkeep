@@ -74,7 +74,7 @@ export function CareerCreationModal({
   // Modal mode: 'create' | 'email_login'
   const [modalMode, setModalMode] = useState('create');
 
-  // Mode of clubs: real (Brasileirão 2024) or classic
+  // Mode of clubs: real (Campeonato Brasileiro 2025/26) or classic
   const [leagueMode, setLeagueMode] = useState('real'); // 'real' | 'classic'
 
   // Coach Profile Fields

@@ -64,10 +64,10 @@ export function CupBracket({ cupState, allClubs, userClubId }) {
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Award className="text-emerald-400" size={24} />
-            Copa Footkeep Mata-Mata
+            Copa do Brasil (Temporada 2025/26)
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            16 Clubes • Jogo Único Eliminatório • Pênaltis em caso de empate
+            Mata-Mata Eliminatório Nacional CBF • Pênaltis em caso de empate
           </p>
         </div>
 

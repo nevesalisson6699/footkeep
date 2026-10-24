@@ -17,10 +17,10 @@ export function LeagueTable({ standings, userClubId, allPlayers, allClubs }) {
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Trophy className="text-yellow-400" size={22} />
-            Tabela de Classificação - Liga Nacional Série A
+            Tabela de Classificação — Campeonato Brasileiro — Série A (Temporada 2025/26)
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            Turno e Returno • {standings.length || 20} Clubes • {((standings.length || 20) - 1) * 2} Rodadas
+            Turno e Returno • {standings.length || 20} Clubes • 38 Rodadas Oficiais CBF
           </p>
         </div>
 

@@ -118,7 +118,7 @@ export function TransfersMarket({
           }`}
         >
           <ShieldCheck size={15} />
-          <span>Painel Contratual Temporada 2026/2027 (BID Oficial)</span>
+          <span>Painel Contratual Temporada 2025/26 (BID Oficial)</span>
           <span className="text-[10px] bg-slate-950/80 text-emerald-400 px-1.5 py-0.5 rounded font-mono border border-emerald-500/30">
             Auditado
           </span>
@@ -313,7 +313,7 @@ export function TransfersMarket({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
             <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-widest block">
-              Auditoria de Vínculos Federativos & Mercado 2026/2027
+              Auditoria de Vínculos Federativos & Mercado 2025/26
             </span>
             <h3 className="text-lg font-black text-white">
               Contratos Reais, Transferências e Janelas Oficiais (BID / CBF)
@@ -330,12 +330,12 @@ export function TransfersMarket({
         </div>
       </div>
 
-      {/* Section 1: Confirmed Transfers for 2026 */}
+      {/* Section 1: Confirmed Transfers for 2025/26 */}
       <div className="glass-panel p-5 border-slate-800 space-y-3">
         <div className="flex items-center justify-between pb-3 border-b border-slate-800">
           <h4 className="font-bold text-white text-sm flex items-center gap-2">
             <ShieldCheck size={17} className="text-emerald-400" />
-            Transferências Oficiais Confirmadas para 2026/2027
+            Transferências Oficiais Confirmadas para 2025/26
           </h4>
           <span className="text-xs text-slate-400">
             Total: {CONFIRMED_TRANSFERS_2026.length} Operações Homologadas
@@ -373,10 +373,10 @@ export function TransfersMarket({
           <div>
             <h4 className="font-bold text-white text-sm flex items-center gap-2">
               <FileText size={17} className="text-emerald-400" />
-              Status Contratual dos Atletas por Clube (Série A 2026)
+              Status Contratual dos Atletas por Clube (Série A 2025/26)
             </h4>
             <p className="text-xs text-slate-400">
-              Consulte os términos de vínculo e a situação de renovação para 2026.
+              Consulte os términos de vínculo e a situação de renovação para 2025/26.
             </p>
           </div>
 
