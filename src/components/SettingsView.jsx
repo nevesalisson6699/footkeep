@@ -19,6 +19,13 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { FootkeepLogo } from './FootkeepLogo';
+import { 
+  playWhistle, 
+  playGoal, 
+  playClick, 
+  playCard, 
+  isSoundEnabled 
+} from '../services/audioService';
 
 export const SETTINGS_STORAGE_KEY = 'footkeep_settings_v1';
 
@@ -106,26 +113,15 @@ export function SettingsView({
     }, 2400);
   };
 
-  // Sintetizador de áudio simulado nativo via Web Audio API para teste imediato
-  const playTestTone = () => {
-    if (!settings.soundEffects) return;
-    try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // Ré5
-      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15); // Lá5
-      gain.gain.setValueAtTime(0.15, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.2);
-    } catch {
-      // Ignorar caso navegador bloqueie sem interação prévia
+  // Teste sonoro procedural com o audioService oficial
+  const handleToggleSound = () => {
+    const nextVal = !settings.soundEffects;
+    updateSetting('soundEffects', nextVal);
+    if (nextVal) {
+      // Dispara imediatamente som de confirmação quando reativado
+      setTimeout(() => {
+        playWhistle('short');
+      }, 30);
     }
   };
 
@@ -188,11 +184,7 @@ export function SettingsView({
 
             {/* Toggle Switch */}
             <button
-              onClick={() => {
-                const nextVal = !settings.soundEffects;
-                updateSetting('soundEffects', nextVal);
-                if (nextVal) playTestTone();
-              }}
+              onClick={handleToggleSound}
               className={`w-13 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out relative flex items-center ${settings.soundEffects ? 'bg-emerald-500' : 'bg-slate-800'}`}
               title={settings.soundEffects ? 'Desativar Sons' : 'Ativar Sons'}
             >
@@ -201,16 +193,26 @@ export function SettingsView({
           </div>
 
           {settings.soundEffects && (
-            <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
-              <span className="text-[11px] text-slate-400">Canal de áudio WebAudio ativo</span>
-              <button
-                onClick={playTestTone}
-                className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-1 rounded-lg transition flex items-center gap-1.5"
-                title="Testar Som da interface"
-              >
-                <Volume2 size={13} />
-                <span>Testar Som</span>
-              </button>
+            <div className="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+              <span className="text-[11px] text-slate-400">Web Audio API procedural ativa</span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => playWhistle('short')}
+                  className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-1 rounded-lg transition flex items-center gap-1"
+                  title="Testar Apito do Árbitro"
+                >
+                  <Volume2 size={13} />
+                  <span>Apito</span>
+                </button>
+                <button
+                  onClick={() => playGoal()}
+                  className="text-xs font-semibold text-amber-400 hover:text-amber-300 bg-amber-950/40 hover:bg-amber-950/70 border border-amber-500/30 px-2.5 py-1 rounded-lg transition flex items-center gap-1"
+                  title="Testar Gol e Torcida"
+                >
+                  <Sparkles size={13} />
+                  <span>Gol</span>
+                </button>
+              </div>
             </div>
           )}
         </div>

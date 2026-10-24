@@ -674,6 +674,7 @@ export function App() {
               <SquadTactics 
                 squad={userSquad}
                 tactics={tactics}
+                userClub={userClub}
                 onUpdateTactics={setTactics}
                 onSwapPlayers={handleSwapPlayers}
                 onToggleTransferList={handleToggleTransferList}

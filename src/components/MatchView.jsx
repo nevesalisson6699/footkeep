@@ -15,6 +15,13 @@ import {
 import { simulateFullMatch } from '../engine/matchSimulator';
 import { ClubBadge } from './ClubBadge';
 import { getRefereeForMatch } from '../data/refereesData.js';
+import { 
+  playWhistle, 
+  playGoal, 
+  playCard, 
+  playKick, 
+  playClick 
+} from '../services/audioService';
 
 export function MatchView({ 
   userClub, 
@@ -87,8 +94,21 @@ export function MatchView({
         setCurrentMinute(prev => {
           const next = prev + 1;
 
-          // Reveal events that occurred up to this minute
+          // Reveal events that occurred up to this minute and trigger audio cues
           if (simulatedData) {
+            const currentEvents = simulatedData.events.filter(e => e.minute === next);
+            currentEvents.forEach(ev => {
+              if (ev.type === 'goal') {
+                playGoal();
+              } else if (ev.type === 'card_yellow') {
+                playCard('yellow');
+              } else if (ev.type === 'card_red') {
+                playCard('red');
+              } else if (ev.type === 'miss') {
+                playKick();
+              }
+            });
+
             const upToNow = simulatedData.events.filter(e => e.minute <= next);
             setVisibleEvents(upToNow);
           }
@@ -108,6 +128,7 @@ export function MatchView({
 
   const finishGame = () => {
     setMatchState('finished');
+    playWhistle('end'); // Apito final da partida (três silvos)
     if (simulatedData) {
       setVisibleEvents(simulatedData.events);
       // Trigger victory celebration if user won
@@ -127,13 +148,20 @@ export function MatchView({
 
   const handleStartPlay = () => {
     if (matchState === 'ready' || matchState === 'paused') {
+      if (matchState === 'ready' && currentMinute === 0) {
+        playWhistle('start'); // Apito de início do jogo
+      } else {
+        playClick();
+      }
       setMatchState('playing');
     } else if (matchState === 'playing') {
+      playClick();
       setMatchState('paused');
     }
   };
 
   const handleAdvance = () => {
+    playClick();
     if (simulatedData) {
       onFinishMatch({
         ...nextMatch,

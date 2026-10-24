@@ -20,10 +20,12 @@ import {
   getCompatibleRoles, 
   FORMATION_PRESETS 
 } from '../data/tacticalRoles.js';
+import { PlayerAvatar } from './PlayerAvatar.jsx';
 
 export function SquadTactics({ 
   squad, 
   tactics, 
+  userClub = null,
   onUpdateTactics, 
   onSwapPlayers, 
   onToggleTransferList,
@@ -354,31 +356,30 @@ export function SquadTactics({
                   }`}
                   title={`${player?.name || 'Vago'} - ${roleMeta.code} (${roleMeta.name}) - Arraste para mover`}
                 >
-                  {/* Pin Circle Badge */}
-                  <div 
-                    className={`w-9 h-9 rounded-full flex flex-col items-center justify-center font-black text-xs shadow-2xl transition-all duration-150 ${
-                      isSelected 
-                        ? 'ring-4 ring-yellow-400 scale-125 bg-yellow-400 text-slate-950 shadow-yellow-500/50' 
-                        : (isDragging 
-                            ? 'ring-4 ring-emerald-400 bg-emerald-500 text-slate-950'
-                            : 'bg-slate-950/95 text-white border-2 border-emerald-400 group-hover:scale-110 shadow-emerald-950/60')
-                    }`}
-                  >
-                    <span className="leading-none text-[11px]">
-                      {player ? Math.round(player.overall) : slot.role}
-                    </span>
-                    <span className="text-[8px] font-bold tracking-tighter uppercase opacity-85 leading-none mt-0.5">
-                      {slot.role}
-                    </span>
-                  </div>
+                  {/* Player Avatar with OVR Badge */}
+                  <PlayerAvatar
+                    player={player}
+                    size="md"
+                    roleCode={slot.role}
+                    isSelected={isSelected}
+                    isDragging={isDragging}
+                    club={userClub}
+                    showBadge={true}
+                    badgeType="ovr"
+                  />
 
                   {/* Player Name and Tactical Role Card */}
-                  <div className={`mt-1 px-2 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap shadow-lg border text-center transition-all max-w-[95px] line-clamp-1 ${
+                  <div className={`mt-1 px-2 py-0.5 rounded text-[10px] font-bold whitespace-nowrap shadow-lg border text-center transition-all max-w-[95px] truncate flex items-center justify-center gap-1 ${
                     isSelected 
-                      ? 'bg-yellow-400 text-slate-950 border-yellow-300 font-bold'
-                      : 'bg-slate-950/90 text-slate-200 border-slate-800'
+                      ? 'bg-yellow-400 text-slate-950 border-yellow-300 shadow-yellow-500/30' 
+                      : 'bg-slate-950/90 text-slate-100 border-slate-800 group-hover:border-slate-700'
                   }`}>
-                    {player ? player.name.split(' ')[0] : slot.name}
+                    <span className="text-[9px] text-emerald-400 font-mono font-bold leading-none">
+                      {slot.role}
+                    </span>
+                    <span className="truncate leading-none">
+                      {player ? (player.name.split(' ')[0] || player.name) : slot.name}
+                    </span>
                   </div>
                 </div>
               );
@@ -537,13 +538,25 @@ export function SquadTactics({
                           </span>
                         )}
                       </td>
-                      <td className="py-2.5 px-3 font-semibold text-slate-200 whitespace-nowrap">
-                        {player.name}
-                        {isStarter && (
-                          <span className="ml-1.5 text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold">
-                            TITULAR
-                          </span>
-                        )}
+                      <td className="py-2 px-3 font-semibold text-slate-200 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <PlayerAvatar
+                            player={player}
+                            size="xs"
+                            showBadge={false}
+                            club={userClub}
+                          />
+                          <div className="min-w-0">
+                            <span className="font-semibold text-white truncate block max-w-[150px]">
+                              {player.name}
+                            </span>
+                            {isStarter && (
+                              <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.2 rounded font-bold inline-block">
+                                TITULAR
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </td>
                       <td className="py-2.5 px-3 text-center font-bold text-emerald-400">
                         {Math.round(player.overall)}
