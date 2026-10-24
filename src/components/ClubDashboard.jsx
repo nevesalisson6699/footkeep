@@ -138,7 +138,7 @@ export function ClubDashboard({
                 <span>Próximo Compromisso</span>
               </div>
               <span className="text-[10px] bg-emerald-950 text-emerald-300 font-bold px-2 py-0.5 rounded border border-emerald-800/50">
-                {nextMatch?.type === 'cup' ? 'Copa Mata-Mata' : `Liga - Rodada ${currentRound} de 30`}
+                {nextMatch?.type === 'cup' ? 'Copa Mata-Mata' : `Liga - Rodada ${currentRound} de ${(standings?.length > 1 ? (standings.length - 1) * 2 : 38)}`}
               </span>
             </div>
 

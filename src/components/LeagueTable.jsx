@@ -20,7 +20,7 @@ export function LeagueTable({ standings, userClubId, allPlayers, allClubs }) {
             Tabela de Classificação - Liga Nacional Série A
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            Turno e Returno • 16 Clubes • 30 Rodadas
+            Turno e Returno • {standings.length || 20} Clubes • {((standings.length || 20) - 1) * 2} Rodadas
           </p>
         </div>
 
