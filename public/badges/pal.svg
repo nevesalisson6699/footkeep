@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <filter id="pal-sh" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+  <circle cx="60" cy="60" r="54" fill="#006437" stroke="#ffffff" stroke-width="3" filter="url(#pal-sh)" />
+  <circle cx="60" cy="60" r="46" fill="none" stroke="#ffffff" stroke-width="3" />
+  <g fill="#ffffff">
+    <circle cx="32" cy="48" r="2.5" />
+    <circle cx="42" cy="34" r="2.5" />
+    <circle cx="56" cy="26" r="2.5" />
+    <circle cx="70" cy="26" r="2.5" />
+    <circle cx="84" cy="34" r="2.5" />
+    <circle cx="94" cy="48" r="2.5" />
+  </g>
+  <circle cx="60" cy="60" r="34" fill="#ffffff" stroke="#006437" stroke-width="2" />
+  <path d="M 60 84 C 44 76 38 62 38 42 L 60 36 L 82 42 C 82 62 76 76 60 84 Z" fill="#006437" stroke="#ffffff" stroke-width="1.5" />
+  <text x="60" y="67" text-anchor="middle" fill="#ffffff" font-family="'Arial Black', sans-serif" font-weight="900" font-size="28">P</text>
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <filter id="for-sh" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+    <clipPath id="for-clip">
+      <path d="M 60 114 C 20 95 14 62 14 18 C 28 22 44 14 60 14 C 76 14 92 22 106 18 C 106 62 100 95 60 114 Z" />
+    </clipPath>
+  </defs>
+  <path d="M 60 114 C 20 95 14 62 14 18 C 28 22 44 14 60 14 C 76 14 92 22 106 18 C 106 62 100 95 60 114 Z" 
+        fill="#0038a8" stroke="#ffffff" stroke-width="3" filter="url(#for-sh)" />
+  <g clip-path="url(#for-clip)">
+    <rect x="0" y="14" width="120" height="28" fill="#0038a8" />
+    <rect x="0" y="42" width="120" height="30" fill="#ffffff" />
+    <rect x="0" y="72" width="120" height="48" fill="#ce1126" />
+    <text x="60" y="63" text-anchor="middle" fill="#0038a8" font-family="'Arial Black', sans-serif" font-weight="900" font-size="16" letter-spacing="2">F E C</text>
+  </g>
+  <g fill="#fbbf24">
+    <polygon points="50,4 51.5,7.5 55,7.5 52.5,9.5 53.5,13 50,11 46.5,13 47.5,9.5 45,7.5 48.5,7.5" />
+    <polygon points="70,4 71.5,7.5 75,7.5 72.5,9.5 73.5,13 70,11 66.5,13 67.5,9.5 65,7.5 68.5,7.5" />
+  </g>
+</svg>

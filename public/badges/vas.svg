@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <filter id="vas-sh" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+    <clipPath id="vas-clip">
+      <path d="M 60 114 C 20 95 14 62 14 18 L 106 18 C 106 62 100 95 60 114 Z" />
+    </clipPath>
+  </defs>
+  <path d="M 60 114 C 20 95 14 62 14 18 L 106 18 C 106 62 100 95 60 114 Z" 
+        fill="#111827" stroke="#ffffff" stroke-width="3" filter="url(#vas-sh)" />
+  <g clip-path="url(#vas-clip)">
+    <polygon points="0,0 26,0 120,94 120,120 94,120 0,26" fill="#ffffff" />
+  </g>
+  <g fill="#dc2626" stroke="#ffffff" stroke-width="0.8">
+    <path d="M 60 42 L 64 54 L 76 50 L 72 62 L 84 66 L 72 70 L 76 82 L 64 78 L 60 90 L 56 78 L 44 82 L 48 70 L 36 66 L 48 62 L 44 50 L 56 54 Z" />
+  </g>
+  <path d="M 60 108 C 24 90 20 62 20 23 L 100 23 C 100 62 96 90 60 108 Z" fill="none" stroke="#ffffff" stroke-width="1.2" opacity="0.7" />
+</svg>

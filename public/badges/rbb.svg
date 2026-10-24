@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <filter id="rbb-sh" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+  <path d="M 60 114 C 20 95 14 62 14 20 L 106 20 C 106 62 100 95 60 114 Z" 
+        fill="#ffffff" stroke="#1e293b" stroke-width="3" filter="url(#rbb-sh)" />
+  <circle cx="60" cy="52" r="18" fill="#facc15" stroke="#eab308" stroke-width="1.5" />
+  <path d="M 32 46 C 36 42 44 44 48 50 C 52 54 48 60 40 58 C 36 64 30 62 26 56 C 24 50 28 46 32 46 Z" fill="#d90429" />
+  <path d="M 88 46 C 84 42 76 44 72 50 C 68 54 72 60 80 58 C 84 64 90 62 94 56 C 96 50 92 46 88 46 Z" fill="#d90429" />
+  <circle cx="60" cy="72" r="10" fill="#ffffff" stroke="#111827" stroke-width="1.5" />
+  <polygon points="60,67 63,69 62,73 58,73 57,69" fill="#111827" />
+  <text x="60" y="32" text-anchor="middle" fill="#d90429" font-family="'Arial Black', sans-serif" font-weight="900" font-size="9" letter-spacing="1">RED BULL</text>
+  <path d="M 24 90 Q 60 98 96 90 L 96 102 Q 60 112 24 102 Z" fill="#111827" />
+  <text x="60" y="99" text-anchor="middle" fill="#ffffff" font-family="'Arial Black', sans-serif" font-weight="900" font-size="7" letter-spacing="1">BRAGANTINO</text>
+</svg>

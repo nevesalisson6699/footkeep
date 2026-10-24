@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <filter id="cor-sh" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+    <clipPath id="cor-clip">
+      <circle cx="60" cy="60" r="25" />
+    </clipPath>
+  </defs>
+  <g stroke="#dc2626" stroke-width="4.5" stroke-linecap="round">
+    <line x1="22" y1="18" x2="98" y2="102" />
+    <line x1="98" y1="18" x2="22" y2="102" />
+    <line x1="60" y1="10" x2="60" y2="108" />
+    <circle cx="60" cy="12" r="5" fill="none" stroke="#dc2626" stroke-width="3" />
+    <path d="M 32 94 Q 60 114 88 94" fill="none" stroke="#dc2626" stroke-width="5" />
+  </g>
+  <circle cx="60" cy="60" r="44" fill="#ffffff" stroke="#111827" stroke-width="3" filter="url(#cor-sh)" />
+  <circle cx="60" cy="60" r="41" fill="none" stroke="#dc2626" stroke-width="3" stroke-dasharray="14 7" />
+  <circle cx="60" cy="60" r="37" fill="#111827" stroke="#ffffff" stroke-width="1.5" />
+  <circle cx="60" cy="60" r="26" fill="#ffffff" stroke="#111827" stroke-width="2" />
+  <g clip-path="url(#cor-clip)">
+    <rect x="35" y="38" width="50" height="5" fill="#111827" />
+    <rect x="35" y="48" width="50" height="5" fill="#111827" />
+    <rect x="35" y="58" width="50" height="5" fill="#111827" />
+    <rect x="35" y="68" width="50" height="5" fill="#111827" />
+    <rect x="35" y="78" width="50" height="5" fill="#111827" />
+    <rect x="35" y="35" width="22" height="22" fill="#dc2626" />
+    <circle cx="46" cy="46" r="4" fill="#ffffff" />
+  </g>
+  <text x="60" y="31" text-anchor="middle" fill="#ffffff" font-family="'Arial Black', sans-serif" font-size="7" font-weight="900" letter-spacing="1">S.C.C.P.</text>
+  <text x="60" y="93" text-anchor="middle" fill="#ffffff" font-family="'Arial Black', sans-serif" font-size="7" font-weight="900">1910</text>
+</svg>

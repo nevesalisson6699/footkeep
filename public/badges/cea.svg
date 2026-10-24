@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <filter id="cea-sh" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+    <clipPath id="cea-clip">
+      <path d="M 60 114 C 20 95 14 62 14 20 L 106 20 C 106 62 100 95 60 114 Z" />
+    </clipPath>
+  </defs>
+  <path d="M 60 114 C 20 95 14 62 14 20 L 106 20 C 106 62 100 95 60 114 Z" 
+        fill="#111827" stroke="#ffffff" stroke-width="3" filter="url(#cea-sh)" />
+  <g clip-path="url(#cea-clip)">
+    <rect x="14" y="52" width="92" height="65" fill="#ffffff" />
+    <rect x="23" y="52" width="11" height="65" fill="#111827" />
+    <rect x="45" y="52" width="11" height="65" fill="#111827" />
+    <rect x="67" y="52" width="11" height="65" fill="#111827" />
+    <rect x="89" y="52" width="11" height="65" fill="#111827" />
+    <rect x="14" y="20" width="92" height="32" fill="#111827" stroke="#ffffff" stroke-width="1.5" />
+    <g fill="#ffffff">
+      <circle cx="32" cy="28" r="1.5" />
+      <circle cx="41" cy="26" r="1.5" />
+      <circle cx="50" cy="25" r="1.5" />
+      <circle cx="60" cy="24" r="1.5" />
+      <circle cx="70" cy="25" r="1.5" />
+      <circle cx="79" cy="26" r="1.5" />
+      <circle cx="88" cy="28" r="1.5" />
+    </g>
+    <text x="60" y="46" text-anchor="middle" fill="#ffffff" font-family="'Arial Black', sans-serif" font-weight="900" font-size="12" letter-spacing="2">C.S.C.</text>
+    <text x="60" y="80" text-anchor="middle" fill="#111827" font-family="'Arial Black', sans-serif" font-weight="900" font-size="11">1914</text>
+  </g>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <filter id="fla-sh" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+    <clipPath id="fla-clip">
+      <path d="M 60 115 C 25 100 15 72 15 25 L 60 12 L 105 25 C 105 72 95 100 60 115 Z" />
+    </clipPath>
+  </defs>
+  <polygon points="60,2 62,7 67,7 63,10 65,15 60,12 55,15 57,10 53,7 58,7" fill="#fbbf24" stroke="#d97706" stroke-width="0.5" />
+  <path d="M 60 115 C 25 100 15 72 15 25 L 60 12 L 105 25 C 105 72 95 100 60 115 Z" fill="#c3281e" stroke="#111827" stroke-width="3" filter="url(#fla-sh)" />
+  <g clip-path="url(#fla-clip)">
+    <rect x="0" y="20" width="120" height="12" fill="#111827" />
+    <rect x="0" y="44" width="120" height="12" fill="#111827" />
+    <rect x="0" y="68" width="120" height="12" fill="#111827" />
+    <rect x="0" y="92" width="120" height="12" fill="#111827" />
+    <rect x="15" y="12" width="45" height="38" fill="#c3281e" stroke="#ffffff" stroke-width="2" />
+    <text x="37" y="38" text-anchor="middle" fill="#ffffff" font-family="'Times New Roman', serif" font-weight="bold" font-size="20" letter-spacing="-1">CRF</text>
+  </g>
+  <path d="M 60 111 C 28 97 19 70 19 28 L 60 16 L 101 28 C 101 70 92 97 60 111 Z" fill="none" stroke="#ffffff" stroke-width="1.2" opacity="0.8" />
+</svg>

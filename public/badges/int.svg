@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <filter id="int-sh" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+  <circle cx="60" cy="60" r="54" fill="#dc2626" stroke="#ffffff" stroke-width="3" filter="url(#int-sh)" />
+  <circle cx="60" cy="60" r="47" fill="none" stroke="#ffffff" stroke-width="2.5" />
+  <circle cx="60" cy="60" r="41" fill="#dc2626" />
+  <text x="60" y="69" text-anchor="middle" fill="#ffffff" font-family="'Times New Roman', serif" font-weight="900" font-size="34" letter-spacing="-2">SCI</text>
+  <path d="M 32 78 Q 60 90 88 78" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" />
+  <path d="M 32 42 Q 60 30 88 42" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" />
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <filter id="juv-sh" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+    <clipPath id="juv-clip">
+      <circle cx="60" cy="60" r="44" />
+    </clipPath>
+  </defs>
+  <circle cx="60" cy="60" r="54" fill="#15803d" stroke="#ffffff" stroke-width="3" filter="url(#juv-sh)" />
+  <circle cx="60" cy="60" r="46" fill="#ffffff" stroke="#15803d" stroke-width="2" />
+  <g clip-path="url(#juv-clip)">
+    <rect x="16" y="16" width="88" height="88" fill="#ffffff" />
+    <rect x="22" y="16" width="11" height="88" fill="#15803d" />
+    <rect x="44" y="16" width="11" height="88" fill="#15803d" />
+    <rect x="66" y="16" width="11" height="88" fill="#15803d" />
+    <rect x="88" y="16" width="11" height="88" fill="#15803d" />
+  </g>
+  <ellipse cx="60" cy="60" rx="28" ry="20" fill="#15803d" stroke="#ffffff" stroke-width="2" />
+  <text x="60" y="66" text-anchor="middle" fill="#ffffff" font-family="'Arial Black', sans-serif" font-weight="900" font-size="14" letter-spacing="1">E C J</text>
+  <text x="60" y="94" text-anchor="middle" fill="#15803d" font-family="'Arial', sans-serif" font-weight="bold" font-size="8">1913</text>
+</svg>

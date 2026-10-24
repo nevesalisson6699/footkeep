@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const SIZE_MAP = {
   xs: 'w-5 h-5 text-[9px]',
@@ -11,6 +11,10 @@ const SIZE_MAP = {
 
 export function ClubBadge({ club, size = 'md', className = '' }) {
   const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [club?.id, club?.badgeUrl]);
 
   if (!club) return null;
 

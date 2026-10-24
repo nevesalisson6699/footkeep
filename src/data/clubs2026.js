@@ -38,7 +38,7 @@ export const CLUBS_2026 = [
     budget: 38000000,
     reputation: 90,
     badgeEmoji: '🔴',
-    badgeUrl: null
+    badgeUrl: '/badges/fla.svg'
   },
   {
     id: 'pal',
@@ -55,7 +55,7 @@ export const CLUBS_2026 = [
     budget: 35000000,
     reputation: 89,
     badgeEmoji: '🟢',
-    badgeUrl: null
+    badgeUrl: '/badges/pal.svg'
   },
   {
     id: 'bot',
@@ -72,7 +72,7 @@ export const CLUBS_2026 = [
     budget: 32000000,
     reputation: 88,
     badgeEmoji: '⭐',
-    badgeUrl: null
+    badgeUrl: '/badges/bot.svg'
   },
   {
     id: 'sao',
@@ -89,7 +89,7 @@ export const CLUBS_2026 = [
     budget: 25000000,
     reputation: 86,
     badgeEmoji: '🔴⚪⚫',
-    badgeUrl: null
+    badgeUrl: '/badges/sao.svg'
   },
   {
     id: 'cor',
@@ -106,7 +106,7 @@ export const CLUBS_2026 = [
     budget: 23000000,
     reputation: 85,
     badgeEmoji: '🦅',
-    badgeUrl: null
+    badgeUrl: '/badges/cor.svg'
   },
   {
     id: 'flu',
@@ -123,7 +123,7 @@ export const CLUBS_2026 = [
     budget: 21000000,
     reputation: 84,
     badgeEmoji: '🇭🇺',
-    badgeUrl: null
+    badgeUrl: '/badges/flu.svg'
   },
   {
     id: 'cam',
@@ -140,7 +140,7 @@ export const CLUBS_2026 = [
     budget: 26000000,
     reputation: 86,
     badgeEmoji: '🐓',
-    badgeUrl: null
+    badgeUrl: '/badges/cam.svg'
   },
   {
     id: 'cru',
@@ -157,7 +157,7 @@ export const CLUBS_2026 = [
     budget: 24000000,
     reputation: 85,
     badgeEmoji: '🦊',
-    badgeUrl: null
+    badgeUrl: '/badges/cru.svg'
   },
   {
     id: 'int',
@@ -174,7 +174,7 @@ export const CLUBS_2026 = [
     budget: 22000000,
     reputation: 84,
     badgeEmoji: '🇦🇹',
-    badgeUrl: null
+    badgeUrl: '/badges/int.svg'
   },
   {
     id: 'gre',
@@ -191,7 +191,7 @@ export const CLUBS_2026 = [
     budget: 21000000,
     reputation: 84,
     badgeEmoji: '🇪🇪',
-    badgeUrl: null
+    badgeUrl: '/badges/gre.svg'
   },
   {
     id: 'vas',
@@ -208,7 +208,7 @@ export const CLUBS_2026 = [
     budget: 19000000,
     reputation: 83,
     badgeEmoji: '💢',
-    badgeUrl: null
+    badgeUrl: '/badges/vas.svg'
   },
   {
     id: 'bah',
@@ -225,7 +225,7 @@ export const CLUBS_2026 = [
     budget: 23000000,
     reputation: 83,
     badgeEmoji: '🔵🔴⚪',
-    badgeUrl: null
+    badgeUrl: '/badges/bah.svg'
   },
   {
     id: 'for',
@@ -242,7 +242,7 @@ export const CLUBS_2026 = [
     budget: 19000000,
     reputation: 83,
     badgeEmoji: '🦁',
-    badgeUrl: null
+    badgeUrl: '/badges/for.svg'
   },
   {
     id: 'san',
@@ -259,7 +259,7 @@ export const CLUBS_2026 = [
     budget: 18000000,
     reputation: 83,
     badgeEmoji: '🐳',
-    badgeUrl: null
+    badgeUrl: '/badges/san.svg'
   },
   {
     id: 'rbb',
@@ -276,7 +276,7 @@ export const CLUBS_2026 = [
     budget: 18000000,
     reputation: 81,
     badgeEmoji: '🐂',
-    badgeUrl: null
+    badgeUrl: '/badges/rbb.svg'
   },
   {
     id: 'vit',
@@ -293,7 +293,7 @@ export const CLUBS_2026 = [
     budget: 14000000,
     reputation: 79,
     badgeEmoji: '🦁',
-    badgeUrl: null
+    badgeUrl: '/badges/vit.svg'
   },
   {
     id: 'juv',
@@ -310,7 +310,7 @@ export const CLUBS_2026 = [
     budget: 12000000,
     reputation: 78,
     badgeEmoji: '🟢⚪',
-    badgeUrl: null
+    badgeUrl: '/badges/juv.svg'
   },
   {
     id: 'mir',
@@ -327,7 +327,7 @@ export const CLUBS_2026 = [
     budget: 11000000,
     reputation: 77,
     badgeEmoji: '🟡🟢',
-    badgeUrl: null
+    badgeUrl: '/badges/mir.svg'
   },
   {
     id: 'spo',
@@ -344,7 +344,7 @@ export const CLUBS_2026 = [
     budget: 15000000,
     reputation: 80,
     badgeEmoji: '🦁',
-    badgeUrl: null
+    badgeUrl: '/badges/spo.svg'
   },
   {
     id: 'cea',
@@ -361,7 +361,7 @@ export const CLUBS_2026 = [
     budget: 14000000,
     reputation: 79,
     badgeEmoji: '👴',
-    badgeUrl: null
+    badgeUrl: '/badges/cea.svg'
   },
 
   // ==========================================
@@ -382,7 +382,7 @@ export const CLUBS_2026 = [
     budget: 17000000,
     reputation: 82,
     badgeEmoji: '🌪️',
-    badgeUrl: null
+    badgeUrl: '/badges/cap.svg'
   },
   {
     id: 'cfc',
