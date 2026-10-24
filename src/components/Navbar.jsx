@@ -145,9 +145,9 @@ export function Navbar({
       </div>
 
       {/* Navigation Tabs Bar */}
-      <div className="bg-slate-950/60">
-        <div className="container-app">
-          <nav className="flex items-center gap-1 overflow-x-auto py-1 scrollbar-none">
+      <div className="bg-slate-950/60 overflow-hidden w-full">
+        <div className="container-app overflow-hidden">
+          <nav className="flex items-center gap-1 overflow-x-auto py-1 scrollbar-none max-w-full">
             {tabs.map(tab => {
               const Icon = tab.icon;
               const isActive = currentTab === tab.id;
