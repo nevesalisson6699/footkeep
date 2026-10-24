@@ -23,12 +23,13 @@ export function ClubBadge({ club, size = 'md', className = '' }) {
   const secondaryColor = club.colors?.secondary || '#ffffff';
   const accentColor = club.colors?.accent || '#fbbf24';
   const monogram = club.monogram || club.shortName || club.name?.slice(0, 3).toUpperCase();
+  const badgeUrl = club.badgeUrl || (club.id ? `/badges/${club.id}.svg` : null);
 
   // If a valid external licensed URL is provided and has not failed, use it
-  if (club.badgeUrl && !imageFailed) {
+  if (badgeUrl && !imageFailed) {
     return (
       <img
-        src={club.badgeUrl}
+        src={badgeUrl}
         alt={`Escudo do ${club.name}`}
         onError={() => setImageFailed(true)}
         className={`${sizeClass} object-contain drop-shadow-md ${className}`}

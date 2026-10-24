@@ -55,7 +55,12 @@ export function App() {
     if (saved) {
       try {
         const data = JSON.parse(saved);
-        const loadedClubs = data.clubs || REAL_CLUBS;
+        const rawClubs = data.clubs || REAL_CLUBS;
+        // Merge metadata to ensure existing saves get updated badgeUrl and colors
+        const loadedClubs = rawClubs.map(c => {
+          const fresh = REAL_CLUBS.find(rc => rc.id === c.id);
+          return fresh ? { ...c, badgeUrl: fresh.badgeUrl || `/badges/${c.id}.svg`, colors: fresh.colors || c.colors } : c;
+        });
         setClubs(loadedClubs);
         
         // Auto-heal squad order for older saves where starting 11 had 0 M or 0 A
