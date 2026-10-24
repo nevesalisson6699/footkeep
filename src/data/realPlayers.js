@@ -2,6 +2,7 @@
 // Consolidated public data from CBF official match reports and transfer registries.
 
 import { sortSquadForFormation } from './initialPlayers.js';
+import { buildSeason2026Players } from './players2026.js';
 
 const RAW_REAL_PLAYERS = {
   fla: [
@@ -391,77 +392,5 @@ const REAL_FREE_AGENTS = [
 ];
 
 export function buildRealPlayers() {
-  const allPlayers = [];
-  let currentId = 2001;
-
-  Object.entries(RAW_REAL_PLAYERS).forEach(([clubId, squad]) => {
-    const clubPlayers = squad.map(raw => {
-      const ageFactor = raw.age < 24 ? 1.4 : (raw.age > 30 ? 0.7 : 1.0);
-      const baseValue = Math.pow(raw.ovr - 40, 2.75) * 1300 * ageFactor;
-      const value = Math.round(baseValue / 10000) * 10000;
-      const salary = Math.round((value * 0.007) / 1000) * 1000 + 5000;
-
-      return {
-        id: `real_${currentId++}`,
-        name: raw.name,
-        clubId,
-        position: raw.pos,
-        age: raw.age,
-        overall: raw.ovr,
-        fin: raw.fin,
-        pas: raw.pas,
-        def: raw.def,
-        fis: raw.fis,
-        value,
-        salary,
-        fitness: 100,
-        morale: 'Alta',
-        yellowCards: 0,
-        redCards: 0,
-        goals: 0,
-        assists: 0,
-        matchesPlayed: 0,
-        isSuspended: false,
-        isListed: false
-      };
-    });
-
-    // Automatically sort each club's squad so top 11 are balanced starters
-    const balanced = sortSquadForFormation(clubPlayers, '4-4-2');
-    allPlayers.push(...balanced);
-  });
-
-  // Free Agents
-  REAL_FREE_AGENTS.forEach(raw => {
-    const ageFactor = raw.age > 30 ? 0.65 : 1.0;
-    const baseValue = Math.pow(raw.ovr - 40, 2.7) * 1100 * ageFactor;
-    const value = Math.round(baseValue / 10000) * 10000;
-    const salary = Math.round((value * 0.006) / 1000) * 1000 + 4000;
-
-    allPlayers.push({
-      id: `real_fa_${currentId++}`,
-      name: raw.name,
-      clubId: null,
-      position: raw.pos,
-      age: raw.age,
-      overall: raw.ovr,
-      fin: raw.fin,
-      pas: raw.pas,
-      def: raw.def,
-      fis: raw.fis,
-      value,
-      salary,
-      fitness: 100,
-      morale: 'Normal',
-      yellowCards: 0,
-      redCards: 0,
-      goals: 0,
-      assists: 0,
-      matchesPlayed: 0,
-      isSuspended: false,
-      isListed: true
-    });
-  });
-
-  return allPlayers;
+  return buildSeason2026Players('all');
 }

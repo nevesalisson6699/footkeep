@@ -245,7 +245,14 @@ export function MatchView({
                   2x
                 </button>
                 <button
-                  onClick={() => setSpeed(0)}
+                  onClick={() => {
+                    setSpeed(0);
+                    setCurrentMinute(90);
+                    if (simulatedData) {
+                      setVisibleEvents(simulatedData.events);
+                      finishGame();
+                    }
+                  }}
                   className="px-3 py-1 rounded-lg text-xs font-bold text-yellow-400 hover:bg-slate-800 transition"
                 >
                   Instantâneo

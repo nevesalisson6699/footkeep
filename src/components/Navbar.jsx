@@ -22,6 +22,7 @@ export function Navbar({
   setCurrentTab, 
   userClub, 
   currentRound, 
+  totalRounds = 38,
   budget, 
   managerProfile,
   onOpenSaveModal,
@@ -90,7 +91,7 @@ export function Navbar({
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 bg-emerald-950/50 border border-emerald-500/30 px-3 py-1 rounded-lg text-xs font-bold text-emerald-300">
               <Calendar size={13} className="text-emerald-400" />
-              <span>Rodada {currentRound}/30</span>
+              <span>Rodada {currentRound}/{totalRounds}</span>
             </div>
 
             <button

@@ -406,6 +406,54 @@ export const RAW_PLAYERS_2026_SERIE_A = {
     { name: 'Thiago Borbas', pos: 'A', age: 24, ovr: 81, fin: 84, pas: 73, def: 46, fis: 84, contractEnd: '31/12/2027' },
     { name: 'Vitinho Naum', pos: 'A', age: 27, ovr: 80, fin: 80, pas: 76, def: 50, fis: 86, contractEnd: '31/12/2027' },
     { name: 'Arthur Sousa', pos: 'A', age: 23, ovr: 76, fin: 78, pas: 70, def: 42, fis: 81, contractEnd: '31/12/2028' }
+  ],
+
+  vit: [
+    { name: 'Lucas Arcanjo', pos: 'G', age: 28, ovr: 81, fin: 24, pas: 68, def: 83, fis: 80, contractEnd: '31/12/2026' },
+    { name: 'Muriel', pos: 'G', age: 39, ovr: 75, fin: 22, pas: 62, def: 77, fis: 72, contractEnd: '31/12/2026' },
+    { name: 'Wagner Leonardo', pos: 'Z', age: 26, ovr: 82, fin: 52, pas: 70, def: 84, fis: 83, contractEnd: '31/12/2028' },
+    { name: 'Camutanga', pos: 'Z', age: 32, ovr: 79, fin: 42, pas: 65, def: 81, fis: 84, contractEnd: '31/12/2026' },
+    { name: 'Neris', pos: 'Z', age: 34, ovr: 77, fin: 38, pas: 64, def: 79, fis: 80, contractEnd: '31/12/2026' },
+    { name: 'Eduardo Bressan', pos: 'Z', age: 24, ovr: 75, fin: 34, pas: 63, def: 77, fis: 78, contractEnd: '31/12/2027' },
+    { name: 'Lucas Esteves', pos: 'L', age: 26, ovr: 80, fin: 62, pas: 78, def: 78, fis: 84, contractEnd: '31/12/2027' },
+    { name: 'Patric Calmon (PK)', pos: 'L', age: 32, ovr: 77, fin: 64, pas: 75, def: 76, fis: 78, contractEnd: '31/12/2026' },
+    { name: 'Raúl Cáceres', pos: 'L', age: 34, ovr: 77, fin: 54, pas: 75, def: 77, fis: 76, contractEnd: '31/12/2026' },
+    { name: 'Willean Lepo', pos: 'L', age: 29, ovr: 76, fin: 56, pas: 74, def: 76, fis: 80, contractEnd: '31/12/2026' },
+    { name: 'Willian Oliveira', pos: 'V', age: 33, ovr: 81, fin: 70, pas: 78, def: 83, fis: 82, contractEnd: '31/12/2026' },
+    { name: 'Luan Santos', pos: 'V', age: 27, ovr: 80, fin: 64, pas: 79, def: 82, fis: 84, contractEnd: '31/12/2027' },
+    { name: 'Ricardo Ryller', pos: 'V', age: 32, ovr: 77, fin: 62, pas: 76, def: 78, fis: 80, contractEnd: '31/12/2026' },
+    { name: 'Machado (Filipe)', pos: 'V', age: 30, ovr: 77, fin: 66, pas: 79, def: 77, fis: 78, contractEnd: '31/12/2026' },
+    { name: 'Matheuzinho (Vit)', pos: 'M', age: 28, ovr: 82, fin: 80, pas: 84, def: 60, fis: 79, contractEnd: '31/12/2028' },
+    { name: 'Jean Mota', pos: 'M', age: 32, ovr: 78, fin: 76, pas: 82, def: 62, fis: 74, contractEnd: '31/12/2026' },
+    { name: 'Pablo Baianinho', pos: 'M', age: 22, ovr: 75, fin: 72, pas: 76, def: 54, fis: 76, contractEnd: '31/12/2027' },
+    { name: 'Alerrandro', pos: 'A', age: 26, ovr: 81, fin: 85, pas: 72, def: 44, fis: 82, contractEnd: '31/12/2026' },
+    { name: 'Osvaldo', pos: 'A', age: 39, ovr: 79, fin: 80, pas: 78, def: 46, fis: 72, contractEnd: '31/12/2026' },
+    { name: 'Gustavo Mosquito', pos: 'A', age: 29, ovr: 80, fin: 80, pas: 77, def: 50, fis: 85, contractEnd: '31/12/2027' },
+    { name: 'Janderson', pos: 'A', age: 27, ovr: 78, fin: 77, pas: 73, def: 48, fis: 85, contractEnd: '31/12/2027' }
+  ],
+
+  juv: [
+    { name: 'Gabriel Vasconcellos', pos: 'G', age: 33, ovr: 81, fin: 24, pas: 68, def: 83, fis: 80, contractEnd: '31/12/2026' },
+    { name: 'Mateus Claus', pos: 'G', age: 32, ovr: 76, fin: 22, pas: 63, def: 78, fis: 75, contractEnd: '31/12/2026' },
+    { name: 'Danilo Boza', pos: 'Z', age: 28, ovr: 81, fin: 42, pas: 68, def: 83, fis: 84, contractEnd: '31/12/2028' },
+    { name: 'Zé Marcos', pos: 'Z', age: 28, ovr: 80, fin: 44, pas: 70, def: 82, fis: 82, contractEnd: '31/12/2027' },
+    { name: 'Rodrigo Sam', pos: 'Z', age: 30, ovr: 76, fin: 36, pas: 64, def: 78, fis: 80, contractEnd: '31/12/2026' },
+    { name: 'Lucas Freitas', pos: 'Z', age: 25, ovr: 76, fin: 35, pas: 65, def: 78, fis: 79, contractEnd: '31/12/2026' },
+    { name: 'Alan Ruschel', pos: 'L', age: 37, ovr: 79, fin: 62, pas: 78, def: 78, fis: 75, contractEnd: '31/12/2026' },
+    { name: 'João Lucas', pos: 'L', age: 28, ovr: 80, fin: 60, pas: 76, def: 79, fis: 85, contractEnd: '31/12/2027' },
+    { name: 'Ewerthon', pos: 'L', age: 25, ovr: 76, fin: 56, pas: 74, def: 75, fis: 82, contractEnd: '31/12/2026' },
+    { name: 'Caíque Gonçalves', pos: 'V', age: 31, ovr: 80, fin: 64, pas: 78, def: 82, fis: 83, contractEnd: '31/12/2026' },
+    { name: 'Jadson', pos: 'V', age: 33, ovr: 80, fin: 68, pas: 80, def: 81, fis: 80, contractEnd: '31/12/2026' },
+    { name: 'Ronaldo Silva', pos: 'V', age: 29, ovr: 77, fin: 60, pas: 77, def: 78, fis: 79, contractEnd: '31/12/2026' },
+    { name: 'Thiaguinho (Juv)', pos: 'V', age: 27, ovr: 76, fin: 62, pas: 76, def: 77, fis: 78, contractEnd: '31/12/2026' },
+    { name: 'Nenê', pos: 'M', age: 44, ovr: 80, fin: 84, pas: 88, def: 42, fis: 62, contractEnd: '31/12/2026' },
+    { name: 'Mandaca', pos: 'M', age: 24, ovr: 79, fin: 74, pas: 79, def: 74, fis: 84, contractEnd: '31/12/2027' },
+    { name: 'Jean Carlos', pos: 'M', age: 34, ovr: 79, fin: 81, pas: 82, def: 55, fis: 74, contractEnd: '31/12/2026' },
+    { name: 'Luís Oyama', pos: 'M', age: 29, ovr: 78, fin: 68, pas: 80, def: 73, fis: 78, contractEnd: '31/12/2026' },
+    { name: 'Lucas Barbosa', pos: 'A', age: 25, ovr: 82, fin: 84, pas: 76, def: 56, fis: 84, contractEnd: '31/12/2028' },
+    { name: 'Erick Farias', pos: 'A', age: 29, ovr: 80, fin: 82, pas: 74, def: 48, fis: 83, contractEnd: '31/12/2027' },
+    { name: 'Gilberto Oliveira', pos: 'A', age: 37, ovr: 79, fin: 83, pas: 70, def: 42, fis: 76, contractEnd: '31/12/2026' },
+    { name: 'Marcelinho (Juv)', pos: 'A', age: 24, ovr: 77, fin: 76, pas: 74, def: 46, fis: 84, contractEnd: '31/12/2027' }
   ]
 };
 

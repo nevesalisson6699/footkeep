@@ -475,6 +475,7 @@ export function App() {
         setCurrentTab={setCurrentTab}
         userClub={userClub}
         currentRound={currentRound}
+        totalRounds={leagueRounds?.length || 38}
         budget={budget}
         managerProfile={managerProfile}
         onOpenSaveModal={() => setIsSaveModalOpen(true)}

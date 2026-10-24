@@ -80,6 +80,14 @@ export function SettingsView({
   const [isDangerModalOpen, setIsDangerModalOpen] = useState(false);
   const [deleteConfirmationText, setDeleteConfirmationText] = useState('');
 
+  // Garante que as configurações estejam salvas no localStorage ao montar o painel
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const current = getStoredSettings();
+      saveStoredSettings(current);
+    }
+  }, []);
+
   // Persistência automática em localStorage sempre que as configurações mudam
   const updateSetting = (key, value) => {
     setSettings(prev => {
@@ -198,9 +206,10 @@ export function SettingsView({
               <button
                 onClick={playTestTone}
                 className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-1 rounded-lg transition flex items-center gap-1.5"
+                title="Testar Som da interface"
               >
                 <Volume2 size={13} />
-                <span>Testar Efeito</span>
+                <span>Testar Som</span>
               </button>
             </div>
           )}
@@ -257,9 +266,10 @@ export function SettingsView({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           
           {/* Opção Fácil */}
-          <div
+          <button
+            type="button"
             onClick={() => updateSetting('difficulty', 'easy')}
-            className={`cursor-pointer rounded-xl p-4 border transition-all duration-200 relative ${
+            className={`text-left cursor-pointer rounded-xl p-4 border transition-all duration-200 relative ${
               settings.difficulty === 'easy'
                 ? 'bg-emerald-950/40 border-emerald-500 shadow-md shadow-emerald-950/50 ring-1 ring-emerald-500'
                 : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-950'
@@ -275,12 +285,13 @@ export function SettingsView({
             <p className="text-xs text-slate-400 leading-relaxed">
               Premiações financeiras +25% maiores, menor chance de lesões graves, adversários menos agressivos e mercado flexível.
             </p>
-          </div>
+          </button>
 
           {/* Opção Normal */}
-          <div
+          <button
+            type="button"
             onClick={() => updateSetting('difficulty', 'normal')}
-            className={`cursor-pointer rounded-xl p-4 border transition-all duration-200 relative ${
+            className={`text-left cursor-pointer rounded-xl p-4 border transition-all duration-200 relative ${
               settings.difficulty === 'normal'
                 ? 'bg-blue-950/40 border-blue-500 shadow-md shadow-blue-950/50 ring-1 ring-blue-500'
                 : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-950'
@@ -296,12 +307,13 @@ export function SettingsView({
             <p className="text-xs text-slate-400 leading-relaxed">
               Equilíbrio competitivo autêntico do futebol brasileiro. Negociações realistas e inteligência tática balanceada.
             </p>
-          </div>
+          </button>
 
           {/* Opção Difícil */}
-          <div
+          <button
+            type="button"
             onClick={() => updateSetting('difficulty', 'hard')}
-            className={`cursor-pointer rounded-xl p-4 border transition-all duration-200 relative ${
+            className={`text-left cursor-pointer rounded-xl p-4 border transition-all duration-200 relative ${
               settings.difficulty === 'hard'
                 ? 'bg-amber-950/40 border-amber-500 shadow-md shadow-amber-950/50 ring-1 ring-amber-500'
                 : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-950'
@@ -317,7 +329,7 @@ export function SettingsView({
             <p className="text-xs text-slate-400 leading-relaxed">
               Adversários adaptam marcações em tempo real, atletas cobram luvas elevadas e a diretoria pune severamente oscilações.
             </p>
-          </div>
+          </button>
 
         </div>
       </div>
