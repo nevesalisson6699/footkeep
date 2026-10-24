@@ -22,6 +22,16 @@ import { FinancesView } from './components/FinancesView';
 import { SettingsView } from './components/SettingsView';
 import { SaveLoadModal } from './components/SaveLoadModal';
 import { CareerCreationModal } from './components/CareerCreationModal';
+import { FootkeepLogo } from './components/FootkeepLogo';
+import { Trophy, CheckCircle2, Mail, ShieldAlert } from 'lucide-react';
+
+import {
+  getActiveEmail,
+  setActiveEmail,
+  getCloudSaveByEmail,
+  saveCloudProgress,
+  sendSaveNotificationToEmail
+} from './services/emailSaveService';
 
 const STORAGE_KEY = 'footkeep_save_v1';
 
@@ -36,8 +46,8 @@ export function App() {
   // Main Game State
   const [clubs, setClubs] = useState([]);
   const [players, setPlayers] = useState([]);
-  const [userClubId, setUserClubId] = useState('fla');
-  const [budget, setBudget] = useState(38000000);
+  const [userClubId, setUserClubId] = useState(null);
+  const [budget, setBudget] = useState(30000000);
   const [currentRound, setCurrentRound] = useState(1);
   const [leagueRounds, setLeagueRounds] = useState([]);
   const [cupState, setCupState] = useState(null);
@@ -49,69 +59,111 @@ export function App() {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isCareerModalOpen, setIsCareerModalOpen] = useState(false);
 
-  // Initialize or load from LocalStorage
+  // Cloud & Email Feedback
+  const [activeEmailState, setActiveEmailState] = useState('');
+  const [saveToast, setSaveToast] = useState('');
+
+  // 1. Initialize or load from LocalStorage or Active Cloud Email
   useEffect(() => {
+    const activeEmail = getActiveEmail();
+    if (activeEmail) {
+      setActiveEmailState(activeEmail);
+    }
+
+    // Check localStorage save
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
         const data = JSON.parse(saved);
-        const rawClubs = data.clubs || REAL_CLUBS;
-        // Merge metadata to ensure existing saves get updated badgeUrl and colors
-        const loadedClubs = rawClubs.map(c => {
-          const fresh = REAL_CLUBS.find(rc => rc.id === c.id);
-          return fresh ? { ...c, badgeUrl: fresh.badgeUrl || `/badges/${c.id}.svg`, colors: fresh.colors || c.colors } : c;
-        });
-        setClubs(loadedClubs);
-        
-        // Auto-heal squad order for older saves where starting 11 had 0 M or 0 A
-        let loadedPlayers = data.players || [];
-        const activeUserClubId = data.userClubId || loadedClubs[0]?.id || 'fla';
-        const userSquadSlice = loadedPlayers.filter(p => p.clubId === activeUserClubId).slice(0, 11);
-        const hasMid = userSquadSlice.some(p => p.position === 'M');
-        const hasAtk = userSquadSlice.some(p => p.position === 'A');
-
-        if (!hasMid || !hasAtk) {
-          const healed = [];
-          loadedClubs.forEach(c => {
-            const clubSquad = loadedPlayers.filter(p => p.clubId === c.id);
-            healed.push(...sortSquadForFormation(clubSquad, data.tactics?.formation || '4-4-2'));
-          });
-          healed.push(...loadedPlayers.filter(p => !p.clubId));
-          loadedPlayers = healed;
+        if (data && data.userClubId && data.clubs && data.clubs.length > 0) {
+          handleLoadSave(data, false);
+          return;
         }
-
-        setPlayers(loadedPlayers);
-        setUserClubId(activeUserClubId);
-        setBudget(data.budget || 38000000);
-        setCurrentRound(data.currentRound || 1);
-        setLeagueRounds(data.leagueRounds || []);
-        setCupState(data.cupState || null);
-        setTactics(data.tactics || { formation: '4-4-2', mentality: 'Equilibrada' });
-        setAwardedPrizes(data.awardedPrizes || []);
-        
-        // Manager profile fallback for existing saves
-        const activeClub = loadedClubs.find(c => c.id === activeUserClubId);
-        setManagerProfile(data.managerProfile || {
-          firstName: 'Treinador',
-          lastName: 'Footkeep',
-          coachName: `Prof. ${activeClub?.name || 'Footkeep'}`,
-          coachStyle: 'Ofensivo & Pressão',
-          rosterChoice: 'real',
-          investmentOption: 'none',
-          investmentAmount: 0
-        });
-        return;
       } catch (err) {
-        console.error('Falha ao restaurar save:', err);
+        console.error('Falha ao restaurar save do localStorage:', err);
       }
     }
 
-    // First time opening the game: Open career creation modal!
-    initDefaultCareer();
+    // Check cloud save by active email
+    if (activeEmail) {
+      const cloudSave = getCloudSaveByEmail(activeEmail);
+      if (cloudSave && cloudSave.userClubId) {
+        handleLoadSave(cloudSave, false);
+        return;
+      }
+    }
+
+    // First time or reset state: Open Career Creation Modal without forcing any club!
     setIsCareerModalOpen(true);
   }, []);
 
-  const initDefaultCareer = (targetClubId = 'fla') => {
+  // 2. Load Save Handler (shared by LocalStorage, Cloud Email and JSON files)
+  const handleLoadSave = (savedState, showToast = true) => {
+    if (!savedState || !savedState.userClubId) return;
+
+    const rawClubs = savedState.clubs || REAL_CLUBS;
+    const loadedClubs = rawClubs.map(c => {
+      const fresh = REAL_CLUBS.find(rc => rc.id === c.id);
+      return fresh ? { ...c, badgeUrl: fresh.badgeUrl || `/badges/${c.id}.svg`, colors: fresh.colors || c.colors } : c;
+    });
+
+    let loadedPlayers = savedState.players || [];
+    const activeUserClubId = savedState.userClubId;
+
+    // Squad order verification
+    const userSquadSlice = loadedPlayers.filter(p => p.clubId === activeUserClubId).slice(0, 11);
+    const hasMid = userSquadSlice.some(p => p.position === 'M');
+    const hasAtk = userSquadSlice.some(p => p.position === 'A');
+
+    if (!hasMid || !hasAtk) {
+      const healed = [];
+      loadedClubs.forEach(c => {
+        const clubSquad = loadedPlayers.filter(p => p.clubId === c.id);
+        healed.push(...sortSquadForFormation(clubSquad, savedState.tactics?.formation || '4-4-2'));
+      });
+      healed.push(...loadedPlayers.filter(p => !p.clubId));
+      loadedPlayers = healed;
+    }
+
+    setClubs(loadedClubs);
+    setPlayers(loadedPlayers);
+    setUserClubId(activeUserClubId);
+    setBudget(savedState.budget ?? 30000000);
+    setCurrentRound(savedState.currentRound || 1);
+    setLeagueRounds(savedState.leagueRounds || []);
+    setCupState(savedState.cupState || null);
+    setTactics(savedState.tactics || { formation: '4-4-2', mentality: 'Equilibrada' });
+    setAwardedPrizes(savedState.awardedPrizes || []);
+
+    const linkedEmail = savedState.email || savedState.managerProfile?.email;
+    if (linkedEmail) {
+      setActiveEmail(linkedEmail);
+      setActiveEmailState(linkedEmail);
+    }
+
+    setManagerProfile(savedState.managerProfile || {
+      firstName: 'Treinador',
+      lastName: 'Footkeep',
+      coachName: `Prof. ${loadedClubs.find(c => c.id === activeUserClubId)?.name || 'Footkeep'}`,
+      email: linkedEmail || '',
+      coachStyle: 'Ofensivo & Pressão',
+      rosterChoice: 'real',
+      investmentOption: 'none',
+      investmentAmount: 0
+    });
+
+    setIsCareerModalOpen(false);
+    setIsSaveModalOpen(false);
+
+    if (showToast) {
+      setSaveToast('Carreira carregada com sucesso a partir da nuvem!');
+      setTimeout(() => setSaveToast(''), 3500);
+    }
+  };
+
+  // 3. Fallback default career generator for explicit club selection
+  const initDefaultCareer = (targetClubId) => {
+    if (!targetClubId) return;
     const initialClubs = [...REAL_CLUBS];
     const initialPlayers = buildRealPlayers();
     const fixtures = generateLeagueFixtures(initialClubs);
@@ -131,6 +183,7 @@ export function App() {
       firstName: 'Treinador',
       lastName: 'Footkeep',
       coachName: `Prof. ${selectedClub.name}`,
+      email: activeEmailState || '',
       coachStyle: 'Ofensivo & Pressão',
       rosterChoice: 'real',
       investmentOption: 'none',
@@ -139,7 +192,7 @@ export function App() {
     setCurrentTab('dashboard');
   };
 
-  // Start a new career from the Career Creation Modal
+  // 4. Start a new career from the Career Creation Modal
   const handleStartCareer = (careerConfig) => {
     const chosenClubs = careerConfig.leagueMode === 'classic' ? [...INITIAL_CLUBS] : [...REAL_CLUBS];
     let allPlayers = careerConfig.leagueMode === 'classic' ? generateAllPlayers(chosenClubs) : buildRealPlayers();
@@ -153,16 +206,13 @@ export function App() {
         clubId: targetClubId
       }));
 
-      // Get real players of this club
       const existingClubPlayers = allPlayers.filter(p => p.clubId === targetClubId);
       const otherPlayers = allPlayers.filter(p => p.clubId !== targetClubId);
 
-      // Keep enough real players to complement the custom players up to 21
       const neededFromReal = Math.max(0, 21 - customSquad.length);
       const sortedReal = [...existingClubPlayers].sort((a, b) => b.overall - a.overall);
       const keptRealPlayers = sortedReal.slice(0, neededFromReal);
 
-      // Combine and balance
       const mergedSquad = [...customSquad, ...keptRealPlayers];
       const balancedSquad = sortSquadForFormation(mergedSquad, '4-4-2');
 
@@ -172,10 +222,13 @@ export function App() {
     const fixtures = generateLeagueFixtures(chosenClubs);
     const cup = generateInitialCup(chosenClubs);
 
+    const initialBudgetVal = careerConfig.initialBudget || selectedClub.budget;
+    const targetEmail = careerConfig.email || activeEmailState || '';
+
     setClubs(chosenClubs);
     setPlayers(allPlayers);
     setUserClubId(selectedClub.id);
-    setBudget(careerConfig.initialBudget || selectedClub.budget);
+    setBudget(initialBudgetVal);
     setCurrentRound(1);
     setLeagueRounds(fixtures);
     setCupState(cup);
@@ -184,9 +237,95 @@ export function App() {
     setManagerProfile(careerConfig.managerProfile);
     setIsCareerModalOpen(false);
     setCurrentTab('dashboard');
+
+    // Register active email and trigger cloud save & initial email dispatch
+    if (targetEmail) {
+      setActiveEmail(targetEmail);
+      setActiveEmailState(targetEmail);
+
+      const initialGameState = {
+        clubs: chosenClubs,
+        players: allPlayers,
+        userClubId: selectedClub.id,
+        budget: initialBudgetVal,
+        currentRound: 1,
+        leagueRounds: fixtures,
+        cupState: cup,
+        tactics: { formation: '4-4-2', mentality: 'Equilibrada' },
+        awardedPrizes: [],
+        managerProfile: careerConfig.managerProfile,
+        email: targetEmail
+      };
+
+      saveCloudProgress(targetEmail, initialGameState);
+      sendSaveNotificationToEmail(targetEmail, initialGameState);
+
+      setSaveToast(`Carreira iniciada e vinculada ao e-mail ${targetEmail}!`);
+      setTimeout(() => setSaveToast(''), 4000);
+    }
   };
 
-  // Auto-recalculate standings whenever league rounds change
+  // 5. Global Save Progress & Email Notification Handler
+  const handleSaveProgress = async () => {
+    if (!userClubId || clubs.length === 0) return;
+
+    const currentState = {
+      clubs,
+      players,
+      userClubId,
+      budget,
+      currentRound,
+      leagueRounds,
+      cupState,
+      tactics,
+      awardedPrizes,
+      managerProfile,
+      email: activeEmailState || getActiveEmail() || managerProfile?.email || ''
+    };
+
+    // 1. Local storage backup
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(currentState));
+
+    // 2. Cloud save & Email command dispatch
+    const targetEmail = currentState.email;
+    if (targetEmail) {
+      saveCloudProgress(targetEmail, currentState);
+      const res = await sendSaveNotificationToEmail(targetEmail, currentState);
+      setSaveToast(`Progresso salvo! Confirmação enviada para ${targetEmail}.`);
+    } else {
+      setSaveToast('Progresso salvo localmente com sucesso!');
+    }
+    setTimeout(() => setSaveToast(''), 4000);
+  };
+
+  // 6. BeforeUnload Listener: Save and send notification on window close
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const email = activeEmailState || getActiveEmail() || managerProfile?.email;
+      if (email && userClubId && clubs.length > 0) {
+        const currentState = {
+          clubs,
+          players,
+          userClubId,
+          budget,
+          currentRound,
+          leagueRounds,
+          cupState,
+          tactics,
+          awardedPrizes,
+          managerProfile,
+          email
+        };
+        saveCloudProgress(email, currentState);
+        sendSaveNotificationToEmail(email, currentState);
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [clubs, players, userClubId, budget, currentRound, leagueRounds, cupState, tactics, awardedPrizes, managerProfile, activeEmailState]);
+
+  // 7. Auto-recalculate standings whenever league rounds change
   useEffect(() => {
     if (clubs.length > 0 && leagueRounds.length > 0) {
       const updatedTable = calculateStandings(clubs, leagueRounds);
@@ -194,9 +333,9 @@ export function App() {
     }
   }, [clubs, leagueRounds]);
 
-  // Persist State to LocalStorage
+  // 8. Persist State to LocalStorage (only when an active club is valid)
   useEffect(() => {
-    if (clubs.length > 0 && players.length > 0) {
+    if (clubs.length > 0 && players.length > 0 && userClubId) {
       const stateToSave = {
         clubs,
         players,
@@ -207,18 +346,21 @@ export function App() {
         cupState,
         tactics,
         awardedPrizes,
-        managerProfile
+        managerProfile,
+        email: activeEmailState || getActiveEmail() || managerProfile?.email || ''
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
     }
-  }, [clubs, players, userClubId, budget, currentRound, leagueRounds, cupState, tactics, awardedPrizes, managerProfile]);
+  }, [clubs, players, userClubId, budget, currentRound, leagueRounds, cupState, tactics, awardedPrizes, managerProfile, activeEmailState]);
 
-  const userClub = clubs.find(c => c.id === userClubId) || clubs[0];
-  const userSquad = players.filter(p => p.clubId === userClubId);
+  const userClub = clubs.find(c => c.id === userClubId) || null;
+  const userSquad = userClubId ? players.filter(p => p.clubId === userClubId) : [];
 
   // Determine current match for user:
   // Schedules Cup phases at specific season milestones (Rounds 7, 14, 21, 28)
   const getNextMatch = () => {
+    if (!userClubId) return null;
+
     // 1. Check if user has an unplayed cup match in the current phase that has reached its scheduled milestone
     if (cupState && !cupState.championId) {
       const currentPhase = cupState.currentPhase;
@@ -259,7 +401,6 @@ export function App() {
           return finishedMatch;
         }
         if (!m.played) {
-          // Simulate other AI cup matches automatically
           const hClub = clubs.find(c => c.id === m.homeId);
           const aClub = clubs.find(c => c.id === m.awayId);
           const hP = players.filter(p => p.clubId === hClub?.id);
@@ -280,16 +421,14 @@ export function App() {
 
       setCupState(updatedCupState);
 
-      // Financials for Cup match: Ticket income if user is home
       const isHome = finishedMatch.homeId === userClubId;
       const gateIncome = isHome ? (finishedMatch.gateReceipts || 0) : 0;
       let cupPrize = 0;
       const newPrizes = [];
 
-      // Check if user won the Cup Championship
       if (updatedCupState.championId === userClubId) {
         if (!awardedPrizes.some(p => p.id === 'cup_champion')) {
-          cupPrize = 10000000; // R$ 10.000.000
+          cupPrize = 10000000;
           newPrizes.push({
             id: 'cup_champion',
             title: 'Campeão da Copa Footkeep',
@@ -313,7 +452,6 @@ export function App() {
               return finishedMatch;
             }
             if (!m.played) {
-              // Simulate other AI league matches automatically
               const hClub = clubs.find(c => c.id === m.homeId);
               const aClub = clubs.find(c => c.id === m.awayId);
               const hP = players.filter(p => p.clubId === hClub?.id);
@@ -330,7 +468,6 @@ export function App() {
 
       setLeagueRounds(updatedRounds);
 
-      // Financials: Add gate receipts if home, deduct weekly payroll
       const isHome = finishedMatch.homeId === userClubId;
       const gateIncome = isHome ? (finishedMatch.gateReceipts || 0) : 0;
       const weeklyPayroll = userSquad.reduce((sum, p) => sum + (p.salary || 0), 0);
@@ -338,18 +475,15 @@ export function App() {
 
       const netIncome = gateIncome + sponsorIncome - weeklyPayroll;
 
-      // Recalculate standings with this round completed
       const newStandings = calculateStandings(clubs, updatedRounds);
       setStandings(newStandings);
 
       let leaguePrizes = 0;
       const newPrizes = [];
 
-      // Award league prizes at the conclusion of the season (round 30)
       if (currentRound >= 30) {
         const userPosition = newStandings.findIndex(s => s.clubId === userClubId) + 1;
 
-        // 1st Place: League Champion (R$ 15.000.000)
         if (userPosition === 1 && !awardedPrizes.some(p => p.id === 'league_champion')) {
           leaguePrizes += 15000000;
           newPrizes.push({
@@ -360,7 +494,6 @@ export function App() {
           });
         }
 
-        // Top 4: G4 Qualification (R$ 6.000.000)
         if (userPosition >= 1 && userPosition <= 4 && !awardedPrizes.some(p => p.id === 'league_g4')) {
           leaguePrizes += 6000000;
           newPrizes.push({
@@ -377,7 +510,6 @@ export function App() {
         setAwardedPrizes(prev => [...prev, ...newPrizes]);
       }
 
-      // Check if any AI cup matches should run (if user is eliminated from cup but milestone round reached)
       if (cupState && !cupState.championId) {
         const curPhase = cupState.currentPhase;
         const phaseMilestone = CUP_SCHEDULE[curPhase] || 30;
@@ -387,7 +519,6 @@ export function App() {
           const hasUnplayed = phaseMatches.some(m => !m.played);
           
           if (!hasUserInPhase && hasUnplayed) {
-            // Auto-simulate AI cup matches for this phase
             const simCupMatches = phaseMatches.map(m => {
               if (m.played) return m;
               const hClub = clubs.find(c => c.id === m.homeId);
@@ -409,7 +540,6 @@ export function App() {
         }
       }
 
-      // Advance round
       if (currentRound < 30) {
         setCurrentRound(prev => prev + 1);
       }
@@ -420,6 +550,7 @@ export function App() {
 
   // Auto Lineup for user squad according to formation roles
   const handleAutoLineup = (formationToUse = tactics.formation) => {
+    if (!userClubId) return;
     const clubSquad = players.filter(p => p.clubId === userClubId);
     const otherPlayers = players.filter(p => p.clubId !== userClubId);
     const sortedSquad = sortSquadForFormation(clubSquad, formationToUse);
@@ -451,6 +582,7 @@ export function App() {
 
   // Buy Player from Market
   const handleBuyPlayer = (player) => {
+    if (!userClubId) return;
     setBudget(prev => prev - player.value);
     setPlayers(prev => prev.map(p => {
       if (p.id === player.id) {
@@ -483,120 +615,162 @@ export function App() {
         totalRounds={leagueRounds?.length || 38}
         budget={budget}
         managerProfile={managerProfile}
+        activeEmail={activeEmailState}
         onOpenSaveModal={() => setIsSaveModalOpen(true)}
         onOpenCareerModal={() => setIsCareerModalOpen(true)}
+        onQuickSave={handleSaveProgress}
       />
+
+      {/* Floating Save & Cloud Toast Notification */}
+      {saveToast && (
+        <div className="fixed bottom-6 right-6 z-50 animate-bounce bg-emerald-950/95 border border-emerald-500/80 text-emerald-200 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-xs backdrop-blur-md">
+          <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
+          <span className="font-semibold">{saveToast}</span>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <main className="container-app py-6 flex-1">
-        {currentTab === 'dashboard' && (
-          <ClubDashboard 
-            userClub={userClub}
-            standings={standings}
-            nextMatch={nextMatch}
-            allClubs={clubs}
-            squad={userSquad}
-            budget={budget}
-            currentRound={currentRound}
-            managerProfile={managerProfile}
-            onGoToMatch={() => setCurrentTab('match')}
-            onGoToTactics={() => setCurrentTab('tactics')}
-            onGoToTransfers={() => setCurrentTab('transfers')}
-          />
-        )}
+        
+        {/* If no club is loaded yet (clean start / reset state) */}
+        {!userClubId ? (
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6 space-y-5 animate-fadeIn">
+            <FootkeepLogo size="lg" variant="vertical" />
+            <div className="max-w-md space-y-2">
+              <h2 className="text-2xl font-black text-white">Bem-vindo ao Footkeep Manager</h2>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Nenhum save local foi forçado. Vincule seu e-mail para recuperar seu progresso anterior ou crie uma nova carreira escolhendo livremente seu clube do coração.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => setIsCareerModalOpen(true)}
+                className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold text-xs shadow-xl shadow-emerald-500/20 transition flex items-center gap-2"
+              >
+                <Trophy size={16} />
+                <span>Iniciar ou Recuperar Carreira</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {currentTab === 'dashboard' && (
+              <ClubDashboard 
+                userClub={userClub}
+                standings={standings}
+                nextMatch={nextMatch}
+                allClubs={clubs}
+                squad={userSquad}
+                budget={budget}
+                currentRound={currentRound}
+                managerProfile={managerProfile}
+                onGoToMatch={() => setCurrentTab('match')}
+                onGoToTactics={() => setCurrentTab('tactics')}
+                onGoToTransfers={() => setCurrentTab('transfers')}
+              />
+            )}
 
-        {currentTab === 'tactics' && (
-          <SquadTactics 
-            squad={userSquad}
-            tactics={tactics}
-            onUpdateTactics={setTactics}
-            onSwapPlayers={handleSwapPlayers}
-            onToggleTransferList={handleToggleTransferList}
-            onAutoLineup={handleAutoLineup}
-          />
-        )}
+            {currentTab === 'tactics' && (
+              <SquadTactics 
+                squad={userSquad}
+                tactics={tactics}
+                onUpdateTactics={setTactics}
+                onSwapPlayers={handleSwapPlayers}
+                onToggleTransferList={handleToggleTransferList}
+                onAutoLineup={handleAutoLineup}
+              />
+            )}
 
-        {currentTab === 'match' && (
-          <MatchView 
-            userClub={userClub}
-            nextMatch={nextMatch}
-            allClubs={clubs}
-            allPlayers={players}
-            tactics={tactics}
-            onFinishMatch={handleFinishMatch}
-          />
-        )}
+            {currentTab === 'match' && (
+              <MatchView 
+                userClub={userClub}
+                nextMatch={nextMatch}
+                allClubs={clubs}
+                allPlayers={players}
+                tactics={tactics}
+                onFinishMatch={handleFinishMatch}
+              />
+            )}
 
-        {currentTab === 'league' && (
-          <LeagueTable 
-            standings={standings}
-            userClubId={userClubId}
-            allPlayers={players}
-            allClubs={clubs}
-          />
-        )}
+            {currentTab === 'league' && (
+              <LeagueTable 
+                standings={standings}
+                userClubId={userClubId}
+                allPlayers={players}
+                allClubs={clubs}
+              />
+            )}
 
-        {currentTab === 'cup' && (
-          <CupBracket 
-            cupState={cupState}
-            allClubs={clubs}
-            userClubId={userClubId}
-          />
-        )}
+            {currentTab === 'cup' && (
+              <CupBracket 
+                cupState={cupState}
+                allClubs={clubs}
+                userClubId={userClubId}
+              />
+            )}
 
-        {currentTab === 'transfers' && (
-          <TransfersMarket 
-            allPlayers={players}
-            allClubs={clubs}
-            userClubId={userClubId}
-            budget={budget}
-            onBuyPlayer={handleBuyPlayer}
-            onSellPlayer={handleSellPlayer}
-          />
-        )}
+            {currentTab === 'transfers' && (
+              <TransfersMarket 
+                allPlayers={players}
+                allClubs={clubs}
+                userClubId={userClubId}
+                budget={budget}
+                onBuyPlayer={handleBuyPlayer}
+                onSellPlayer={handleSellPlayer}
+              />
+            )}
 
-        {currentTab === 'finances' && (
-          <FinancesView 
-            userClub={userClub}
-            squad={userSquad}
-            budget={budget}
-            currentRound={currentRound}
-            awardedPrizes={awardedPrizes}
-          />
-        )}
+            {currentTab === 'finances' && (
+              <FinancesView 
+                userClub={userClub}
+                squad={userSquad}
+                budget={budget}
+                currentRound={currentRound}
+                awardedPrizes={awardedPrizes}
+              />
+            )}
 
-        {currentTab === 'settings' && (
-          <SettingsView 
-            userClub={userClub}
-            currentRound={currentRound}
-            managerProfile={managerProfile}
-            onLogout={() => {
-              // Sair para tela de onboarding / login sem apagar o progresso da carreira
-              setIsCareerModalOpen(true);
-            }}
-            onResetCareer={() => {
-              // Apagar carreira atual: limpa save do localStorage e re-inicializa
-              try {
-                localStorage.removeItem(STORAGE_KEY);
-              } catch (e) {
-                console.warn('Erro ao remover save:', e);
-              }
-              initDefaultCareer('fla');
-              setIsCareerModalOpen(true);
-            }}
-          />
+            {currentTab === 'settings' && (
+              <SettingsView 
+                userClub={userClub}
+                currentRound={currentRound}
+                managerProfile={managerProfile}
+                onLogout={() => {
+                  setIsCareerModalOpen(true);
+                }}
+                onResetCareer={() => {
+                  try {
+                    localStorage.removeItem(STORAGE_KEY);
+                  } catch (e) {
+                    console.warn('Erro ao remover save:', e);
+                  }
+                  setClubs([]);
+                  setPlayers([]);
+                  setUserClubId(null);
+                  setBudget(0);
+                  setCurrentRound(1);
+                  setLeagueRounds([]);
+                  setCupState(null);
+                  setManagerProfile(null);
+                  setIsCareerModalOpen(true);
+                  setSaveToast('Carreira reiniciada com sucesso!');
+                  setTimeout(() => setSaveToast(''), 3000);
+                }}
+              />
+            )}
+          </>
         )}
       </main>
 
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950/80 py-4 text-center text-xs text-slate-500">
         <div className="container-app flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Footkeep Football Manager © 2024 / 2026 • Temporada 2024 Série A Oficial</span>
-          <span>Pronto para publicação via Cloudflare Pages</span>
+          <span>Footkeep Football Manager © 2024 / 2026 • Temporada Série A Oficial</span>
+          <span>Sincronização em Nuvem & Cloudflare Pages</span>
         </div>
       </footer>
 
-      {/* Save / Load / New Game Modal */}
+      {/* Save / Load / Cloud Email Modal */}
       <SaveLoadModal 
         isOpen={isSaveModalOpen}
         onClose={() => setIsSaveModalOpen(false)}
@@ -609,22 +783,22 @@ export function App() {
           leagueRounds, 
           cupState, 
           tactics, 
-          awardedPrizes,
-          managerProfile 
+          awardedPrizes, 
+          managerProfile,
+          email: activeEmailState
         }}
-        onLoadSave={(savedState) => {
-          setClubs(savedState.clubs || REAL_CLUBS);
-          setPlayers(savedState.players || []);
-          setUserClubId(savedState.userClubId || 'fla');
-          setBudget(savedState.budget || 38000000);
-          setCurrentRound(savedState.currentRound || 1);
-          setLeagueRounds(savedState.leagueRounds || []);
-          setCupState(savedState.cupState || null);
-          setTactics(savedState.tactics || { formation: '4-4-2', mentality: 'Equilibrada' });
-          setAwardedPrizes(savedState.awardedPrizes || []);
-          setManagerProfile(savedState.managerProfile || null);
+        onLoadSave={handleLoadSave}
+        onResetGame={() => {
+          try {
+            localStorage.removeItem(STORAGE_KEY);
+          } catch (e) {
+            console.warn('Erro ao remover save:', e);
+          }
+          setClubs([]);
+          setPlayers([]);
+          setUserClubId(null);
+          setIsCareerModalOpen(true);
         }}
-        onResetGame={() => setIsCareerModalOpen(true)}
         allClubs={clubs}
         onSelectNewClub={(newClubId) => initDefaultCareer(newClubId)}
       />
@@ -634,7 +808,8 @@ export function App() {
         isOpen={isCareerModalOpen}
         onStartCareer={handleStartCareer}
         currentClubId={userClubId}
-        onClose={clubs && clubs.length > 0 ? () => setIsCareerModalOpen(false) : undefined}
+        onClose={userClubId && clubs.length > 0 ? () => setIsCareerModalOpen(false) : undefined}
+        onLoadSave={handleLoadSave}
       />
 
     </div>

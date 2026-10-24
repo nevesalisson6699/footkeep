@@ -12,7 +12,9 @@ import {
   Calendar,
   PlusCircle,
   UserCheck,
-  Settings
+  Settings,
+  Mail,
+  CloudCheck
 } from 'lucide-react';
 import { ClubBadge } from './ClubBadge';
 import { FootkeepLogo } from './FootkeepLogo';
@@ -25,8 +27,10 @@ export function Navbar({
   totalRounds = 38,
   budget, 
   managerProfile,
+  activeEmail,
   onOpenSaveModal,
-  onOpenCareerModal
+  onOpenCareerModal,
+  onQuickSave
 }) {
   const tabs = [
     { id: 'dashboard', label: 'Visão Geral', icon: Shield },
@@ -87,8 +91,22 @@ export function Navbar({
             </div>
           )}
 
-          {/* Quick Actions (Round + New Career + Save) */}
+          {/* Quick Actions (Round + Active Email + New Career + Save) */}
           <div className="flex items-center gap-2">
+            
+            {/* Active Email Cloud Badge */}
+            {activeEmail && (
+              <div 
+                onClick={onOpenSaveModal}
+                title={`Save sincronizado com ${activeEmail}. Clique para gerenciar backups por e-mail.`}
+                className="hidden lg:flex items-center gap-1.5 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-500/40 px-2.5 py-1 rounded-lg text-xs text-emerald-300 cursor-pointer transition"
+              >
+                <Mail size={13} className="text-emerald-400" />
+                <span className="font-mono text-[11px] truncate max-w-[130px]">{activeEmail}</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              </div>
+            )}
+
             <div className="flex items-center gap-1.5 bg-emerald-950/50 border border-emerald-500/30 px-3 py-1 rounded-lg text-xs font-bold text-emerald-300">
               <Calendar size={13} className="text-emerald-400" />
               <span>Rodada {currentRound}/{totalRounds}</span>
@@ -103,13 +121,23 @@ export function Navbar({
               <span className="hidden sm:inline">Nova Carreira</span>
             </button>
 
+            {/* Quick Save / Cloud Sync Button */}
+            <button
+              onClick={onQuickSave || onOpenSaveModal}
+              title="Salvar progresso agora e enviar confirmação para seu e-mail"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow-md shadow-emerald-600/20"
+            >
+              <Save size={14} />
+              <span className="hidden sm:inline">Salvar</span>
+            </button>
+
+            {/* Cloud & Save Manager Options */}
             <button
               onClick={onOpenSaveModal}
-              title="Salvar ou carregar jogo"
-              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/80 text-xs font-semibold transition"
+              title="Gerenciador de Saves, Nuvem e E-mail"
+              className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/80 text-xs transition"
             >
-              <Save size={14} className="text-emerald-400" />
-              <span className="hidden sm:inline">Salvar</span>
+              <Settings size={14} />
             </button>
           </div>
 
