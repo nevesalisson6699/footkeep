@@ -1,0 +1,8 @@
+{
+  "Local Dev (Vite)": {
+    "error": "Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"main button:has-text(\\\"Olheiro & Atletas\\\")\").first\n"
+  },
+  "Produção Cloudflare Pages": {
+    "error": "Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"main button:has-text(\\\"Olheiro & Atletas\\\")\").first\n"
+  }
+}
