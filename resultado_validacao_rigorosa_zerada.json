@@ -1,0 +1,38 @@
+{
+  "url": "http://localhost:3000",
+  "step_a_zero_initialization": {
+    "clubs_count": 20,
+    "all_clubs_points_zero": true,
+    "all_clubs_games_zero": true,
+    "empty_scorers_message_present": true,
+    "status": "APROVADO: 100% Zerado na Criação"
+  },
+  "step_b_round_1_simulation": {
+    "all_clubs_played_1_match": true,
+    "points_are_coherent_0_1_3": true,
+    "total_points_awarded": 28,
+    "scorers_recorded_count": 11,
+    "status": "APROVADO: Rodada 1 calculada com precisão matemática"
+  },
+  "step_c_duplication_prevention": {
+    "games_equal": true,
+    "points_equal": true,
+    "status": "APROVADO: Zero Duplicação ao Recarregar"
+  },
+  "step_d_confirmation_dialogs": {
+    "save_modal_confirm_present": true,
+    "settings_danger_modal_present": true,
+    "requires_apagar_text": true,
+    "status": "APROVADO: Confirmação Explícita Obrigatória em Ambos os Pontos"
+  },
+  "screenshots": [
+    "screenshot_1_inicio_zerado.png",
+    "screenshot_2_pos_simulacao.png",
+    "screenshot_3_dialogo_confirmacao.png"
+  ],
+  "runtime_errors": [],
+  "console_errors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ]
+}
