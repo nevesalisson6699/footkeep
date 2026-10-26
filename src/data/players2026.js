@@ -344,27 +344,38 @@ export const RAW_PLAYERS_2026_SERIE_A = {
   ],
 
   san: [
+    // Goleiros
+    { name: 'João Paulo', pos: 'G', age: 31, ovr: 81, fin: 25, pas: 68, def: 83, fis: 81, contractEnd: '31/12/2027' },
     { name: 'Gabriel Brazão', pos: 'G', age: 25, ovr: 80, fin: 25, pas: 68, def: 82, fis: 79, contractEnd: '31/12/2026' },
     { name: 'Diógenes', pos: 'G', age: 25, ovr: 74, fin: 20, pas: 62, def: 76, fis: 75, contractEnd: '31/12/2026' },
-    { name: 'Jair Cunha', pos: 'Z', age: 21, ovr: 80, fin: 35, pas: 72, def: 82, fis: 82, contractEnd: '31/12/2027' },
+    // Zagueiros
     { name: 'Luan Peres', pos: 'Z', age: 32, ovr: 80, fin: 42, pas: 72, def: 81, fis: 81, contractEnd: '31/12/2027' },
-    { name: 'Gil', pos: 'Z', age: 39, ovr: 79, fin: 46, pas: 68, def: 81, fis: 78, contractEnd: '31/12/2026' },
+    { name: 'Jair Cunha', pos: 'Z', age: 21, ovr: 80, fin: 35, pas: 72, def: 82, fis: 82, contractEnd: '31/12/2027' },
+    { name: 'João Basso', pos: 'Z', age: 29, ovr: 78, fin: 38, pas: 70, def: 79, fis: 81, contractEnd: '31/12/2026' },
     { name: 'Alex Nascimento', pos: 'Z', age: 27, ovr: 76, fin: 34, pas: 66, def: 78, fis: 79, contractEnd: '31/12/2026' },
+    // Laterais
     { name: 'JP Chermont', pos: 'L', age: 20, ovr: 79, fin: 62, pas: 78, def: 77, fis: 83, contractEnd: '31/12/2027' },
     { name: 'Gonzalo Escobar', pos: 'L', age: 29, ovr: 78, fin: 58, pas: 76, def: 79, fis: 81, contractEnd: '31/12/2026' },
     { name: 'Hayner', pos: 'L', age: 30, ovr: 76, fin: 56, pas: 74, def: 76, fis: 81, contractEnd: '31/12/2026' },
-    { name: 'João Schmidt', pos: 'V', age: 33, ovr: 82, fin: 68, pas: 84, def: 82, fis: 80, contractEnd: '31/12/2026' },
+    { name: 'Souza', pos: 'L', age: 20, ovr: 76, fin: 60, pas: 75, def: 75, fis: 80, contractEnd: '31/12/2028' },
+    { name: 'Kevyson', pos: 'L', age: 22, ovr: 75, fin: 58, pas: 74, def: 75, fis: 79, contractEnd: '31/12/2026' },
+    // Volantes
     { name: 'Diego Pituca', pos: 'V', age: 33, ovr: 81, fin: 70, pas: 82, def: 80, fis: 82, contractEnd: '31/12/2027' },
+    { name: 'João Schmidt', pos: 'V', age: 33, ovr: 82, fin: 68, pas: 84, def: 82, fis: 80, contractEnd: '31/12/2026' },
     { name: 'Tomás Rincón', pos: 'V', age: 38, ovr: 76, fin: 55, pas: 77, def: 79, fis: 75, contractEnd: '31/12/2026' },
-    { name: 'Sandry Roberto', pos: 'V', age: 23, ovr: 75, fin: 58, pas: 76, def: 76, fis: 76, contractEnd: '31/12/2026' },
-    { name: 'Giuliano Victor', pos: 'M', age: 36, ovr: 81, fin: 79, pas: 85, def: 58, fis: 74, contractEnd: '31/12/2026' },
+    { name: 'Sandry Roberto', pos: 'V', age: 23, ovr: 76, fin: 58, pas: 76, def: 77, fis: 77, contractEnd: '31/12/2026' },
+    { name: 'Alison', pos: 'V', age: 33, ovr: 75, fin: 52, pas: 74, def: 78, fis: 76, contractEnd: '31/12/2026' },
+    // Meias
+    { name: 'Giuliano', pos: 'M', age: 36, ovr: 81, fin: 79, pas: 85, def: 58, fis: 74, contractEnd: '31/12/2026' },
     { name: 'Rómulo Otero', pos: 'M', age: 33, ovr: 80, fin: 82, pas: 82, def: 50, fis: 78, contractEnd: '31/12/2026' },
-    { name: 'Patrick Bezerra', pos: 'M', age: 33, ovr: 77, fin: 74, pas: 77, def: 68, fis: 79, contractEnd: '31/12/2026' },
-    { name: 'Serginho Soler', pos: 'M', age: 31, ovr: 76, fin: 72, pas: 77, def: 54, fis: 76, contractEnd: '31/12/2026' },
-    { name: 'Guilherme Augusto', pos: 'A', age: 31, ovr: 82, fin: 82, pas: 79, def: 52, fis: 84, contractEnd: '31/12/2026' },
-    { name: 'Wendel Silva', pos: 'A', age: 26, ovr: 80, fin: 82, pas: 72, def: 45, fis: 82, contractEnd: '30/06/2025' },
+    { name: 'Ignacio Laquintana', pos: 'M', age: 27, ovr: 78, fin: 76, pas: 77, def: 54, fis: 82, contractEnd: '31/12/2026' },
+    { name: 'Miguelito', pos: 'M', age: 22, ovr: 77, fin: 76, pas: 80, def: 48, fis: 76, contractEnd: '31/12/2027' },
+    // Atacantes
+    { name: 'Guilherme', pos: 'A', age: 31, ovr: 82, fin: 82, pas: 79, def: 52, fis: 84, contractEnd: '31/12/2026' },
+    { name: 'Wendel Silva', pos: 'A', age: 26, ovr: 80, fin: 82, pas: 72, def: 45, fis: 82, contractEnd: '30/06/2026' },
+    { name: 'Julio Furch', pos: 'A', age: 36, ovr: 77, fin: 81, pas: 68, def: 42, fis: 78, contractEnd: '31/12/2026' },
     { name: 'Willian Bigode', pos: 'A', age: 39, ovr: 77, fin: 78, pas: 74, def: 48, fis: 74, contractEnd: '31/12/2026' },
-    { name: 'Julio Furch', pos: 'A', age: 36, ovr: 77, fin: 81, pas: 68, def: 42, fis: 78, contractEnd: '31/12/2026' }
+    { name: 'Yusupha Njie', pos: 'A', age: 32, ovr: 76, fin: 79, pas: 70, def: 44, fis: 82, contractEnd: '30/06/2026' }
   ],
 
   rbb: [
@@ -1080,6 +1091,7 @@ export const CONFIRMED_DEPARTURES_2026 = [
  * Jogadores sem vínculo contratual ativo com agremiações brasileiras
  */
 export const FREE_AGENTS_2026 = [
+  { name: 'Gil', pos: 'Z', age: 39, ovr: 78, fin: 44, pas: 66, def: 80, fis: 74 },
   { name: 'Alexandre Pato', pos: 'A', age: 37, ovr: 77, fin: 82, pas: 76, def: 40, fis: 72 },
   { name: 'Diego Alves', pos: 'G', age: 41, ovr: 76, fin: 20, pas: 66, def: 79, fis: 70 },
   { name: 'Rodrigo Caio', pos: 'Z', age: 33, ovr: 78, fin: 45, pas: 74, def: 81, fis: 75 },
@@ -1261,6 +1273,8 @@ export function getClubSquad2026(clubId) {
     const salary = Math.round((value * 0.007) / 1000) * 1000 + 5000;
     return {
       ...raw,
+      position: raw.position || raw.pos,
+      overall: raw.overall ?? raw.ovr,
       value: raw.value ?? value,
       salary: raw.salary ?? salary,
       isEstimate: true,

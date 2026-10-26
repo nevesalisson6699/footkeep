@@ -31,6 +31,10 @@ import {
   AUDIT_METADATA, 
   getCompetitionById 
 } from '../data/playerStats2025_26';
+import { 
+  ALL_COVERED_COMPETITIONS_2026, 
+  POPULAR_COMPETITIONS_METADATA_2026 
+} from '../data/allCoveredCompetitions2026';
 import { playClick } from '../services/audioService';
 
 export function MonitoringAnalyticsView({
@@ -58,6 +62,26 @@ export function MonitoringAnalyticsView({
   // Scouting Modal State
   const [selectedPlayerForScouting, setSelectedPlayerForScouting] = useState(null);
   const [evaluationFeedback, setEvaluationFeedback] = useState(null);
+
+  // Covered Competitions Catalog State
+  const [catalogContinentFilter, setCatalogContinentFilter] = useState('Todos');
+  const [catalogSearch, setCatalogSearch] = useState('');
+
+  const filteredCatalog = useMemo(() => {
+    return ALL_COVERED_COMPETITIONS_2026.filter(comp => {
+      if (catalogContinentFilter !== 'Todos' && comp.continent !== catalogContinentFilter) {
+        return false;
+      }
+      if (catalogSearch.trim()) {
+        const q = catalogSearch.toLowerCase();
+        const matchesName = comp.name.toLowerCase().includes(q);
+        const matchesCountry = comp.country.toLowerCase().includes(q);
+        const matchesClub = comp.prominentClubs?.some(club => club.toLowerCase().includes(q));
+        if (!matchesName && !matchesCountry && !matchesClub) return false;
+      }
+      return true;
+    });
+  }, [catalogContinentFilter, catalogSearch]);
 
   // Read game difficulty setting from localStorage ('footkeep_settings_v1')
   const scoutingDifficulty = useMemo(() => {
@@ -278,6 +302,18 @@ export function MonitoringAnalyticsView({
           >
             <Users size={14} />
             <span>Scouting & Estatísticas de Jogadores ({filteredPlayers.length})</span>
+          </button>
+
+          <button
+            onClick={() => { playClick(); setActiveTab('catalog'); }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
+              activeTab === 'catalog'
+                ? 'bg-emerald-500 text-slate-950 shadow-md font-black'
+                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            }`}
+          >
+            <Sparkles size={14} />
+            <span>Escopo Coberto ({ALL_COVERED_COMPETITIONS_2026.length} Competições)</span>
           </button>
         </div>
 
@@ -892,6 +928,135 @@ export function MonitoringAnalyticsView({
             </div>
 
           </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* ABA 4: ESCOPO DE COMPETIÇÕES COBERTAS (45)              */}
+      {/* ======================================================== */}
+      {activeTab === 'catalog' && (
+        <div className="glass-panel p-6 border-slate-800 shadow-xl space-y-6 animate-fadeIn">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+            <div>
+              <div className="flex items-center gap-2">
+                <Sparkles size={20} className="text-emerald-400" />
+                <h3 className="text-base font-bold text-white">
+                  Escopo Coberto de Competições — Temporada 2025/2026
+                </h3>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold">
+                  {filteredCatalog.length} de {ALL_COVERED_COMPETITIONS_2026.length} competições
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-1 max-w-3xl">
+                Relação canônica de todas as ligas e copas populares selecionadas, organizadas por continente e país. Dados cadastrais auditados para 2026, com início de carreira estritamente zerado na simulação.
+              </p>
+            </div>
+
+            {/* Busca Rápida no Catálogo */}
+            <div className="relative min-w-[240px]">
+              <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+              <input
+                type="text"
+                value={catalogSearch}
+                onChange={(e) => setCatalogSearch(e.target.value)}
+                placeholder="Buscar por competição, país ou clube..."
+                className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+              />
+              {catalogSearch && (
+                <button onClick={() => setCatalogSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                  <X size={13} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Filtros por Continente */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pr-1">Continente:</span>
+            {['Todos', 'Europa', 'Américas', 'Ásia & Oceania', 'África', 'Global'].map(cont => {
+              const count = cont === 'Todos' 
+                ? ALL_COVERED_COMPETITIONS_2026.length 
+                : ALL_COVERED_COMPETITIONS_2026.filter(c => c.continent === cont).length;
+              const isActive = catalogContinentFilter === cont;
+              return (
+                <button
+                  key={cont}
+                  onClick={() => { playClick(); setCatalogContinentFilter(cont); }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                    isActive
+                      ? 'bg-emerald-500 text-slate-950 font-black shadow'
+                      : 'bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800'
+                  }`}
+                >
+                  <span>{cont}</span>
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-slate-950/30 text-white' : 'bg-slate-800 text-slate-500'}`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Grid de Competições Cobertas */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredCatalog.map(comp => (
+              <div 
+                key={comp.id}
+                className="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-4 hover:border-emerald-500/40 transition space-y-3 shadow-md"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-2xl">{comp.countryFlag}</span>
+                    <div>
+                      <h4 className="text-sm font-bold text-white leading-tight">{comp.name}</h4>
+                      <span className="text-[11px] text-slate-400 block">{comp.country} • {comp.continent}</span>
+                    </div>
+                  </div>
+                  <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider shrink-0 ${
+                    comp.type === 'league' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                    comp.type === 'continental_cup' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' :
+                    comp.type === 'international' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' :
+                    'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                  }`}>
+                    {comp.type === 'league' ? 'Liga' : comp.type === 'continental_cup' ? 'Continental' : comp.type === 'international' ? 'Seleções' : 'Copa'}
+                  </span>
+                </div>
+
+                <div className="text-[11px] text-slate-300 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/60 leading-relaxed">
+                  <span className="text-slate-500 block text-[10px] uppercase font-bold mb-0.5">Formato & Clubes:</span>
+                  <span>{comp.format}</span>
+                  {comp.teamsCount && <span className="text-slate-400 font-semibold block mt-0.5">({comp.teamsCount} participantes)</span>}
+                </div>
+
+                {comp.prominentClubs && comp.prominentClubs.length > 0 && (
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-slate-500 uppercase font-bold block">Clubes de Referência:</span>
+                    <div className="flex flex-wrap gap-1">
+                      {comp.prominentClubs.slice(0, 6).map((club, idx) => (
+                        <span key={idx} className="text-[10px] bg-slate-800/80 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700/50">
+                          {typeof club === 'string' ? club : club.name}
+                        </span>
+                      ))}
+                      {comp.prominentClubs.length > 6 && (
+                        <span className="text-[10px] text-slate-500 py-0.5">+{comp.prominentClubs.length - 6}</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-2 border-t border-slate-800/60 flex items-center justify-between text-[10px] text-slate-400">
+                  <span>Fonte: <strong className="text-slate-300">{comp.source}</strong></span>
+                  <span className="text-emerald-400 font-semibold">Auditado ({comp.auditDate})</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {filteredCatalog.length === 0 && (
+            <div className="text-center py-12 text-slate-500 text-xs">
+              Nenhuma competição encontrada para os filtros selecionados.
+            </div>
+          )}
         </div>
       )}
 

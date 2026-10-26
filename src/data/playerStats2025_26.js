@@ -48,7 +48,11 @@ export const COMPETITIONS_DATA = [
       { pos: 13, clubId: 'flu', clubName: 'Fluminense', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
       { pos: 14, clubId: 'cor', clubName: 'Corinthians', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
       { pos: 15, clubId: 'cap', clubName: 'Athletico Paranaense', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
-      { pos: 16, clubId: 'vit', clubName: 'Vitória', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] }
+      { pos: 16, clubId: 'vit', clubName: 'Vitória', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 17, clubId: 'san', clubName: 'Santos', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 18, clubId: 'cui', clubName: 'Cuiabá', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 19, clubId: 'cri', clubName: 'Criciúma', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 20, clubId: 'juv', clubName: 'Juventude', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] }
     ],
     clubs: [
       { id: 'bot', name: 'Botafogo', shortName: 'BOT', stadium: 'Nilton Santos', stadiumCapacity: 44661, att: 88, def: 86, ovr: 87, reputation: 87, badgeEmoji: '⭐' },
@@ -63,7 +67,8 @@ export const COMPETITIONS_DATA = [
       { id: 'vas', name: 'Vasco da Gama', shortName: 'VAS', stadium: 'São Januário', stadiumCapacity: 21880, att: 82, def: 81, ovr: 82, reputation: 82, badgeEmoji: '⚓' },
       { id: 'gre', name: 'Grêmio', shortName: 'GRE', stadium: 'Arena do Grêmio', stadiumCapacity: 55662, att: 82, def: 81, ovr: 82, reputation: 83, badgeEmoji: '🔵' },
       { id: 'flu', name: 'Fluminense', shortName: 'FLU', stadium: 'Maracanã', stadiumCapacity: 78838, att: 84, def: 83, ovr: 84, reputation: 84, badgeEmoji: '🟢' },
-      { id: 'cor', name: 'Corinthians', shortName: 'COR', stadium: 'Neo Química Arena', stadiumCapacity: 48000, att: 84, def: 83, ovr: 84, reputation: 85, badgeEmoji: '⚪' }
+      { id: 'cor', name: 'Corinthians', shortName: 'COR', stadium: 'Neo Química Arena', stadiumCapacity: 48000, att: 84, def: 83, ovr: 84, reputation: 85, badgeEmoji: '⚪' },
+      { id: 'san', name: 'Santos', shortName: 'SAN', stadium: 'Urbano Caldeira (Vila Belmiro)', stadiumCapacity: 16068, att: 81, def: 80, ovr: 81, reputation: 83, badgeEmoji: '🐋' }
     ]
   },
 
@@ -81,17 +86,16 @@ export const COMPETITIONS_DATA = [
     auditDate: 'Outubro de 2026',
     badgeEmoji: '🇧🇷',
     standings: [
-      { pos: 1, clubId: 'san', clubName: 'Santos', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
-      { pos: 2, clubId: 'nov', clubName: 'Novorizontino', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
-      { pos: 3, clubId: 'spo', clubName: 'Sport Recife', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
-      { pos: 4, clubId: 'mir', clubName: 'Mirassol', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
-      { pos: 5, clubId: 'vil', clubName: 'Vila Nova', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
-      { pos: 6, clubId: 'cea', clubName: 'Ceará', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
-      { pos: 7, clubId: 'cor_pr', clubName: 'Coritiba', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
-      { pos: 8, clubId: 'ame', clubName: 'América Mineiro', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] }
+      { pos: 1, clubId: 'nov', clubName: 'Novorizontino', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 2, clubId: 'spo', clubName: 'Sport Recife', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 3, clubId: 'mir', clubName: 'Mirassol', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 4, clubId: 'vil', clubName: 'Vila Nova', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 5, clubId: 'cea', clubName: 'Ceará', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 6, clubId: 'cor_pr', clubName: 'Coritiba', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 7, clubId: 'ame', clubName: 'América Mineiro', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 8, clubId: 'goi', clubName: 'Goiás', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] }
     ],
     clubs: [
-      { id: 'san', name: 'Santos', shortName: 'SAN', stadium: 'Vila Belmiro', stadiumCapacity: 16068, att: 81, def: 80, ovr: 81, reputation: 80, badgeEmoji: '🐋' },
       { id: 'spo', name: 'Sport Recife', shortName: 'SPO', stadium: 'Ilha do Retiro', stadiumCapacity: 32983, att: 78, def: 77, ovr: 78, reputation: 77, badgeEmoji: '🦁' },
       { id: 'cea', name: 'Ceará', shortName: 'CEA', stadium: 'Castelão', stadiumCapacity: 63903, att: 79, def: 76, ovr: 77, reputation: 77, badgeEmoji: '⚫' },
       { id: 'cor_pr', name: 'Coritiba', shortName: 'CFC', stadium: 'Couto Pereira', stadiumCapacity: 40502, att: 77, def: 78, ovr: 77, reputation: 78, badgeEmoji: '🟢' },

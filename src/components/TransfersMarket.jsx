@@ -46,11 +46,12 @@ export function TransfersMarket({
   
   // Multileague Filter States
   const [searchTerm, setSearchTerm] = useState('');
-  const [countryFilter, setCountryFilter] = useState('ALL'); // 'ALL' | 'Brasil' | 'Inglaterra' | 'Espanha'
-  const [leagueFilter, setLeagueFilter] = useState('ALL'); // 'ALL' | 'brasileirao_serie_a' | 'brasileirao_serie_b' | 'premier_league' | 'laliga'
+  const [countryFilter, setCountryFilter] = useState('ALL'); // 'ALL' | 'Brasil' | 'Inglaterra' | 'Espanha' | etc.
+  const [leagueFilter, setLeagueFilter] = useState('ALL'); // 'ALL' | leagueId
   const [clubFilter, setClubFilter] = useState('ALL'); // 'ALL' | clubId
   const [positionFilter, setPositionFilter] = useState('ALL'); // 'ALL' | 'G' | 'Z' | 'L' | 'V' | 'M' | 'A'
   const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL' | 'FREE' | 'CLUBS'
+  const [priceRangeFilter, setPriceRangeFilter] = useState('ALL'); // 'ALL' | 'under_5m' | '5m_20m' | '20m_50m' | 'over_50m'
   const [visibleCount, setVisibleCount] = useState(50);
   
   const [notification, setNotification] = useState(null);
@@ -100,17 +101,24 @@ export function TransfersMarket({
     setCountryFilter(country);
     setClubFilter('ALL');
     setVisibleCount(50);
-    if (country === 'Brasil') {
-      if (leagueFilter !== 'brasileirao_serie_a' && leagueFilter !== 'brasileirao_serie_b') {
-        setLeagueFilter('ALL');
-      }
-    } else if (country === 'Inglaterra') {
-      setLeagueFilter('premier_league');
-    } else if (country === 'Espanha') {
-      setLeagueFilter('laliga');
-    } else {
-      setLeagueFilter('ALL');
-    }
+    const countryLeagueMap = {
+      'Brasil': (leagueFilter === 'brasileirao_serie_a' || leagueFilter === 'brasileirao_serie_b') ? leagueFilter : 'ALL',
+      'Inglaterra': 'premier_league',
+      'Espanha': 'laliga',
+      'Estados Unidos': 'mls',
+      'México': 'liga_mx',
+      'Argentina': 'copa_libertadores',
+      'Uruguai': 'copa_libertadores',
+      'América do Sul': 'copa_libertadores',
+      'Arábia Saudita': 'afc_champions_league',
+      'Japão': 'j_league',
+      'China': 'chinese_super_league',
+      'Índia': 'indian_super_league',
+      'Coreia do Sul': 'k_league_2',
+      'Austrália': 'a_league',
+      'África do Sul': 'south_african_psl'
+    };
+    setLeagueFilter(countryLeagueMap[country] || 'ALL');
   };
 
   // Handle League selection with automatic country synchronization
@@ -118,14 +126,24 @@ export function TransfersMarket({
     setLeagueFilter(league);
     setClubFilter('ALL');
     setVisibleCount(50);
-    if (league === 'premier_league') {
-      setCountryFilter('Inglaterra');
-    } else if (league === 'laliga') {
-      setCountryFilter('Espanha');
-    } else if (league === 'brasileirao_serie_a' || league === 'brasileirao_serie_b') {
-      setCountryFilter('Brasil');
-    } else {
-      // ALL
+    const leagueCountryMap = {
+      'premier_league': 'Inglaterra',
+      'laliga': 'Espanha',
+      'brasileirao_serie_a': 'Brasil',
+      'brasileirao_serie_b': 'Brasil',
+      'mls': 'Estados Unidos',
+      'liga_mx': 'México',
+      'copa_libertadores': 'ALL',
+      'afc_champions_league': 'ALL',
+      'j_league': 'Japão',
+      'chinese_super_league': 'China',
+      'indian_super_league': 'Índia',
+      'k_league_2': 'Coreia do Sul',
+      'a_league': 'Austrália',
+      'south_african_psl': 'África do Sul'
+    };
+    if (league !== 'ALL') {
+      setCountryFilter(leagueCountryMap[league] || 'ALL');
     }
   };
 
@@ -137,10 +155,11 @@ export function TransfersMarket({
     setClubFilter('ALL');
     setPositionFilter('ALL');
     setStatusFilter('ALL');
+    setPriceRangeFilter('ALL');
     setVisibleCount(50);
   };
 
-  const hasActiveFilters = searchTerm !== '' || countryFilter !== 'ALL' || leagueFilter !== 'ALL' || clubFilter !== 'ALL' || positionFilter !== 'ALL' || statusFilter !== 'ALL';
+  const hasActiveFilters = searchTerm !== '' || countryFilter !== 'ALL' || leagueFilter !== 'ALL' || clubFilter !== 'ALL' || positionFilter !== 'ALL' || statusFilter !== 'ALL' || priceRangeFilter !== 'ALL';
 
   // 3. Filter market players (exclude user's own squad)
   const filteredMarketPlayers = useMemo(() => {
@@ -155,6 +174,12 @@ export function TransfersMarket({
       const isFree = p.clubId === null || p.contractStatus === 'livre_mercado' || p.leagueId === 'free_agent';
       if (statusFilter === 'FREE' && !isFree) return false;
       if (statusFilter === 'CLUBS' && isFree) return false;
+
+      // Price range filter
+      if (priceRangeFilter === 'under_5m' && p.value > 5000000) return false;
+      if (priceRangeFilter === '5m_20m' && (p.value <= 5000000 || p.value > 20000000)) return false;
+      if (priceRangeFilter === '20m_50m' && (p.value <= 20000000 || p.value > 50000000)) return false;
+      if (priceRangeFilter === 'over_50m' && p.value <= 50000000) return false;
 
       // Find associated club
       const club = globalClubs.find(c => c.id === p.clubId);
@@ -264,6 +289,76 @@ export function TransfersMarket({
       return (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-950/70 text-rose-300 border border-rose-800/60">
           <span>🇪🇸</span> LaLiga
+        </span>
+      );
+    }
+    if (leagueId === 'mls') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-950/70 text-blue-300 border border-blue-800/60">
+          <span>🇺🇸</span> MLS
+        </span>
+      );
+    }
+    if (leagueId === 'liga_mx') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/70 text-emerald-300 border border-emerald-800/60">
+          <span>🇲🇽</span> Liga MX
+        </span>
+      );
+    }
+    if (leagueId === 'copa_libertadores') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-950/70 text-amber-300 border border-amber-800/60">
+          <span>🌎</span> Libertadores
+        </span>
+      );
+    }
+    if (leagueId === 'afc_champions_league') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-yellow-950/70 text-yellow-300 border border-yellow-800/60">
+          <span>⭐</span> AFC Champions
+        </span>
+      );
+    }
+    if (leagueId === 'j_league') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-950/70 text-red-300 border border-red-800/60">
+          <span>🇯🇵</span> J-League
+        </span>
+      );
+    }
+    if (leagueId === 'chinese_super_league') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-950/70 text-amber-300 border border-red-800/60">
+          <span>🇨🇳</span> CSL China
+        </span>
+      );
+    }
+    if (leagueId === 'indian_super_league') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-950/70 text-orange-300 border border-orange-800/60">
+          <span>🇮🇳</span> ISL Índia
+        </span>
+      );
+    }
+    if (leagueId === 'k_league_2') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-950/70 text-indigo-300 border border-indigo-800/60">
+          <span>🇰🇷</span> K-League 2
+        </span>
+      );
+    }
+    if (leagueId === 'a_league') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-950/70 text-teal-300 border border-teal-800/60">
+          <span>🇦🇺</span> A-League
+        </span>
+      );
+    }
+    if (leagueId === 'south_african_psl') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-yellow-950/70 text-yellow-400 border border-yellow-800/60">
+          <span>🇿🇦</span> PSL África
         </span>
       );
     }
@@ -463,38 +558,66 @@ export function TransfersMarket({
             <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-800/70">
               
               {/* Country Selection Pills */}
-              <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
-                <span className="text-[10px] font-bold text-slate-500 px-1.5 uppercase flex items-center gap-1">
+              <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 overflow-x-auto max-w-full">
+                <span className="text-[10px] font-bold text-slate-500 px-1.5 uppercase flex items-center gap-1 shrink-0">
                   <Globe size={11} />
                   País:
                 </span>
                 <button
                   data-testid="country-all"
                   onClick={() => handleCountryChange('ALL')}
-                  className={`px-2.5 py-1 rounded-lg font-semibold transition text-xs ${countryFilter === 'ALL' ? 'bg-emerald-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                  className={`px-2.5 py-1 rounded-lg font-semibold transition text-xs shrink-0 ${countryFilter === 'ALL' ? 'bg-emerald-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}
                 >
                   Mundial
                 </button>
                 <button
                   data-testid="country-brasil"
                   onClick={() => handleCountryChange('Brasil')}
-                  className={`px-2.5 py-1 rounded-lg font-semibold transition text-xs flex items-center gap-1 ${countryFilter === 'Brasil' ? 'bg-emerald-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                  className={`px-2.5 py-1 rounded-lg font-semibold transition text-xs shrink-0 flex items-center gap-1 ${countryFilter === 'Brasil' ? 'bg-emerald-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}
                 >
                   <span>🇧🇷</span> Brasil
                 </button>
                 <button
                   data-testid="country-inglaterra"
                   onClick={() => handleCountryChange('Inglaterra')}
-                  className={`px-2.5 py-1 rounded-lg font-semibold transition text-xs flex items-center gap-1 ${countryFilter === 'Inglaterra' ? 'bg-emerald-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                  className={`px-2.5 py-1 rounded-lg font-semibold transition text-xs shrink-0 flex items-center gap-1 ${countryFilter === 'Inglaterra' ? 'bg-emerald-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}
                 >
                   <span>🏴󠁧󠁢󠁥󠁮󠁧󠁿</span> Inglaterra
                 </button>
                 <button
                   data-testid="country-espanha"
                   onClick={() => handleCountryChange('Espanha')}
-                  className={`px-2.5 py-1 rounded-lg font-semibold transition text-xs flex items-center gap-1 ${countryFilter === 'Espanha' ? 'bg-emerald-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                  className={`px-2.5 py-1 rounded-lg font-semibold transition text-xs shrink-0 flex items-center gap-1 ${countryFilter === 'Espanha' ? 'bg-emerald-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}
                 >
                   <span>🇪🇸</span> Espanha
+                </button>
+                <button
+                  data-testid="country-eua"
+                  onClick={() => handleCountryChange('Estados Unidos')}
+                  className={`px-2.5 py-1 rounded-lg font-semibold transition text-xs shrink-0 flex items-center gap-1 ${countryFilter === 'Estados Unidos' ? 'bg-emerald-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                >
+                  <span>🇺🇸</span> EUA
+                </button>
+                <button
+                  data-testid="country-mexico"
+                  onClick={() => handleCountryChange('México')}
+                  className={`px-2.5 py-1 rounded-lg font-semibold transition text-xs shrink-0 flex items-center gap-1 ${countryFilter === 'México' ? 'bg-emerald-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                >
+                  <span>🇲🇽</span> México
+                </button>
+                <button
+                  data-testid="country-arabia"
+                  onClick={() => handleCountryChange('Arábia Saudita')}
+                  className={`px-2.5 py-1 rounded-lg font-semibold transition text-xs shrink-0 flex items-center gap-1 ${countryFilter === 'Arábia Saudita' ? 'bg-emerald-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                >
+                  <span>🇸🇦</span> Arábia
+                </button>
+                <button
+                  data-testid="country-japao"
+                  onClick={() => handleCountryChange('Japão')}
+                  className={`px-2.5 py-1 rounded-lg font-semibold transition text-xs shrink-0 flex items-center gap-1 ${countryFilter === 'Japão' ? 'bg-emerald-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                >
+                  <span>🇯🇵</span> Japão
                 </button>
               </div>
 
@@ -508,18 +631,55 @@ export function TransfersMarket({
                   className="bg-transparent text-white font-bold text-xs focus:outline-none cursor-pointer py-1"
                 >
                   <option value="ALL" className="bg-slate-900 text-white">Todas as Ligas</option>
-                  {(countryFilter === 'ALL' || countryFilter === 'Brasil') && (
-                    <>
-                      <option value="brasileirao_serie_a" className="bg-slate-900 text-white">🇧🇷 Brasileirão Série A</option>
-                      <option value="brasileirao_serie_b" className="bg-slate-900 text-white">🇧🇷 Brasileirão Série B</option>
-                    </>
-                  )}
-                  {(countryFilter === 'ALL' || countryFilter === 'Inglaterra') && (
+                  
+                  <optgroup label="Brasil" className="bg-slate-950 text-emerald-400 font-bold">
+                    <option value="brasileirao_serie_a" className="bg-slate-900 text-white">🇧🇷 Brasileirão Série A</option>
+                    <option value="brasileirao_serie_b" className="bg-slate-900 text-white">🇧🇷 Brasileirão Série B</option>
+                  </optgroup>
+
+                  <optgroup label="Europa" className="bg-slate-950 text-purple-400 font-bold">
                     <option value="premier_league" className="bg-slate-900 text-white">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</option>
-                  )}
-                  {(countryFilter === 'ALL' || countryFilter === 'Espanha') && (
                     <option value="laliga" className="bg-slate-900 text-white">🇪🇸 LaLiga EA Sports</option>
-                  )}
+                  </optgroup>
+
+                  <optgroup label="Américas" className="bg-slate-950 text-amber-400 font-bold">
+                    <option value="mls" className="bg-slate-900 text-white">🇺🇸 Major League Soccer (MLS)</option>
+                    <option value="liga_mx" className="bg-slate-900 text-white">🇲🇽 Liga MX</option>
+                    <option value="copa_libertadores" className="bg-slate-900 text-white">🌎 CONMEBOL Copa Libertadores</option>
+                  </optgroup>
+
+                  <optgroup label="Ásia & Oceania" className="bg-slate-950 text-sky-400 font-bold">
+                    <option value="afc_champions_league" className="bg-slate-900 text-white">⭐ AFC Champions League Elite</option>
+                    <option value="j_league" className="bg-slate-900 text-white">🇯🇵 J1 League</option>
+                    <option value="chinese_super_league" className="bg-slate-900 text-white">🇨🇳 Chinese Super League</option>
+                    <option value="indian_super_league" className="bg-slate-900 text-white">🇮🇳 Indian Super League</option>
+                    <option value="k_league_2" className="bg-slate-900 text-white">🇰🇷 K League 2</option>
+                    <option value="a_league" className="bg-slate-900 text-white">🇦🇺 A-League Men</option>
+                  </optgroup>
+
+                  <optgroup label="África" className="bg-slate-950 text-yellow-400 font-bold">
+                    <option value="south_african_psl" className="bg-slate-900 text-white">🇿🇦 PSL África do Sul</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              {/* Price Range Filter Dropdown */}
+              <div className="flex items-center gap-1.5 bg-slate-900 px-2.5 py-1 rounded-xl border border-slate-800">
+                <span className="text-[10px] font-bold text-slate-500 uppercase">Preço:</span>
+                <select
+                  data-testid="market-price-select"
+                  value={priceRangeFilter}
+                  onChange={(e) => {
+                    setPriceRangeFilter(e.target.value);
+                    setVisibleCount(50);
+                  }}
+                  className="bg-transparent text-white font-bold text-xs focus:outline-none cursor-pointer py-1"
+                >
+                  <option value="ALL" className="bg-slate-900 text-white">Qualquer Valor</option>
+                  <option value="under_5m" className="bg-slate-900 text-white">Até R$ 5 Milhões</option>
+                  <option value="5m_20m" className="bg-slate-900 text-white">R$ 5M a R$ 20M</option>
+                  <option value="20m_50m" className="bg-slate-900 text-white">R$ 20M a R$ 50M</option>
+                  <option value="over_50m" className="bg-slate-900 text-white">Acima de R$ 50M</option>
                 </select>
               </div>
 

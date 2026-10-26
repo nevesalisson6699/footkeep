@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { REAL_CLUBS } from './data/realClubs';
 import { INITIAL_CLUBS } from './data/initialClubs';
-import { buildRealPlayers } from './data/realPlayers';
 import { generateAllPlayers, sortSquadForFormation } from './data/initialPlayers';
 import { 
   generateLeagueFixtures, 
@@ -11,7 +10,7 @@ import {
   getInitialStandings 
 } from './engine/competitionEngine';
 import { simulateFullMatch, applyMatchResultToPlayers } from './engine/matchSimulator';
-import { sanitizeSquadForNewCareer } from './data/players2026';
+import { buildSeason2026Players, sanitizeSquadForNewCareer } from './data/players2026';
 import { 
   getClubsByCompetition, 
   getInitialPlayersForCompetition,
@@ -201,7 +200,7 @@ export function App() {
   const initDefaultCareer = (targetClubId) => {
     if (!targetClubId) return;
     const initialClubs = [...REAL_CLUBS];
-    const initialPlayers = sanitizeSquadForNewCareer(buildRealPlayers());
+    const initialPlayers = sanitizeSquadForNewCareer(buildSeason2026Players('A'));
     const fixtures = generateLeagueFixtures(initialClubs);
     const cup = generateInitialCup(initialClubs);
     const selectedClub = initialClubs.find(c => c.id === targetClubId) || initialClubs[0];
@@ -927,9 +926,14 @@ export function App() {
 
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950/80 py-4 text-center text-xs text-slate-500">
-        <div className="container-app flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Footkeep Football Manager © 2025/26 • Temporada Oficial (Série A, Série B, Copa do Brasil, Premier League & LaLiga)</span>
-          <span>Sincronização em Nuvem & Cloudflare Pages</span>
+        <div className="container-app flex flex-col items-center justify-between gap-2 text-center sm:text-left">
+          <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-2">
+            <span>Footkeep Football Manager © 2025/26 • Temporada Oficial (45 Competições Cobertas)</span>
+            <span>Sincronização em Nuvem & Cloudflare Pages</span>
+          </div>
+          <p className="text-[10px] text-slate-600 max-w-4xl text-center mt-1">
+            Aviso Legal: O Footkeep é um jogo e simulador independente. Todas as marcas, nomes de clubes, escudos, emblemas e competições pertencem exclusivamente aos seus respectivos titulares e entidades esportivas (CBF, FA, RFEF, DFL, Lega Serie A, LFP, UEFA, CONMEBOL, FIFA, etc.), sendo utilizados unicamente para fins descritivos e de ambientação.
+          </p>
         </div>
       </footer>
 

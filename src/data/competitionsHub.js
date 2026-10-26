@@ -31,11 +31,30 @@ import {
   PLAYER_STATS_2025_26, 
   getPlayersByCompetition as getScoutingPlayersByComp 
 } from './playerStats2025_26.js';
+import { 
+  EUROPEAN_COMPETITIONS_2025_26,
+  getAllEuropeanCompetitions,
+  getEuropeanCompetitionById 
+} from './europeanCompetitions2025_26.js';
+import {
+  GLOBAL_COMPETITIONS_METADATA,
+  GLOBAL_REGIONS_CLUBS,
+  buildGlobalRegionsPlayers
+} from './globalRegionsCompetitions2025_26.js';
+
+export { 
+  EUROPEAN_COMPETITIONS_2025_26,
+  getAllEuropeanCompetitions,
+  getEuropeanCompetitionById,
+  GLOBAL_COMPETITIONS_METADATA,
+  GLOBAL_REGIONS_CLUBS,
+  buildGlobalRegionsPlayers
+};
 
 export { sanitizeSquadForNewCareer } from './players2026.js';
 
 /**
- * Metadados e catálogo estruturado das 4 grandes ligas suportadas
+ * Metadados e catálogo estruturado de todas as ligas suportadas (Brasil, Europa, Américas, Ásia, Oceania, África)
  */
 export const SUPPORTED_COMPETITIONS = {
   brasileirao_serie_a: {
@@ -93,7 +112,8 @@ export const SUPPORTED_COMPETITIONS = {
     aliases: ['laliga_2025_26', 'la_liga', 'laliga_ea_sports', 'spain_laliga'],
     tier: 1,
     source: 'LaLiga EA Sports Official Registrations / RFEF'
-  }
+  },
+  ...GLOBAL_COMPETITIONS_METADATA
 };
 
 /**
@@ -334,7 +354,9 @@ export function getAllGlobalMarketClubs() {
     countryFlag: '🇪🇸'
   }));
 
-  return [...serieA, ...serieB, ...premierLeague, ...laLiga];
+  const regionalClubs = GLOBAL_REGIONS_CLUBS.map(c => ({ ...c }));
+
+  return [...serieA, ...serieB, ...premierLeague, ...laLiga, ...regionalClubs];
 }
 
 /**
@@ -430,10 +452,14 @@ export function getAllGlobalMarketPlayers() {
     };
   });
 
+  // 4. Atletas das Ligas Regionais (Américas: MLS, Liga MX, Libertadores; Ásia: AFC Champions, J-League, CSL, ISL, K-League 2; Oceania: A-League; África: PSL)
+  const regionalPlayers = buildGlobalRegionsPlayers();
+
   return sanitizeSquadForNewCareer([
     ...taggedBrazilian, 
     ...plPlayers, 
     ...laLigaPlayers, 
+    ...regionalPlayers,
     ...extraFreeAgents
   ]);
 }

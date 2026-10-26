@@ -253,7 +253,7 @@ export const CLUBS_2026 = [
     division: 'A',
     city: 'Santos - SP',
     state: 'SP',
-    stadium: 'Vila Belmiro',
+    stadium: 'Urbano Caldeira (Vila Belmiro)',
     stadiumCapacity: 16068,
     colors: { primary: '#111827', secondary: '#ffffff', accent: '#d1d5db' },
     budget: 18000000,
