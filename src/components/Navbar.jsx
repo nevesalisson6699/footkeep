@@ -15,10 +15,13 @@ import {
   Settings,
   Mail,
   CloudCheck,
-  BarChart3
+  BarChart3,
+  Clock
 } from 'lucide-react';
 import { ClubBadge } from './ClubBadge';
 import { FootkeepLogo } from './FootkeepLogo';
+import { formatGameDate, isPreSeason, getTransferWindowStatus } from '../engine/calendarEngine';
+import { getCompetitionMetadata } from '../data/competitionsHub';
 
 export function Navbar({ 
   currentTab, 
@@ -29,16 +32,23 @@ export function Navbar({
   budget, 
   managerProfile,
   activeEmail,
+  currentDate = '2025-01-15',
+  selectedCompetition = 'brasileirao_serie_a',
   onOpenSaveModal,
   onOpenCareerModal,
   onQuickSave
 }) {
+  const compMeta = getCompetitionMetadata(selectedCompetition);
+  const leagueTabLabel = compMeta?.shortName || compMeta?.name || 'Liga Nacional';
+  const preSeason = isPreSeason(currentDate, selectedCompetition);
+  const windowStatus = getTransferWindowStatus(currentDate, selectedCompetition);
+
   const tabs = [
     { id: 'dashboard', label: 'Visão Geral', icon: Shield },
     { id: 'tactics', label: 'Elenco & Tática', icon: Users },
     { id: 'match', label: 'Jogar Partida', icon: PlayCircle, highlight: true },
-    { id: 'league', label: 'Brasileirão', icon: Table },
-    { id: 'cup', label: 'Copa do Brasil', icon: Award },
+    { id: 'league', label: leagueTabLabel, icon: Table },
+    { id: 'cup', label: selectedCompetition?.includes('brasileirao') ? 'Copa do Brasil' : 'Copas', icon: Award },
     { id: 'monitoring', label: 'Monitoramento & Análise', icon: BarChart3, highlightBadge: '2025/26' },
     { id: 'transfers', label: 'Transferências', icon: ArrowLeftRight },
     { id: 'finances', label: 'Finanças', icon: DollarSign },
@@ -108,6 +118,31 @@ export function Navbar({
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               </div>
             )}
+
+            {/* Game Date & Pre-Season Tag */}
+            <div className="flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 px-2.5 py-1 rounded-lg text-xs font-mono text-slate-200">
+              <Clock size={13} className="text-emerald-400" />
+              <span>{formatGameDate(currentDate)}</span>
+            </div>
+
+            {preSeason && (
+              <span className="hidden md:inline-flex text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-lg animate-pulse">
+                Pré-Temporada
+              </span>
+            )}
+
+            {/* Transfer Window Status Indicator */}
+            <div 
+              title={windowStatus.isOpen ? 'Janela de transferências aberta: contratações permitidas.' : `Janela fechada. Próxima abertura: ${windowStatus.nextWindow || 'Em breve'}`}
+              className={`hidden xl:flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg border ${
+                windowStatus.isOpen 
+                  ? 'bg-emerald-950/60 text-emerald-300 border-emerald-500/40' 
+                  : 'bg-slate-900/60 text-slate-400 border-slate-800'
+              }`}
+            >
+              <ArrowLeftRight size={11} className={windowStatus.isOpen ? 'text-emerald-400' : 'text-slate-500'} />
+              <span>{windowStatus.isOpen ? 'Janela Aberta' : 'Janela Fechada'}</span>
+            </div>
 
             <div className="flex items-center gap-1.5 bg-emerald-950/50 border border-emerald-500/30 px-3 py-1 rounded-lg text-xs font-bold text-emerald-300">
               <Calendar size={13} className="text-emerald-400" />

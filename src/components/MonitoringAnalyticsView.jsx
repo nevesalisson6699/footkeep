@@ -36,11 +36,17 @@ export function MonitoringAnalyticsView({
   userClub,
   tactics,
   budget = 0,
-  players = []
+  players = [],
+  standings = [],
+  allClubs = [],
+  selectedCompetition = 'brasileirao_serie_a',
+  currentRound = 1,
+  leagueRounds = []
 }) {
   // Navigation & Primary Filter State
-  const [selectedCompetitionId, setSelectedCompetitionId] = useState('brasileirao_serie_a');
+  const [selectedCompetitionId, setSelectedCompetitionId] = useState(selectedCompetition || 'brasileirao_serie_a');
   const [activeTab, setActiveTab] = useState('standings'); // 'standings' | 'clubs' | 'scouting'
+  const [standingsSource, setStandingsSource] = useState('simulation'); // 'simulation' | 'historical'
   const [selectedSeason, setSelectedSeason] = useState('2025/26');
   
   // Scouting Secondary Filters
@@ -290,21 +296,73 @@ export function MonitoringAnalyticsView({
             <div>
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Trophy size={18} className="text-yellow-400" />
-                Tabela Oficial de Classificação — {activeCompetition.name}
+                Tabela de Classificação — {activeCompetition.name}
               </h3>
               <span className="text-xs text-slate-400">
-                {activeCompetition.type === 'cup' 
-                  ? 'Fase Final & Mata-Mata Consolidados' 
-                  : `Atualizada com base nas súmulas oficiais da temporada ${activeCompetition.season}`}
+                {standingsSource === 'simulation' 
+                  ? 'Simulação Oficial Footkeep • Dados gerados pelas partidas da sua carreira' 
+                  : 'Acervo de Scouting & Histórico Oficial • Consulta de temporadas reais anteriores'}
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-1 rounded-lg">
-                Status: {activeCompetition.dataStatus}
-              </span>
+            {/* Source Segmented Control */}
+            <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
+              <button
+                onClick={() => setStandingsSource('simulation')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                  standingsSource === 'simulation'
+                    ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <span>Simulação do Jogo</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              </button>
+
+              <button
+                onClick={() => setStandingsSource('historical')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                  standingsSource === 'historical'
+                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <span>Scouting Histórico</span>
+                <span className="text-[10px] bg-slate-800 text-slate-300 px-1 py-0.2 rounded font-mono">Externo</span>
+              </button>
             </div>
           </div>
+
+          {/* Source Notice Banners */}
+          {standingsSource === 'simulation' ? (
+            selectedCompetitionId === selectedCompetition ? (
+              <div className="p-3 bg-emerald-950/30 border border-emerald-500/30 rounded-xl text-xs flex items-center gap-2 text-emerald-300">
+                <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+                <span>
+                  <b>Tabela da Carreira Ativa:</b> Inicia rigorosamente zerada (0 partidas, 0 pontos) e evolui exclusivamente conforme as partidas são simuladas na sua carreira.
+                </span>
+              </div>
+            ) : (
+              <div className="p-3 bg-slate-900/80 border border-slate-800 rounded-xl text-xs flex items-center justify-between gap-2 text-slate-300">
+                <span>
+                  A sua carreira ativa está na liga <b>{selectedCompetition}</b>. Para consultar os dados históricos da <b>{activeCompetition.name}</b>, mude para a aba de Scouting Histórico.
+                </span>
+                <button
+                  onClick={() => setStandingsSource('historical')}
+                  className="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-bold"
+                >
+                  Ver Scouting Histórico
+                </button>
+              </div>
+            )
+          ) : (
+            <div className="p-3 bg-amber-950/40 border border-amber-500/40 rounded-xl text-xs flex items-center gap-2.5 text-amber-200">
+              <AlertCircle size={16} className="text-amber-400 shrink-0" />
+              <span>
+                <b>ACERVO EXTERNO DE SCOUTING (Futebol Real):</b> Estes dados refletem resultados históricos e desempenhos reais consolidados de temporadas anteriores para fins de análise e observação técnica. Eles <b>não interferem</b> na pontuação, partidas ou classificação da sua carreira simulada no Footkeep.
+              </span>
+            </div>
+          )}
 
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
@@ -324,65 +382,88 @@ export function MonitoringAnalyticsView({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
-                {activeCompetition.standings.map((team, idx) => {
-                  const isTop4 = idx < 4;
-                  const isUserCurrentClub = team.clubId === userClub?.id;
+                {(() => {
+                  const rows = (standingsSource === 'simulation' && selectedCompetitionId === selectedCompetition)
+                    ? standings.map((s, idx) => ({
+                        pos: idx + 1,
+                        clubId: s.clubId,
+                        clubName: s.name,
+                        played: s.played || 0,
+                        won: s.won || 0,
+                        drawn: s.drawn || 0,
+                        lost: s.lost || 0,
+                        gf: s.goalsFor || 0,
+                        ga: s.goalsAgainst || 0,
+                        gd: s.goalDifference || 0,
+                        pts: s.points || 0,
+                        form: s.form || []
+                      }))
+                    : activeCompetition.standings;
 
-                  return (
-                    <tr 
-                      key={team.clubId}
-                      className={`hover:bg-slate-800/40 transition ${
-                        isUserCurrentClub ? 'bg-emerald-950/30 border-l-4 border-l-emerald-500 font-semibold' : ''
-                      }`}
-                    >
-                      <td className="py-3 px-3 text-center font-mono font-bold">
-                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-md ${
-                          idx === 0 ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/40' :
-                          isTop4 ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400'
-                        }`}>
-                          {team.pos}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-white text-sm">{team.clubName}</span>
-                          {isUserCurrentClub && (
-                            <span className="text-[9px] uppercase font-bold bg-emerald-500/30 text-emerald-300 px-1.5 py-0.2 rounded border border-emerald-500/40">
-                              Seu Time
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-3 px-2 text-center text-slate-300 font-mono">{team.played}</td>
-                      <td className="py-3 px-2 text-center text-emerald-400 font-mono font-bold">{team.won}</td>
-                      <td className="py-3 px-2 text-center text-slate-400 font-mono">{team.drawn}</td>
-                      <td className="py-3 px-2 text-center text-rose-400 font-mono">{team.lost}</td>
-                      <td className="py-3 px-2 text-center text-slate-300 font-mono">{team.gf}</td>
-                      <td className="py-3 px-2 text-center text-slate-400 font-mono">{team.ga}</td>
-                      <td className={`py-3 px-2 text-center font-mono font-bold ${team.gd > 0 ? 'text-emerald-400' : team.gd < 0 ? 'text-rose-400' : 'text-slate-400'}`}>
-                        {team.gd > 0 ? `+${team.gd}` : team.gd}
-                      </td>
-                      <td className="py-3 px-3 text-center font-mono font-black text-sm text-emerald-400 bg-emerald-950/20">
-                        {team.pts}
-                      </td>
-                      <td className="py-3 px-3 text-center hidden md:table-cell">
-                        <div className="flex items-center justify-center gap-1">
-                          {team.form?.map((result, rIdx) => (
-                            <span 
-                              key={rIdx}
-                              className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-black uppercase ${
-                                result === 'V' ? 'bg-emerald-500 text-slate-950' :
-                                result === 'E' ? 'bg-amber-500 text-slate-950' : 'bg-rose-500 text-white'
-                              }`}
-                            >
-                              {result}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                  return rows.map((team, idx) => {
+                    const isTop4 = idx < 4;
+                    const isUserCurrentClub = team.clubId === userClub?.id;
+
+                    return (
+                      <tr 
+                        key={team.clubId || idx}
+                        className={`hover:bg-slate-800/40 transition ${
+                          isUserCurrentClub ? 'bg-emerald-950/30 border-l-4 border-l-emerald-500 font-semibold' : ''
+                        }`}
+                      >
+                        <td className="py-3 px-3 text-center font-mono font-bold">
+                          <span className={`inline-flex items-center justify-center w-6 h-6 rounded-md ${
+                            idx === 0 ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/40' :
+                            isTop4 ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400'
+                          }`}>
+                            {team.pos}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-white text-sm">{team.clubName}</span>
+                            {isUserCurrentClub && (
+                              <span className="text-[9px] uppercase font-bold bg-emerald-500/30 text-emerald-300 px-1.5 py-0.2 rounded border border-emerald-500/40">
+                                Seu Time
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 px-2 text-center text-slate-300 font-mono">{team.played}</td>
+                        <td className="py-3 px-2 text-center text-emerald-400 font-mono font-bold">{team.won}</td>
+                        <td className="py-3 px-2 text-center text-slate-400 font-mono">{team.drawn}</td>
+                        <td className="py-3 px-2 text-center text-rose-400 font-mono">{team.lost}</td>
+                        <td className="py-3 px-2 text-center text-slate-300 font-mono">{team.gf}</td>
+                        <td className="py-3 px-2 text-center text-slate-400 font-mono">{team.ga}</td>
+                        <td className={`py-3 px-2 text-center font-mono font-bold ${team.gd > 0 ? 'text-emerald-400' : team.gd < 0 ? 'text-rose-400' : 'text-slate-400'}`}>
+                          {team.gd > 0 ? `+${team.gd}` : team.gd}
+                        </td>
+                        <td className="py-3 px-3 text-center font-mono font-black text-sm text-emerald-400 bg-emerald-950/20">
+                          {team.pts}
+                        </td>
+                        <td className="py-3 px-3 text-center hidden md:table-cell">
+                          <div className="flex items-center justify-center gap-1">
+                            {team.form && team.form.length > 0 ? (
+                              team.form.map((result, rIdx) => (
+                                <span 
+                                  key={rIdx}
+                                  className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-black uppercase ${
+                                    result === 'V' ? 'bg-emerald-500 text-slate-950' :
+                                    result === 'E' ? 'bg-amber-500 text-slate-950' : 'bg-rose-500 text-white'
+                                  }`}
+                                >
+                                  {result}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-slate-600 font-mono text-[10px]">—</span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  });
+                })()}
               </tbody>
             </table>
           </div>

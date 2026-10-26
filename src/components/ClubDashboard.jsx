@@ -12,9 +12,14 @@ import {
   Star,
   Shield,
   ArrowRight,
-  UserCheck
+  UserCheck,
+  Newspaper,
+  Clock,
+  Sparkles
 } from 'lucide-react';
 import { ClubBadge } from './ClubBadge';
+import { getCompetitionMetadata } from '../data/competitionsHub';
+import { formatGameDate, isPreSeason } from '../engine/calendarEngine';
 
 export function ClubDashboard({ 
   userClub, 
@@ -25,11 +30,17 @@ export function ClubDashboard({
   budget, 
   currentRound, 
   managerProfile,
+  currentDate = '2025-01-15',
+  selectedCompetition = 'brasileirao_serie_a',
+  simulationNews = [],
   onGoToMatch, 
   onGoToTactics, 
   onGoToTransfers 
 }) {
   if (!userClub) return null;
+
+  const compMeta = getCompetitionMetadata(selectedCompetition);
+  const preSeasonActive = isPreSeason(currentDate, selectedCompetition);
 
   const userRank = standings.findIndex(s => s.clubId === userClub.id) + 1;
   const userStats = standings.find(s => s.clubId === userClub.id);
@@ -70,7 +81,7 @@ export function ClubDashboard({
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-1">
                 <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">
-                  Campeonato Brasileiro — Série A (2025/26)
+                  {compMeta?.name || 'Campeonato Brasileiro — Série A'} (2025/26)
                 </span>
                 <span className="text-[10px] font-semibold text-slate-400 bg-slate-900/80 px-2 py-0.5 rounded border border-slate-800">
                   {userClub.city}
@@ -122,6 +133,33 @@ export function ClubDashboard({
           </div>
         </div>
       </div>
+
+      {/* Pre-Season Informational Banner */}
+      {preSeasonActive && (
+        <div className="bg-amber-950/40 border border-amber-500/40 rounded-xl p-4 flex items-center justify-between gap-4 text-xs animate-fadeIn">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300 shrink-0">
+              <Clock size={18} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-amber-300 uppercase tracking-wider text-[11px]">Período de Pré-Temporada Oficial</span>
+                <span className="text-[10px] bg-amber-500/20 text-amber-200 px-1.5 py-0.5 rounded font-mono">{formatGameDate(currentDate)}</span>
+              </div>
+              <p className="text-slate-300 text-[11px] mt-0.5">
+                O elenco está focado em condicionamento físico, treinamentos táticos e ajustes de elenco antes da largada oficial do campeonato.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onGoToTactics}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-semibold text-xs whitespace-nowrap transition"
+          >
+            <span>Preparar Elenco</span>
+            <ArrowRight size={13} />
+          </button>
+        </div>
+      )}
 
       {/* Main Gameplay Section: Next Match & Tactical Center */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
@@ -293,6 +331,45 @@ export function ClubDashboard({
         </div>
 
       </div>
+
+      {/* Simulation News & Press Panel */}
+      {simulationNews && simulationNews.length > 0 && (
+        <div className="game-card p-5 border-slate-800 space-y-3 animate-fadeIn">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800 text-xs">
+            <span className="font-bold text-slate-200 flex items-center gap-2">
+              <Newspaper size={16} className="text-emerald-400" />
+              Notícias da Simulação & Cobertura da Rodada
+            </span>
+            <span className="text-[10px] text-slate-500 font-mono">
+              Footkeep Press • Simulação Oficial
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {simulationNews.slice(0, 6).map((newsItem, idx) => (
+              <div 
+                key={newsItem.id || idx}
+                className="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800/80 hover:border-slate-700 transition space-y-1.5"
+              >
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="font-bold text-emerald-400 uppercase tracking-wider">
+                    {newsItem.category || 'Giro da Rodada'}
+                  </span>
+                  <span className="text-slate-500 font-mono">
+                    {newsItem.date ? formatGameDate(newsItem.date) : `Rodada ${newsItem.round || currentRound}`}
+                  </span>
+                </div>
+                <h5 className="font-bold text-white text-xs leading-snug line-clamp-2">
+                  {newsItem.headline}
+                </h5>
+                <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-3">
+                  {newsItem.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
     </div>
   );

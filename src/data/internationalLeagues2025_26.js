@@ -1248,6 +1248,7 @@ export function buildInternationalPlayers(competitionId) {
         goals: 0,
         assists: 0,
         matchesPlayed: 0,
+        cleanSheets: 0,
         isSuspended: false,
         isListed: false,
         isInternational: true

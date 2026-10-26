@@ -20,12 +20,15 @@ import {
   CONTRACT_STATUS_2026, 
   PENDING_CONFIRMATION 
 } from '../data/season2026Data.js';
+import { getTransferWindowStatus, formatGameDate } from '../engine/calendarEngine';
 
 export function TransfersMarket({ 
   allPlayers, 
   allClubs, 
   userClubId, 
   budget, 
+  currentDate = '2025-01-15',
+  selectedCompetition = 'brasileirao_serie_a',
   onBuyPlayer, 
   onSellPlayer 
 }) {
@@ -35,6 +38,8 @@ export function TransfersMarket({
   const [searchTerm, setSearchTerm] = useState('');
   const [notification, setNotification] = useState(null);
   const [contractClubFilter, setContractClubFilter] = useState(userClubId || 'fla');
+
+  const windowStatus = getTransferWindowStatus(currentDate, selectedCompetition);
 
   const formatCurrency = (val) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(val);
@@ -54,6 +59,15 @@ export function TransfersMarket({
   const myListedPlayers = allPlayers.filter(p => p.clubId === userClubId && p.isListed);
 
   const handleBuy = (player) => {
+    if (player.clubId !== null && !windowStatus.isOpen) {
+      setNotification({ 
+        type: 'error', 
+        message: `Janela de transferências fechada! Contratações de atletas sob contrato estão suspensas fora do período regulamentar. Próxima janela: ${windowStatus.nextWindow || 'Em breve'}.` 
+      });
+      setTimeout(() => setNotification(null), 4000);
+      return;
+    }
+
     if (budget < player.value) {
       setNotification({ type: 'error', message: 'Orçamento insuficiente para contratar este atleta!' });
       setTimeout(() => setNotification(null), 3000);
@@ -202,6 +216,16 @@ export function TransfersMarket({
             <span>Atletas Disponíveis no Mercado ({marketPlayers.length})</span>
           </div>
 
+          {/* Transfer Window Status Alert */}
+          {!windowStatus.isOpen && (
+            <div className="mb-3 p-3 bg-amber-950/40 border border-amber-500/40 rounded-xl text-xs flex items-center gap-2.5 text-amber-200">
+              <Clock size={16} className="text-amber-400 shrink-0" />
+              <span>
+                <b>Janela de Transferências Fechada</b> (Data atual: {formatGameDate(currentDate)}). Contratações entre clubes estão suspensas temporariamente pelas normas da federação. Apenas agentes livres podem ser contratados. Próxima janela: <b>{windowStatus.nextWindow || 'Em breve'}</b>.
+              </span>
+            </div>
+          )}
+
           <div className="overflow-x-auto max-h-[500px] overflow-y-auto pr-1">
             <table className="w-full text-left text-xs whitespace-nowrap">
               <thead className="bg-slate-900/90 text-slate-400 sticky top-0 z-10">
@@ -218,7 +242,14 @@ export function TransfersMarket({
               <tbody className="divide-y divide-slate-800/60">
                 {marketPlayers.slice(0, 35).map(player => {
                   const club = allClubs.find(c => c.id === player.clubId);
+                  const isContracted = player.clubId !== null;
+                  const isBlockedByWindow = isContracted && !windowStatus.isOpen;
                   const canAfford = budget >= player.value;
+                  const isDisabled = !canAfford || isBlockedByWindow;
+
+                  let buttonLabel = 'Comprar';
+                  if (isBlockedByWindow) buttonLabel = 'Janela Fechada';
+                  else if (!canAfford) buttonLabel = 'Sem Verba';
 
                   return (
                     <tr key={player.id} className="hover:bg-slate-800/40 text-slate-300 transition">
@@ -248,14 +279,15 @@ export function TransfersMarket({
                       <td className="py-2.5 px-3 text-center">
                         <button
                           onClick={() => handleBuy(player)}
-                          disabled={!canAfford}
+                          disabled={isDisabled}
+                          title={isBlockedByWindow ? 'Janela de transferências fechada para contratações entre clubes' : (!canAfford ? 'Saldo insuficiente' : 'Contratar jogador')}
                           className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
-                            canAfford 
+                            !isDisabled 
                               ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md shadow-emerald-500/20' 
                               : 'bg-slate-800 text-slate-500 cursor-not-allowed'
                           }`}
                         >
-                          {canAfford ? 'Comprar' : 'Sem Verba'}
+                          {buttonLabel}
                         </button>
                       </td>
                     </tr>

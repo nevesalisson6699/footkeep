@@ -1,8 +1,12 @@
 import React from 'react';
 import { Table, Trophy, Flame } from 'lucide-react';
 import { ClubBadge } from './ClubBadge';
+import { getCompetitionMetadata } from '../data/competitionsHub';
 
-export function LeagueTable({ standings, userClubId, allPlayers, allClubs }) {
+export function LeagueTable({ standings, userClubId, allPlayers, allClubs, selectedCompetition = 'brasileirao_serie_a' }) {
+  const compMeta = getCompetitionMetadata(selectedCompetition);
+  const compName = compMeta?.name || 'Campeonato Brasileiro — Série A';
+
   // Compute top goalscorers from all players
   const topScorers = [...allPlayers]
     .filter(p => (p.goals || 0) > 0)
@@ -17,10 +21,10 @@ export function LeagueTable({ standings, userClubId, allPlayers, allClubs }) {
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Trophy className="text-yellow-400" size={22} />
-            Tabela de Classificação — Campeonato Brasileiro — Série A (Temporada 2025/26)
+            Tabela de Classificação — {compName} (Temporada 2025/26)
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            Turno e Returno • {standings.length || 20} Clubes • 38 Rodadas Oficiais CBF
+            Turno e Returno • {standings.length || 20} Clubes • Simulação Oficial Footkeep
           </p>
         </div>
 

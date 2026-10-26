@@ -12,6 +12,25 @@ import {
 } from './engine/competitionEngine';
 import { simulateFullMatch, applyMatchResultToPlayers } from './engine/matchSimulator';
 import { sanitizeSquadForNewCareer } from './data/players2026';
+import { 
+  getClubsByCompetition, 
+  getInitialPlayersForCompetition,
+  getCompetitionMetadata,
+  normalizeCompetitionId 
+} from './data/competitionsHub';
+import {
+  CALENDAR_CONFIG,
+  getInitialDateForCompetition,
+  advanceGameDate,
+  formatGameDate,
+  isPreSeason,
+  isTransferWindowOpen,
+  getTransferWindowStatus,
+  generateDatedLeagueFixtures
+} from './engine/calendarEngine';
+import { generateSimulationNews, deduplicateNews } from './engine/newsEngine';
+import { generateYouthIntake, processYearlyAgingAndRetirements } from './engine/youthAcademyEngine';
+import { updateClubsForm, adjustPlayersMarketValues, calculateWeeklyFinances } from './engine/careerEvolutionEngine';
 
 import { Navbar } from './components/Navbar';
 import { ClubDashboard } from './components/ClubDashboard';
@@ -58,6 +77,10 @@ export function App() {
   const [tactics, setTactics] = useState({ formation: '4-4-2', mentality: 'Equilibrada' });
   const [awardedPrizes, setAwardedPrizes] = useState([]);
   const [managerProfile, setManagerProfile] = useState(null);
+  const [selectedCompetition, setSelectedCompetition] = useState('brasileirao_serie_a');
+  const [currentDate, setCurrentDate] = useState('2025-01-15');
+  const [simulationNews, setSimulationNews] = useState([]);
+  const [youthIntakes, setYouthIntakes] = useState([]);
   const [currentTab, setCurrentTab] = useState('dashboard');
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isCareerModalOpen, setIsCareerModalOpen] = useState(false);
@@ -133,8 +156,18 @@ export function App() {
     setUserClubId(activeUserClubId);
     setBudget(savedState.budget ?? 30000000);
     setCurrentRound(savedState.currentRound || 1);
-    setLeagueRounds(savedState.leagueRounds || []);
+    const savedComp = savedState.selectedCompetition || savedState.competitionId || 'brasileirao_serie_a';
+    const savedDate = savedState.currentDate || getInitialDateForCompetition(savedComp);
+
+    setSelectedCompetition(savedComp);
+    setCurrentDate(savedDate);
+    setSimulationNews(savedState.simulationNews || []);
+    setYouthIntakes(savedState.youthIntakes || []);
+
+    const loadedRounds = savedState.leagueRounds || [];
+    setLeagueRounds(loadedRounds);
     setCupState(savedState.cupState || null);
+    setStandings(calculateStandings(loadedClubs, loadedRounds));
     setTactics(savedState.tactics || { formation: '4-4-2', mentality: 'Equilibrada' });
     setAwardedPrizes(savedState.awardedPrizes || []);
 
@@ -198,8 +231,15 @@ export function App() {
 
   // 4. Start a new career from the Career Creation Modal
   const handleStartCareer = (careerConfig) => {
-    const chosenClubs = careerConfig.leagueMode === 'classic' ? [...INITIAL_CLUBS] : [...REAL_CLUBS];
-    let allPlayers = careerConfig.leagueMode === 'classic' ? generateAllPlayers(chosenClubs) : buildRealPlayers();
+    const competitionId = careerConfig.competitionId || 'brasileirao_serie_a';
+    const chosenClubs = careerConfig.leagueMode === 'classic' 
+      ? [...INITIAL_CLUBS] 
+      : getClubsByCompetition(competitionId);
+
+    let allPlayers = careerConfig.leagueMode === 'classic' 
+      ? generateAllPlayers(chosenClubs) 
+      : getInitialPlayersForCompetition(competitionId);
+
     const targetClubId = careerConfig.selectedClubId || chosenClubs[0].id;
     const selectedClub = chosenClubs.find(c => c.id === targetClubId) || chosenClubs[0];
 
@@ -226,12 +266,18 @@ export function App() {
     // Rigorously sanitize all player career stats to 0 (goals, assists, cards, matches)
     allPlayers = sanitizeSquadForNewCareer(allPlayers);
 
-    const fixtures = generateLeagueFixtures(chosenClubs);
+    const initialDate = getInitialDateForCompetition(competitionId);
+    const fixtures = generateDatedLeagueFixtures(competitionId, chosenClubs);
     const cup = generateInitialCup(chosenClubs);
     const initialStandings = getInitialStandings(chosenClubs);
 
     const initialBudgetVal = careerConfig.initialBudget || selectedClub.budget;
     const targetEmail = careerConfig.email || activeEmailState || '';
+
+    setSelectedCompetition(competitionId);
+    setCurrentDate(initialDate);
+    setSimulationNews([]);
+    setYouthIntakes([]);
 
     setClubs(chosenClubs);
     setPlayers(allPlayers);
@@ -263,6 +309,10 @@ export function App() {
         tactics: { formation: '4-4-2', mentality: 'Equilibrada' },
         awardedPrizes: [],
         managerProfile: careerConfig.managerProfile,
+        selectedCompetition: competitionId,
+        currentDate: initialDate,
+        simulationNews: [],
+        youthIntakes: [],
         email: targetEmail
       };
 
@@ -289,6 +339,10 @@ export function App() {
       tactics,
       awardedPrizes,
       managerProfile,
+      selectedCompetition,
+      currentDate,
+      simulationNews,
+      youthIntakes,
       email: activeEmailState || getActiveEmail() || managerProfile?.email || ''
     };
 
@@ -323,6 +377,10 @@ export function App() {
           tactics,
           awardedPrizes,
           managerProfile,
+          selectedCompetition,
+          currentDate,
+          simulationNews,
+          youthIntakes,
           email
         };
         saveCloudProgress(email, currentState);
@@ -332,7 +390,7 @@ export function App() {
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [clubs, players, userClubId, budget, currentRound, leagueRounds, cupState, tactics, awardedPrizes, managerProfile, activeEmailState]);
+  }, [clubs, players, userClubId, budget, currentRound, leagueRounds, cupState, tactics, awardedPrizes, managerProfile, activeEmailState, selectedCompetition, currentDate, simulationNews, youthIntakes]);
 
   // 7. Auto-recalculate standings whenever league rounds change
   useEffect(() => {
@@ -356,11 +414,15 @@ export function App() {
         tactics,
         awardedPrizes,
         managerProfile,
+        selectedCompetition,
+        currentDate,
+        simulationNews,
+        youthIntakes,
         email: activeEmailState || getActiveEmail() || managerProfile?.email || ''
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
     }
-  }, [clubs, players, userClubId, budget, currentRound, leagueRounds, cupState, tactics, awardedPrizes, managerProfile, activeEmailState]);
+  }, [clubs, players, userClubId, budget, currentRound, leagueRounds, cupState, tactics, awardedPrizes, managerProfile, activeEmailState, selectedCompetition, currentDate, simulationNews, youthIntakes]);
 
   const userClub = clubs.find(c => c.id === userClubId) || null;
   const userSquad = userClubId ? players.filter(p => p.clubId === userClubId) : [];
@@ -468,6 +530,10 @@ export function App() {
         setAwardedPrizes(prev => [...prev, ...newPrizes]);
       }
 
+      // Advance game calendar by 4 days for cup match
+      const nextDate = advanceGameDate(currentDate, 4);
+      setCurrentDate(nextDate);
+
     } else {
       // 2. Update League Match
       const cpuSimulatedMatches = [];
@@ -494,16 +560,22 @@ export function App() {
         return r;
       });
 
-      // Atualiza os artilheiros e cartões dos outros jogos da rodada simulados
-      if (cpuSimulatedMatches.length > 0) {
-        setPlayers(prevPlayers => {
-          let updated = [...prevPlayers];
-          for (const simMatch of cpuSimulatedMatches) {
-            updated = applyMatchResultToPlayers(updated, simMatch);
-          }
-          return updated;
-        });
-      }
+      const allRoundMatches = [finishedMatch, ...cpuSimulatedMatches];
+      const updatedClubsWithForm = updateClubsForm(clubs, allRoundMatches);
+      setClubs(updatedClubsWithForm);
+
+      // Advance game calendar by 7 days for league match
+      const nextDate = advanceGameDate(currentDate, 7);
+      setCurrentDate(nextDate);
+
+      // Atualiza os artilheiros e cartões dos outros jogos da rodada simulados e recalibra valores de mercado
+      setPlayers(prevPlayers => {
+        let updated = [...prevPlayers];
+        for (const simMatch of cpuSimulatedMatches) {
+          updated = applyMatchResultToPlayers(updated, simMatch);
+        }
+        return adjustPlayersMarketValues(updated, { currentRound });
+      });
 
       setLeagueRounds(updatedRounds);
 
@@ -514,8 +586,28 @@ export function App() {
 
       const netIncome = gateIncome + sponsorIncome - weeklyPayroll;
 
-      const newStandings = calculateStandings(clubs, updatedRounds);
+      const newStandings = calculateStandings(updatedClubsWithForm, updatedRounds);
       setStandings(newStandings);
+
+      // Contextual simulation news
+      const generatedNews = generateSimulationNews({
+        currentRound,
+        roundMatches: allRoundMatches,
+        standings: newStandings,
+        clubs: updatedClubsWithForm,
+        players,
+        userClubId,
+        currentDate: nextDate,
+        existingNews: simulationNews
+      });
+      setSimulationNews(prev => deduplicateNews(prev, generatedNews));
+
+      // Mid-season youth intake at round 19
+      if (currentRound === 19 && !youthIntakes.some(y => y.round === 19)) {
+        const newYouths = generateYouthIntake(userClubId, selectedCompetition);
+        setYouthIntakes(prev => [...prev, { round: 19, players: newYouths }]);
+        setPlayers(prev => [...prev, ...newYouths]);
+      }
 
       let leaguePrizes = 0;
       const newPrizes = [];
@@ -657,6 +749,8 @@ export function App() {
         budget={budget}
         managerProfile={managerProfile}
         activeEmail={activeEmailState}
+        currentDate={currentDate}
+        selectedCompetition={selectedCompetition}
         onOpenSaveModal={() => setIsSaveModalOpen(true)}
         onOpenCareerModal={() => setIsCareerModalOpen(true)}
         onQuickSave={handleSaveProgress}
@@ -705,6 +799,9 @@ export function App() {
                 budget={budget}
                 currentRound={currentRound}
                 managerProfile={managerProfile}
+                currentDate={currentDate}
+                selectedCompetition={selectedCompetition}
+                simulationNews={simulationNews}
                 onGoToMatch={() => setCurrentTab('match')}
                 onGoToTactics={() => setCurrentTab('tactics')}
                 onGoToTransfers={() => setCurrentTab('transfers')}
@@ -740,6 +837,7 @@ export function App() {
                 userClubId={userClubId}
                 allPlayers={players}
                 allClubs={clubs}
+                selectedCompetition={selectedCompetition}
               />
             )}
 
@@ -757,6 +855,11 @@ export function App() {
                 tactics={tactics}
                 budget={budget}
                 players={players}
+                standings={standings}
+                allClubs={clubs}
+                selectedCompetition={selectedCompetition}
+                currentRound={currentRound}
+                leagueRounds={leagueRounds}
               />
             )}
 
@@ -766,6 +869,8 @@ export function App() {
                 allClubs={clubs}
                 userClubId={userClubId}
                 budget={budget}
+                currentDate={currentDate}
+                selectedCompetition={selectedCompetition}
                 onBuyPlayer={handleBuyPlayer}
                 onSellPlayer={handleSellPlayer}
               />
@@ -836,6 +941,10 @@ export function App() {
           tactics, 
           awardedPrizes, 
           managerProfile,
+          selectedCompetition,
+          currentDate,
+          simulationNews,
+          youthIntakes,
           email: activeEmailState
         }}
         onLoadSave={handleLoadSave}

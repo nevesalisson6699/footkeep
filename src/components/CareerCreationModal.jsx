@@ -25,6 +25,11 @@ import {
 } from 'lucide-react';
 import { REAL_CLUBS } from '../data/realClubs';
 import { INITIAL_CLUBS } from '../data/initialClubs';
+import { 
+  getClubsByCompetition, 
+  SUPPORTED_COMPETITIONS, 
+  normalizeCompetitionId 
+} from '../data/competitionsHub';
 import { ClubBadge } from './ClubBadge';
 import { FootkeepLogo } from './FootkeepLogo';
 import { POSITIONS } from '../data/initialPlayers';
@@ -74,8 +79,9 @@ export function CareerCreationModal({
   // Modal mode: 'create' | 'email_login'
   const [modalMode, setModalMode] = useState('create');
 
-  // Mode of clubs: real (Campeonato Brasileiro 2025/26) or classic
+  // Mode of clubs: real (Competições 2025/26) or classic
   const [leagueMode, setLeagueMode] = useState('real'); // 'real' | 'classic'
+  const [selectedCompetitionId, setSelectedCompetitionId] = useState('brasileirao_serie_a');
 
   // Coach Profile Fields
   const [firstName, setFirstName] = useState('');
@@ -132,7 +138,10 @@ export function CareerCreationModal({
     }
   }, [isOpen, currentClubId]);
 
-  const clubsList = leagueMode === 'real' ? REAL_CLUBS : INITIAL_CLUBS;
+  const clubsList = useMemo(() => {
+    if (leagueMode === 'classic') return INITIAL_CLUBS;
+    return getClubsByCompetition(selectedCompetitionId);
+  }, [leagueMode, selectedCompetitionId]);
 
   const filteredClubs = useMemo(() => {
     return clubsList.filter(c => 
@@ -323,6 +332,7 @@ export function CareerCreationModal({
         },
         email: normEmail,
         selectedClubId,
+        competitionId: selectedCompetitionId,
         leagueMode,
         customPlayers: rosterMode === 'custom' ? customPlayers : [],
         initialBudget
@@ -801,9 +811,42 @@ export function CareerCreationModal({
               </div>
             )}
 
-            {/* STEP 2: ESCOLHA DO CLUBE (SEM FORÇAR FLAMENGO) */}
+            {/* STEP 2: ESCOLHA DA COMPETIÇÃO E DO CLUBE */}
             {activeStep === 2 && (
               <div className="space-y-6 animate-fadeIn">
+                {/* Competition Selector Pills */}
+                <div className="flex flex-wrap items-center gap-2 p-1.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                  <span className="text-[11px] font-bold text-slate-400 px-3 uppercase tracking-wider">Liga:</span>
+                  {[
+                    { id: 'brasileirao_serie_a', name: 'Brasileirão Série A', flag: '🇧🇷' },
+                    { id: 'brasileirao_serie_b', name: 'Brasileirão Série B', flag: '🇧🇷' },
+                    { id: 'premier_league', name: 'Premier League', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
+                    { id: 'laliga', name: 'LaLiga EA Sports', flag: '🇪🇸' }
+                  ].map(comp => {
+                    const isCompActive = selectedCompetitionId === comp.id && leagueMode === 'real';
+                    return (
+                      <button
+                        key={comp.id}
+                        type="button"
+                        onClick={() => {
+                          setLeagueMode('real');
+                          setSelectedCompetitionId(comp.id);
+                          setSelectedClubId(null);
+                          setErrorMessage('');
+                        }}
+                        className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                          isCompActive
+                            ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/25 scale-[1.02]'
+                            : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                        }`}
+                      >
+                        <span>{comp.flag}</span>
+                        <span>{comp.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h3 className="text-base font-bold text-white flex items-center gap-2">
@@ -811,7 +854,10 @@ export function CareerCreationModal({
                       Selecione o Clube que Deseja Comandar
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      Escolha qualquer clube da Série A do Campeonato Brasileiro para iniciar sua trajetória.
+                      {selectedCompetitionId === 'brasileirao_serie_a' && '20 clubes oficiais da Série A do Campeonato Brasileiro (Temporada 2025/26).'}
+                      {selectedCompetitionId === 'brasileirao_serie_b' && '20 clubes oficiais da Série B do Campeonato Brasileiro (Temporada 2025/26).'}
+                      {selectedCompetitionId === 'premier_league' && '20 clubes oficiais da Premier League inglesa (Temporada 2025/26).'}
+                      {selectedCompetitionId === 'laliga' && '20 clubes oficiais da LaLiga EA Sports espanhola (Temporada 2025/26).'}
                     </p>
                   </div>
 
