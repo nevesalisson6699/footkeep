@@ -10,23 +10,23 @@ import { generateLeagueFixtures } from './competitionEngine.js';
 export const CALENDAR_CONFIG = {
   brazil: {
     competitionIds: ['brasileirao_serie_a', 'brasileirao_serie_b', 'copa_do_brasil', 'serie_a', 'serie_b'],
-    seasonYear: 2025,
-    seasonStart: '2025-01-15',
-    preSeasonEnd: '2025-03-31',
-    officialStart: '2025-04-12', // 1ª Rodada do Campeonato Brasileiro (CBF)
-    seasonEnd: '2025-12-07',
+    seasonYear: 2026,
+    seasonStart: '2026-01-15',
+    preSeasonEnd: '2026-03-31',
+    officialStart: '2026-04-12', // 1ª Rodada do Campeonato Brasileiro (CBF)
+    seasonEnd: '2026-12-07',
     transferWindows: [
       {
         id: 'br_w1',
         name: 'Janela 1 de Início de Temporada (CBF)',
-        opensAt: '2025-01-11',
-        closesAt: '2025-03-07'
+        opensAt: '2026-01-11',
+        closesAt: '2026-03-07'
       },
       {
         id: 'br_w2',
         name: 'Janela 2 de Meio de Temporada (CBF)',
-        opensAt: '2025-07-10',
-        closesAt: '2025-09-02'
+        opensAt: '2026-07-10',
+        closesAt: '2026-09-02'
       }
     ]
   },
@@ -122,7 +122,7 @@ export function formatGameDate(dateStr) {
 /**
  * Retorna a data inicial oficial recomendada para a competição
  * @param {string} competitionId
- * @returns {string} '2025-01-15' (Brasil) ou '2025-07-01' (Europa)
+ * @returns {string} '2026-01-15' (Brasil) ou '2025-07-01' (Europa)
  */
 export function getInitialDateForCompetition(competitionId) {
   const region = getCalendarRegion(competitionId);
@@ -216,7 +216,7 @@ export function getTransferWindowStatus(dateStr, competitionId) {
 
   // Janela Fechada: encontra a próxima que abrirá
   const nextWindow = cfg.transferWindows.find(w => currentDate < w.opensAt);
-  const nextOpenDate = nextWindow ? nextWindow.opensAt : (region === 'brazil' ? '2026-01-11' : '2026-07-01');
+  const nextOpenDate = nextWindow ? nextWindow.opensAt : (region === 'brazil' ? '2027-01-11' : '2026-07-01');
 
   return {
     isOpen: false,

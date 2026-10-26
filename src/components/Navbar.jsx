@@ -32,7 +32,7 @@ export function Navbar({
   budget, 
   managerProfile,
   activeEmail,
-  currentDate = '2025-01-15',
+  currentDate = '2026-01-15',
   selectedCompetition = 'brasileirao_serie_a',
   onOpenSaveModal,
   onOpenCareerModal,

@@ -78,7 +78,7 @@ export function App() {
   const [awardedPrizes, setAwardedPrizes] = useState([]);
   const [managerProfile, setManagerProfile] = useState(null);
   const [selectedCompetition, setSelectedCompetition] = useState('brasileirao_serie_a');
-  const [currentDate, setCurrentDate] = useState('2025-01-15');
+  const [currentDate, setCurrentDate] = useState('2026-01-15');
   const [simulationNews, setSimulationNews] = useState([]);
   const [youthIntakes, setYouthIntakes] = useState([]);
   const [currentTab, setCurrentTab] = useState('dashboard');
