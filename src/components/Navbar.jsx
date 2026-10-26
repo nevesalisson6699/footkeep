@@ -192,6 +192,7 @@ export function Navbar({
               return (
                 <button
                   key={tab.id}
+                  data-tab={tab.id}
                   onClick={() => setCurrentTab(tab.id)}
                   className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold whitespace-nowrap rounded-t-lg transition-all duration-150 relative ${
                     isActive 

@@ -4,6 +4,7 @@ import {
   Search, 
   Filter, 
   Shield, 
+  ShieldCheck,
   Trophy, 
   Users, 
   Calendar, 
@@ -46,7 +47,6 @@ export function MonitoringAnalyticsView({
   // Navigation & Primary Filter State
   const [selectedCompetitionId, setSelectedCompetitionId] = useState(selectedCompetition || 'brasileirao_serie_a');
   const [activeTab, setActiveTab] = useState('standings'); // 'standings' | 'clubs' | 'scouting'
-  const [standingsSource, setStandingsSource] = useState('simulation'); // 'simulation' | 'historical'
   const [selectedSeason, setSelectedSeason] = useState('2025/26');
   
   // Scouting Secondary Filters
@@ -299,70 +299,22 @@ export function MonitoringAnalyticsView({
                 Tabela de Classificação — {activeCompetition.name}
               </h3>
               <span className="text-xs text-slate-400">
-                {standingsSource === 'simulation' 
-                  ? 'Simulação Oficial Footkeep • Dados gerados pelas partidas da sua carreira' 
-                  : 'Acervo de Scouting & Histórico Oficial • Consulta de temporadas reais anteriores'}
+                Simulação Oficial Footkeep • Inicia na 1ª rodada com zero pontos e zero partidas
               </span>
             </div>
 
-            {/* Source Segmented Control */}
-            <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
-              <button
-                onClick={() => setStandingsSource('simulation')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-                  standingsSource === 'simulation'
-                    ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <span>Simulação do Jogo</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              </button>
-
-              <button
-                onClick={() => setStandingsSource('historical')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-                  standingsSource === 'historical'
-                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <span>Scouting Histórico</span>
-                <span className="text-[10px] bg-slate-800 text-slate-300 px-1 py-0.2 rounded font-mono">Externo</span>
-              </button>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-xs text-emerald-400 font-bold">
+              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span>Classificação Simulada da Carreira</span>
             </div>
           </div>
 
-          {/* Source Notice Banners */}
-          {standingsSource === 'simulation' ? (
-            selectedCompetitionId === selectedCompetition ? (
-              <div className="p-3 bg-emerald-950/30 border border-emerald-500/30 rounded-xl text-xs flex items-center gap-2 text-emerald-300">
-                <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
-                <span>
-                  <b>Tabela da Carreira Ativa:</b> Inicia rigorosamente zerada (0 partidas, 0 pontos) e evolui exclusivamente conforme as partidas são simuladas na sua carreira.
-                </span>
-              </div>
-            ) : (
-              <div className="p-3 bg-slate-900/80 border border-slate-800 rounded-xl text-xs flex items-center justify-between gap-2 text-slate-300">
-                <span>
-                  A sua carreira ativa está na liga <b>{selectedCompetition}</b>. Para consultar os dados históricos da <b>{activeCompetition.name}</b>, mude para a aba de Scouting Histórico.
-                </span>
-                <button
-                  onClick={() => setStandingsSource('historical')}
-                  className="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-bold"
-                >
-                  Ver Scouting Histórico
-                </button>
-              </div>
-            )
-          ) : (
-            <div className="p-3 bg-amber-950/40 border border-amber-500/40 rounded-xl text-xs flex items-center gap-2.5 text-amber-200">
-              <AlertCircle size={16} className="text-amber-400 shrink-0" />
-              <span>
-                <b>ACERVO EXTERNO DE SCOUTING (Futebol Real):</b> Estes dados refletem resultados históricos e desempenhos reais consolidados de temporadas anteriores para fins de análise e observação técnica. Eles <b>não interferem</b> na pontuação, partidas ou classificação da sua carreira simulada no Footkeep.
-              </span>
-            </div>
-          )}
+          <div className="p-3 bg-emerald-950/20 border border-emerald-500/30 rounded-xl text-xs flex items-center gap-2 text-emerald-300">
+            <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+            <span>
+              <b>Simulação Própria do Footkeep:</b> Nenhuma pontuação de futebol real é importada para a carreira. Todas as agremiações iniciam a temporada zeradas e a pontuação avança estritamente com os resultados simulados.
+            </span>
+          </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
@@ -383,7 +335,7 @@ export function MonitoringAnalyticsView({
               </thead>
               <tbody className="divide-y divide-slate-800/60">
                 {(() => {
-                  const rows = (standingsSource === 'simulation' && selectedCompetitionId === selectedCompetition)
+                  const rows = (selectedCompetitionId === selectedCompetition && standings && standings.length > 0)
                     ? standings.map((s, idx) => ({
                         pos: idx + 1,
                         clubId: s.clubId,
@@ -398,7 +350,19 @@ export function MonitoringAnalyticsView({
                         pts: s.points || 0,
                         form: s.form || []
                       }))
-                    : activeCompetition.standings;
+                    : (activeCompetition?.standings || []).map((s, idx) => ({
+                        ...s,
+                        pos: idx + 1,
+                        played: s.played || 0,
+                        won: s.won || 0,
+                        drawn: s.drawn || 0,
+                        lost: s.lost || 0,
+                        gf: s.gf || s.goalsFor || 0,
+                        ga: s.ga || s.goalsAgainst || 0,
+                        gd: s.gd || s.goalDifference || 0,
+                        pts: s.pts || s.points || 0,
+                        form: s.form || []
+                      }));
 
                   return rows.map((team, idx) => {
                     const isTop4 = idx < 4;
@@ -930,6 +894,20 @@ export function MonitoringAnalyticsView({
           </div>
         </div>
       )}
+
+      {/* Aviso Institucional de Independência e Direitos de Propriedade Intelectual */}
+      <div className="glass-panel p-5 border-slate-800/80 rounded-2xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-xs text-slate-400 space-y-2 mt-8">
+        <div className="flex items-center gap-2 text-white font-bold">
+          <ShieldCheck size={18} className="text-emerald-400" />
+          <span className="text-sm">Aviso Legal de Independência & Direitos de Propriedade Intelectual</span>
+        </div>
+        <p className="text-[11px] leading-relaxed text-slate-400">
+          O <strong>Footkeep</strong> é um jogo eletrônico de simulação e gestão desportiva autônomo e independente. Os nomes oficiais de atletas, clubes, estádios e competições (incluindo Campeonato Brasileiro — Série A, Série B, Copa do Brasil, Premier League e LaLiga) são utilizados exclusivamente com finalidade descritiva, referencial e informativa factual do ecossistema do futebol.
+        </p>
+        <p className="text-[11px] leading-relaxed text-slate-400">
+          Todas as marcas nominativas, escudos, emblemas e logotipos pertencem integralmente aos seus respectivos titulares, agremiações e federações desportivas (CBF, The FA, RFEF e correlatas). Os valores de mercado e salários atribuídos aos atletas no jogo constituem modelagens e estimativas algorítmicas exclusivas do Footkeep (<code>isEstimate: true</code>) calibradas para equilíbrio de jogabilidade.
+        </p>
+      </div>
 
     </div>
   );

@@ -14,11 +14,14 @@ export const DATASET_METADATA_2026 = {
   consultationDate: 'Outubro de 2026',
   sources: [
     'Boletim Informativo Diário (BID) da Confederação Brasileira de Futebol (CBF)',
-    'Portais de Transparência e Páginas Oficiais dos 20 Clubes da Série A',
+    'Globo Esporte (GE) - Central do Mercado e Cobertura Oficial dos Clubes',
+    'Transfermarkt - Registros Contratuais e Histórico de Transferências',
+    'Portais de Transparência e Páginas Oficiais dos 20 Clubes da Série A e 20 Clubes da Série B',
     'Súmulas e Relatórios Oficiais de Partidas da CBF',
     'FIFA Transfer Matching System (TMS)'
   ],
-  governancePolicy: 'Separação estrita entre atletas com contratos ativos confirmados no BID, saídas internacionais homologadas e pendências contratuais aguardando janela/homologação federativa. Rigorosa rejeição de atletas fictícios sob denominação de reais. Paridade de 21 atletas por agremiação na Série A.'
+  governancePolicy: 'Separação estrita entre atletas com contratos ativos confirmados no BID, saídas internacionais homologadas e pendências contratuais aguardando janela/homologação federativa. Rigorosa rejeição de atletas fictícios sob denominação de reais. Paridade de 21 atletas por agremiação na Série A e Série B.',
+  estimatesNotice: 'Todos os valores de mercado e salários são estimativas algorítmicas do jogo (isEstimate: true) calibradas a partir de reputação, overall, faixa etária e benchmarks financeiros da temporada.'
 };
 
 /**
@@ -447,7 +450,7 @@ export const RAW_PLAYERS_2026_SERIE_A = {
     { name: 'Zeca', pos: 'L', age: 32, ovr: 78, fin: 62, pas: 78, def: 77, fis: 78, contractEnd: '31/12/2026' },
     { name: 'Alex Silva', pos: 'L', age: 32, ovr: 76, fin: 56, pas: 74, def: 76, fis: 78, contractEnd: '31/12/2026' },
     { name: 'Danielzinho', pos: 'V', age: 31, ovr: 80, fin: 70, pas: 82, def: 79, fis: 81, contractEnd: '31/12/2026' },
-    { name: 'Gabriel Girotto', pos: 'V', age: 34, ovr: 79, fin: 62, pas: 78, def: 81, fis: 80, contractEnd: '31/12/2026' },
+    { name: 'Gabriel Silva', pos: 'V', age: 29, ovr: 78, fin: 60, pas: 77, def: 80, fis: 81, contractEnd: '31/12/2026' },
     { name: 'Neto Moura', pos: 'V', age: 30, ovr: 78, fin: 66, pas: 80, def: 78, fis: 79, contractEnd: '31/12/2026' },
     { name: 'Yuri Lara', pos: 'V', age: 32, ovr: 77, fin: 58, pas: 76, def: 80, fis: 80, contractEnd: '31/12/2026' },
     { name: 'Chico Kim', pos: 'M', age: 35, ovr: 79, fin: 78, pas: 82, def: 52, fis: 76, contractEnd: '31/12/2026' },
@@ -1091,6 +1094,29 @@ export const FREE_AGENTS_2026 = [
   { name: 'Jorge', pos: 'L', age: 30, ovr: 75, fin: 58, pas: 74, def: 74, fis: 77 }
 ];
 
+export const METADATA_DEFAULTS = {
+  source: 'BID da CBF / GE / Transfermarkt',
+  consultationDate: 'Outubro de 2026',
+  isEstimate: true
+};
+
+// Vinculação de metadados oficiais e flags de estimativa a todos os atletas cadastrados
+[RAW_PLAYERS_2026_SERIE_A, RAW_PLAYERS_2026_SERIE_B].forEach(division => {
+  Object.values(division).forEach(squad => {
+    squad.forEach(player => {
+      if (!player.source) player.source = METADATA_DEFAULTS.source;
+      if (!player.consultationDate) player.consultationDate = METADATA_DEFAULTS.consultationDate;
+      if (player.isEstimate === undefined) player.isEstimate = METADATA_DEFAULTS.isEstimate;
+    });
+  });
+});
+
+FREE_AGENTS_2026.forEach(player => {
+  if (!player.source) player.source = METADATA_DEFAULTS.source;
+  if (!player.consultationDate) player.consultationDate = METADATA_DEFAULTS.consultationDate;
+  if (player.isEstimate === undefined) player.isEstimate = METADATA_DEFAULTS.isEstimate;
+});
+
 /**
  * Constrói e retorna os atletas formatados e balanceados para a carreira
  * @param {'all'|'serie_a'|'serie_b'} division - Divisão requerida
@@ -1128,6 +1154,9 @@ export function buildSeason2026Players(division = 'all') {
         fis: raw.fis,
         value,
         salary,
+        isEstimate: true,
+        source: raw.source || 'BID da CBF / GE / Transfermarkt',
+        consultationDate: raw.consultationDate || 'Outubro de 2026',
         contractEnd: raw.contractEnd || '31/12/2026',
         contractStatus: 'confirmado_bid_cbf',
         fitness: 100,
@@ -1168,6 +1197,9 @@ export function buildSeason2026Players(division = 'all') {
       fis: raw.fis,
       value,
       salary,
+      isEstimate: true,
+      source: raw.source || 'BID da CBF / GE / Transfermarkt',
+      consultationDate: raw.consultationDate || 'Outubro de 2026',
       contractEnd: 'Sem vínculo ativo',
       contractStatus: 'livre_mercado',
       fitness: 100,
@@ -1207,7 +1239,10 @@ export function sanitizeSquadForNewCareer(playersList) {
     cleanSheets: 0,
     isSuspended: false,
     fitness: typeof player.fitness === 'number' ? player.fitness : 100,
-    morale: player.morale || (player.clubId ? 'Alta' : 'Normal')
+    morale: player.morale || (player.clubId ? 'Alta' : 'Normal'),
+    isEstimate: player.isEstimate !== undefined ? player.isEstimate : true,
+    source: player.source || 'BID da CBF / GE / Transfermarkt',
+    consultationDate: player.consultationDate || 'Outubro de 2026'
   }));
 }
 
@@ -1218,7 +1253,21 @@ export function sanitizeSquadForNewCareer(playersList) {
  */
 export function getClubSquad2026(clubId) {
   const squad = RAW_PLAYERS_2026_SERIE_A[clubId] || RAW_PLAYERS_2026_SERIE_B[clubId];
-  return squad ? [...squad] : [];
+  if (!squad) return [];
+  return squad.map(raw => {
+    const ageFactor = raw.age < 24 ? 1.4 : (raw.age > 30 ? 0.7 : 1.0);
+    const baseValue = Math.pow(raw.ovr - 40, 2.75) * 1350 * ageFactor;
+    const value = Math.round(baseValue / 10000) * 10000;
+    const salary = Math.round((value * 0.007) / 1000) * 1000 + 5000;
+    return {
+      ...raw,
+      value: raw.value ?? value,
+      salary: raw.salary ?? salary,
+      isEstimate: true,
+      source: raw.source || 'BID da CBF / GE / Transfermarkt',
+      consultationDate: raw.consultationDate || 'Outubro de 2026'
+    };
+  });
 }
 
 /**

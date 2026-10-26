@@ -33,22 +33,22 @@ export const COMPETITIONS_DATA = [
     auditDate: 'Outubro de 2026',
     badgeEmoji: '🇧🇷',
     standings: [
-      { pos: 1, clubId: 'bot', clubName: 'Botafogo', played: 30, won: 19, drawn: 7, lost: 4, gf: 51, ga: 26, gd: 25, pts: 64, form: ['V', 'V', 'E', 'V', 'E'] },
-      { pos: 2, clubId: 'pal', clubName: 'Palmeiras', played: 30, won: 18, drawn: 7, lost: 5, gf: 52, ga: 24, gd: 28, pts: 61, form: ['V', 'V', 'V', 'E', 'D'] },
-      { pos: 3, clubId: 'for', clubName: 'Fortaleza', played: 30, won: 16, drawn: 8, lost: 6, gf: 40, ga: 31, gd: 9, pts: 56, form: ['E', 'V', 'D', 'V', 'V'] },
-      { pos: 4, clubId: 'fla', clubName: 'Flamengo', played: 29, won: 15, drawn: 6, lost: 8, gf: 47, ga: 34, gd: 13, pts: 51, form: ['V', 'D', 'V', 'E', 'V'] },
-      { pos: 5, clubId: 'sao', clubName: 'São Paulo', played: 30, won: 15, drawn: 5, lost: 10, gf: 41, ga: 32, gd: 9, pts: 50, form: ['V', 'D', 'V', 'V', 'D'] },
-      { pos: 6, clubId: 'int', clubName: 'Internacional', played: 29, won: 13, drawn: 10, lost: 6, gf: 38, ga: 26, gd: 12, pts: 49, form: ['V', 'V', 'E', 'V', 'V'] },
-      { pos: 7, clubId: 'bah', clubName: 'Bahia', played: 30, won: 13, drawn: 7, lost: 10, gf: 41, ga: 36, gd: 5, pts: 46, form: ['D', 'V', 'D', 'E', 'V'] },
-      { pos: 8, clubId: 'cru', clubName: 'Cruzeiro', played: 30, won: 12, drawn: 8, lost: 10, gf: 35, ga: 31, gd: 4, pts: 44, form: ['E', 'D', 'E', 'D', 'V'] },
-      { pos: 9, clubId: 'cam', clubName: 'Atlético Mineiro', played: 29, won: 10, drawn: 11, lost: 8, gf: 40, ga: 41, gd: -1, pts: 41, form: ['E', 'V', 'D', 'E', 'V'] },
-      { pos: 10, clubId: 'vas', clubName: 'Vasco da Gama', played: 29, won: 10, drawn: 7, lost: 12, gf: 32, ga: 41, gd: -9, pts: 37, form: ['D', 'E', 'E', 'D', 'V'] },
-      { pos: 11, clubId: 'gre', clubName: 'Grêmio', played: 30, won: 10, drawn: 5, lost: 15, gf: 33, ga: 39, gd: -6, pts: 35, form: ['D', 'V', 'D', 'E', 'D'] },
-      { pos: 12, clubId: 'rbb', clubName: 'Red Bull Bragantino', played: 30, won: 8, drawn: 10, lost: 12, gf: 34, ga: 39, gd: -5, pts: 34, form: ['E', 'E', 'E', 'D', 'D'] },
-      { pos: 13, clubId: 'flu', clubName: 'Fluminense', played: 30, won: 9, drawn: 6, lost: 15, gf: 24, ga: 32, gd: -8, pts: 33, form: ['V', 'V', 'D', 'V', 'D'] },
-      { pos: 14, clubId: 'cor', clubName: 'Corinthians', played: 30, won: 7, drawn: 11, lost: 12, gf: 32, ga: 40, gd: -8, pts: 32, form: ['V', 'D', 'V', 'E', 'D'] },
-      { pos: 15, clubId: 'cap', clubName: 'Athletico Paranaense', played: 28, won: 8, drawn: 7, lost: 13, gf: 29, ga: 36, gd: -7, pts: 31, form: ['D', 'D', 'D', 'D', 'D'] },
-      { pos: 16, clubId: 'vit', clubName: 'Vitória', played: 30, won: 8, drawn: 5, lost: 17, gf: 32, ga: 45, gd: -13, pts: 29, form: ['V', 'V', 'D', 'D', 'V'] }
+      { pos: 1, clubId: 'bot', clubName: 'Botafogo', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 2, clubId: 'pal', clubName: 'Palmeiras', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 3, clubId: 'for', clubName: 'Fortaleza', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 4, clubId: 'fla', clubName: 'Flamengo', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 5, clubId: 'sao', clubName: 'São Paulo', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 6, clubId: 'int', clubName: 'Internacional', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 7, clubId: 'bah', clubName: 'Bahia', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 8, clubId: 'cru', clubName: 'Cruzeiro', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 9, clubId: 'cam', clubName: 'Atlético Mineiro', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 10, clubId: 'vas', clubName: 'Vasco da Gama', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 11, clubId: 'gre', clubName: 'Grêmio', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 12, clubId: 'rbb', clubName: 'Red Bull Bragantino', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 13, clubId: 'flu', clubName: 'Fluminense', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 14, clubId: 'cor', clubName: 'Corinthians', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 15, clubId: 'cap', clubName: 'Athletico Paranaense', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 16, clubId: 'vit', clubName: 'Vitória', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] }
     ],
     clubs: [
       { id: 'bot', name: 'Botafogo', shortName: 'BOT', stadium: 'Nilton Santos', stadiumCapacity: 44661, att: 88, def: 86, ovr: 87, reputation: 87, badgeEmoji: '⭐' },
@@ -81,14 +81,14 @@ export const COMPETITIONS_DATA = [
     auditDate: 'Outubro de 2026',
     badgeEmoji: '🇧🇷',
     standings: [
-      { pos: 1, clubId: 'san', clubName: 'Santos', played: 32, won: 17, drawn: 8, lost: 7, gf: 49, ga: 26, gd: 23, pts: 59, form: ['V', 'V', 'D', 'V', 'V'] },
-      { pos: 2, clubId: 'nov', clubName: 'Novorizontino', played: 32, won: 16, drawn: 9, lost: 7, gf: 39, ga: 28, gd: 11, pts: 57, form: ['D', 'D', 'V', 'V', 'D'] },
-      { pos: 3, clubId: 'spo', clubName: 'Sport Recife', played: 31, won: 16, drawn: 8, lost: 7, gf: 42, ga: 28, gd: 14, pts: 56, form: ['V', 'V', 'E', 'V', 'E'] },
-      { pos: 4, clubId: 'mir', clubName: 'Mirassol', played: 32, won: 15, drawn: 8, lost: 9, gf: 32, ga: 24, gd: 8, pts: 53, form: ['V', 'E', 'V', 'D', 'V'] },
-      { pos: 5, clubId: 'vil', clubName: 'Vila Nova', played: 32, won: 15, drawn: 7, lost: 10, gf: 37, ga: 38, gd: -1, pts: 52, form: ['V', 'D', 'V', 'D', 'E'] },
-      { pos: 6, clubId: 'cea', clubName: 'Ceará', played: 32, won: 15, drawn: 6, lost: 11, gf: 50, ga: 39, gd: 11, pts: 51, form: ['V', 'D', 'V', 'V', 'D'] },
-      { pos: 7, clubId: 'cor_pr', clubName: 'Coritiba', played: 32, won: 13, drawn: 8, lost: 11, gf: 35, ga: 32, gd: 3, pts: 47, form: ['V', 'V', 'D', 'D', 'V'] },
-      { pos: 8, clubId: 'ame', clubName: 'América Mineiro', played: 32, won: 12, drawn: 13, lost: 7, gf: 41, ga: 29, gd: 12, pts: 49, form: ['E', 'D', 'V', 'E', 'D'] }
+      { pos: 1, clubId: 'san', clubName: 'Santos', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 2, clubId: 'nov', clubName: 'Novorizontino', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 3, clubId: 'spo', clubName: 'Sport Recife', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 4, clubId: 'mir', clubName: 'Mirassol', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 5, clubId: 'vil', clubName: 'Vila Nova', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 6, clubId: 'cea', clubName: 'Ceará', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 7, clubId: 'cor_pr', clubName: 'Coritiba', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 8, clubId: 'ame', clubName: 'América Mineiro', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] }
     ],
     clubs: [
       { id: 'san', name: 'Santos', shortName: 'SAN', stadium: 'Vila Belmiro', stadiumCapacity: 16068, att: 81, def: 80, ovr: 81, reputation: 80, badgeEmoji: '🐋' },
@@ -113,10 +113,10 @@ export const COMPETITIONS_DATA = [
     auditDate: 'Outubro de 2026',
     badgeEmoji: '🏆',
     standings: [
-      { pos: 1, clubId: 'fla', clubName: 'Flamengo (Finalista)', played: 8, won: 5, drawn: 2, lost: 1, gf: 10, ga: 2, gd: 8, pts: 17, form: ['V', 'V', 'V', 'E', 'V'] },
-      { pos: 2, clubId: 'cam', clubName: 'Atlético Mineiro (Finalista)', played: 8, won: 4, drawn: 3, lost: 1, gf: 13, ga: 7, gd: 6, pts: 15, form: ['V', 'E', 'V', 'V', 'E'] },
-      { pos: 3, clubId: 'cor', clubName: 'Corinthians (Semifinal)', played: 8, won: 4, drawn: 2, lost: 2, gf: 12, ga: 8, gd: 4, pts: 14, form: ['V', 'D', 'V', 'D', 'E'] },
-      { pos: 4, clubId: 'vas', clubName: 'Vasco da Gama (Semifinal)', played: 8, won: 3, drawn: 4, lost: 1, gf: 10, ga: 8, gd: 2, pts: 13, form: ['V', 'E', 'E', 'D', 'E'] }
+      { pos: 1, clubId: 'fla', clubName: 'Flamengo', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 2, clubId: 'cam', clubName: 'Atlético Mineiro', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 3, clubId: 'cor', clubName: 'Corinthians', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 4, clubId: 'vas', clubName: 'Vasco da Gama', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] }
     ],
     clubs: [
       { id: 'fla', name: 'Flamengo', shortName: 'FLA', stadium: 'Maracanã', stadiumCapacity: 78838, att: 90, def: 86, ovr: 88, reputation: 90, badgeEmoji: '🔴' },
@@ -140,12 +140,12 @@ export const COMPETITIONS_DATA = [
     auditDate: 'Outubro de 2026',
     badgeEmoji: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
     standings: [
-      { pos: 1, clubId: 'liv', clubName: 'Liverpool', played: 8, won: 7, drawn: 0, lost: 1, gf: 15, ga: 3, gd: 12, pts: 21, form: ['V', 'V', 'V', 'V', 'V'] },
-      { pos: 2, clubId: 'mci', clubName: 'Manchester City', played: 8, won: 6, drawn: 2, lost: 0, gf: 19, ga: 9, gd: 10, pts: 20, form: ['E', 'E', 'V', 'V', 'V'] },
-      { pos: 3, clubId: 'ars', clubName: 'Arsenal', played: 8, won: 5, drawn: 2, lost: 1, gf: 15, ga: 8, gd: 7, pts: 17, form: ['V', 'E', 'V', 'V', 'D'] },
-      { pos: 4, clubId: 'che', clubName: 'Chelsea', played: 8, won: 4, drawn: 2, lost: 2, gf: 17, ga: 10, gd: 7, pts: 14, form: ['V', 'V', 'V', 'E', 'D'] },
-      { pos: 5, clubId: 'ast', clubName: 'Aston Villa', played: 8, won: 5, drawn: 2, lost: 1, gf: 15, ga: 10, gd: 5, pts: 17, form: ['V', 'V', 'E', 'E', 'V'] },
-      { pos: 6, clubId: 'tot', clubName: 'Tottenham', played: 8, won: 4, drawn: 1, lost: 3, gf: 18, ga: 9, gd: 9, pts: 13, form: ['D', 'V', 'V', 'D', 'V'] }
+      { pos: 1, clubId: 'ars', clubName: 'Arsenal', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 2, clubId: 'che', clubName: 'Chelsea', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 3, clubId: 'liv', clubName: 'Liverpool', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 4, clubId: 'mci', clubName: 'Manchester City', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 5, clubId: 'mun', clubName: 'Manchester United', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 6, clubId: 'tot', clubName: 'Tottenham', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] }
     ],
     clubs: [
       { id: 'mci', name: 'Manchester City', shortName: 'MCI', stadium: 'Etihad Stadium', stadiumCapacity: 53400, att: 92, def: 89, ovr: 91, reputation: 93, badgeEmoji: '🔵' },
@@ -169,11 +169,11 @@ export const COMPETITIONS_DATA = [
     auditDate: 'Outubro de 2026',
     badgeEmoji: '🇪🇸',
     standings: [
-      { pos: 1, clubId: 'bar', clubName: 'FC Barcelona', played: 10, won: 9, drawn: 0, lost: 1, gf: 33, ga: 10, gd: 23, pts: 27, form: ['V', 'V', 'D', 'V', 'V'] },
-      { pos: 2, clubId: 'rma', clubName: 'Real Madrid', played: 10, won: 7, drawn: 3, lost: 0, gf: 21, ga: 7, gd: 14, pts: 24, form: ['V', 'V', 'E', 'V', 'V'] },
-      { pos: 3, clubId: 'atm', clubName: 'Atlético de Madrid', played: 10, won: 5, drawn: 5, lost: 0, gf: 16, ga: 6, gd: 10, pts: 20, form: ['E', 'V', 'E', 'E', 'V'] },
-      { pos: 4, clubId: 'vil', clubName: 'Villarreal', played: 10, won: 5, drawn: 3, lost: 2, gf: 18, ga: 18, gd: 0, pts: 18, form: ['V', 'D', 'V', 'D', 'E'] },
-      { pos: 5, clubId: 'ath', clubName: 'Athletic Club', played: 10, won: 5, drawn: 2, lost: 3, gf: 17, ga: 11, gd: 6, pts: 17, form: ['V', 'V', 'E', 'D', 'V'] }
+      { pos: 1, clubId: 'ath', clubName: 'Athletic Club', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 2, clubId: 'atm', clubName: 'Atlético de Madrid', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 3, clubId: 'bar', clubName: 'FC Barcelona', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 4, clubId: 'rma', clubName: 'Real Madrid', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] },
+      { pos: 5, clubId: 'vil', clubName: 'Villarreal', played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, form: [] }
     ],
     clubs: [
       { id: 'rma', name: 'Real Madrid', shortName: 'RMA', stadium: 'Santiago Bernabéu', stadiumCapacity: 84744, att: 94, def: 90, ovr: 92, reputation: 94, badgeEmoji: '⚪' },

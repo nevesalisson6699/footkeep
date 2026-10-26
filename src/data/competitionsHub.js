@@ -294,3 +294,146 @@ export function getScoutingProfile(query) {
     simulationReady: false
   };
 }
+
+/**
+ * Retorna todos os clubes registrados em todas as ligas suportadas pelo Footkeep
+ * (Série A, Série B, Premier League e LaLiga) com país e liga normalizados.
+ * 
+ * @returns {Array<Object>} Catálogo unificado de 80 clubes oficiais
+ */
+export function getAllGlobalMarketClubs() {
+  const serieA = SERIE_A_CLUBS_2026.map(c => ({
+    ...c,
+    country: 'Brasil',
+    leagueId: 'brasileirao_serie_a',
+    leagueName: 'Brasileirão Série A',
+    countryFlag: '🇧🇷'
+  }));
+
+  const serieB = SERIE_B_CLUBS_2026.map(c => ({
+    ...c,
+    country: 'Brasil',
+    leagueId: 'brasileirao_serie_b',
+    leagueName: 'Brasileirão Série B',
+    countryFlag: '🇧🇷'
+  }));
+
+  const premierLeague = PREMIER_LEAGUE_CLUBS_2025_26.map(c => ({
+    ...c,
+    country: 'Inglaterra',
+    leagueId: 'premier_league',
+    leagueName: 'Premier League',
+    countryFlag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿'
+  }));
+
+  const laLiga = LALIGA_CLUBS_2025_26.map(c => ({
+    ...c,
+    country: 'Espanha',
+    leagueId: 'laliga',
+    leagueName: 'LaLiga EA Sports',
+    countryFlag: '🇪🇸'
+  }));
+
+  return [...serieA, ...serieB, ...premierLeague, ...laLiga];
+}
+
+/**
+ * Atletas Livres Internacionais / Mundiais adicionais para o mercado global
+ */
+const WORLD_FREE_AGENTS = [
+  { name: 'Sergio Ramos', pos: 'Z', age: 39, ovr: 81, fin: 62, pas: 75, def: 83, fis: 78, country: 'Espanha' },
+  { name: 'Keylor Navas', pos: 'G', age: 39, ovr: 80, fin: 25, pas: 72, def: 83, fis: 76, country: 'Costa Rica' },
+  { name: 'Wissam Ben Yedder', pos: 'A', age: 35, ovr: 80, fin: 84, pas: 77, def: 40, fis: 72, country: 'França' },
+  { name: 'Adrien Rabiot', pos: 'V', age: 30, ovr: 83, fin: 74, pas: 82, def: 81, fis: 82, country: 'França' },
+  { name: 'Anthony Martial', pos: 'A', age: 29, ovr: 79, fin: 80, pas: 75, def: 42, fis: 75, country: 'França' },
+  { name: 'Joel Matip', pos: 'Z', age: 34, ovr: 80, fin: 45, pas: 72, def: 82, fis: 76, country: 'Camarões' },
+  { name: 'Miralem Pjanić', pos: 'M', age: 35, ovr: 78, fin: 72, pas: 84, def: 65, fis: 68, country: 'Bósnia e Herzegovina' },
+  { name: 'Dele Alli', pos: 'M', age: 29, ovr: 77, fin: 76, pas: 77, def: 60, fis: 74, country: 'Inglaterra' },
+  { name: 'Rafinha Alcântara', pos: 'M', age: 32, ovr: 78, fin: 74, pas: 81, def: 66, fis: 72, country: 'Brasil' },
+  { name: 'Douglas Costa', pos: 'A', age: 35, ovr: 78, fin: 79, pas: 81, def: 43, fis: 73, country: 'Brasil' }
+];
+
+/**
+ * Constrói o elenco global completo para o Mercado de Transferências Multiliga.
+ * Reúne atletas da Série A, Série B, Premier League, LaLiga e Agentes Livres mundiais.
+ * Todos os atletas passam por higienização estrita de estatísticas de simulação.
+ * 
+ * @returns {Array<Object>} Lista consolidada com todos os atletas do ecossistema global Footkeep
+ */
+export function getAllGlobalMarketPlayers() {
+  // 1. Atletas brasileiros (Série A, Série B e Agentes Livres nacionais)
+  const brazilianPlayers = buildSeason2026Players('all');
+  const taggedBrazilian = brazilianPlayers.map(p => {
+    let country = 'Brasil';
+    let leagueId = 'brasileirao_serie_a';
+    if (!p.clubId) {
+      country = 'Global';
+      leagueId = 'free_agent';
+    } else if (SERIE_B_CLUBS_2026.some(c => c.id === p.clubId)) {
+      leagueId = 'brasileirao_serie_b';
+    }
+    return {
+      ...p,
+      country,
+      leagueId
+    };
+  });
+
+  // 2. Atletas Premier League (Inglaterra)
+  const plPlayers = buildInternationalPlayers('premier_league_2025_26').map(p => ({
+    ...p,
+    country: 'Inglaterra',
+    leagueId: 'premier_league'
+  }));
+
+  // 3. Atletas LaLiga EA Sports (Espanha)
+  const laLigaPlayers = buildInternationalPlayers('laliga_2025_26').map(p => ({
+    ...p,
+    country: 'Espanha',
+    leagueId: 'laliga'
+  }));
+
+  // 4. Agentes Livres Mundiais / Internacionais adicionais
+  const extraFreeAgents = WORLD_FREE_AGENTS.map((raw, idx) => {
+    const ageFactor = raw.age > 30 ? 0.65 : 1.0;
+    const baseValue = Math.pow(raw.ovr - 40, 2.75) * 1250 * ageFactor;
+    const value = Math.round(baseValue / 10000) * 10000;
+    const salary = Math.round((value * 0.006) / 1000) * 1000 + 5000;
+    return {
+      id: `ply_w_fa_${idx + 1}`,
+      name: raw.name,
+      clubId: null,
+      country: raw.country,
+      leagueId: 'free_agent',
+      position: raw.pos,
+      age: raw.age,
+      overall: raw.ovr,
+      fin: raw.fin,
+      pas: raw.pas,
+      def: raw.def,
+      fis: raw.fis,
+      value,
+      salary,
+      contractEnd: 'Sem vínculo ativo',
+      contractStatus: 'livre_mercado',
+      fitness: 100,
+      morale: 'Normal',
+      yellowCards: 0,
+      redCards: 0,
+      goals: 0,
+      assists: 0,
+      matchesPlayed: 0,
+      cleanSheets: 0,
+      isSuspended: false,
+      isListed: true,
+      season: '2025/26'
+    };
+  });
+
+  return sanitizeSquadForNewCareer([
+    ...taggedBrazilian, 
+    ...plPlayers, 
+    ...laLigaPlayers, 
+    ...extraFreeAgents
+  ]);
+}

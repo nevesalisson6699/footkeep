@@ -717,12 +717,19 @@ export function App() {
   const handleBuyPlayer = (player) => {
     if (!userClubId) return;
     setBudget(prev => prev - player.value);
-    setPlayers(prev => prev.map(p => {
-      if (p.id === player.id) {
-        return { ...p, clubId: userClubId, isListed: false };
+    setPlayers(prev => {
+      const exists = prev.some(p => p.id === player.id);
+      if (exists) {
+        return prev.map(p => {
+          if (p.id === player.id) {
+            return { ...p, clubId: userClubId, isListed: false };
+          }
+          return p;
+        });
+      } else {
+        return [...prev, { ...player, clubId: userClubId, isListed: false }];
       }
-      return p;
-    }));
+    });
   };
 
   // Sell Player
